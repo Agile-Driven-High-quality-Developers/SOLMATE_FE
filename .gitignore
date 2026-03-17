@@ -1,24 +1,34 @@
-# Logs
-logs
-*.log
+# 1. 의존성 패키지 (용량이 너무 크고 언제든 재설치 가능)
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# 2. 보안 및 환경 설정 (API 키 등이 포함되므로 절대 금지!)
+.env
+.env.local
+.env.*.local
+
+# 3. 로그 파일
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# 4. 에디터 설정 (개인마다 다를 수 있음)
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# 5. OS 생성 파일 (맥 유저 필수!)
+.DS_Store
+Thumbs.db
+
+# 6. 테스트 결과 및 캐시
+coverage/
+.eslintcache
