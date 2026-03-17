@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* 1. 기본 리셋 및 폰트 설정 */
+@layer base {
+  :root {
+    /* 시스템 폰트 적용 (애플, 안드로이드, 윈도우 공용) */
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    /* 텍스트 렌더링 최적화 */
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 2. 스크롤바나 여백 초기화 */
+  body {
+    margin: 0;
+    padding: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    @apply bg-white text-slate-900; /* 다크모드 필요시 조정 */
+  }
+
+  /* 3. 이미지 및 미디어 요소 리셋 */
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* 4. 입력창 및 버튼 폰트 상속 */
+  input, button, textarea, select {
+    font: inherit;
+  }
+}
+
+/* 5. 유틸리티 (필요시 추가) */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
