@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
@@ -8,8 +8,12 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const called = useRef(false);
 
   useEffect(() => {
+    if (called.current) return;
+    called.current = true;
+
     const code = searchParams.get("code");
     console.log("[OAuth] code:", code);
     if (!code) {
@@ -30,7 +34,7 @@ export default function OAuthCallbackPage() {
         console.error("[OAuth] 에러 data:", err.response?.data ?? err.message);
         navigate("/login", { replace: true });
       });
-  }, []);
+  }, [navigate, searchParams, setAuth]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

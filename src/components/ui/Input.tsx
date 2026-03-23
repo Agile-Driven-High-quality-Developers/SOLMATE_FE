@@ -23,7 +23,6 @@ export default function Input({
           "border border-gray-200 outline-none",
           "text-[16px] text-gray-900 placeholder:text-gray-400",
           "transition-colors duration-150",
-          "focus:border-[#0046FF]",
           error
             ? "border-red-400 focus:border-red-500"
             : "focus:border-[#0046FF]",

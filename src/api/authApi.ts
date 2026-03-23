@@ -64,5 +64,5 @@ export const authApi = {
   logout: () => api.post("/api/auth/logout"),
 
   /** POST /api/auth/reissue — 토큰 재발급 */
-  reissue: () => api.post<{ accessToken: string }>("/api/auth/reissue"),
+  reissue: () => api.post<ApiResponse<{ accessToken: string }>>("/api/auth/reissue"),
 };

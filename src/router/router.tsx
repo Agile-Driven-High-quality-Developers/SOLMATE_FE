@@ -4,7 +4,7 @@ import ComponentsPage from "@/pages/ComponentsPage";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignUpPage from "@/pages/auth/SignUpPage";
-import OAuthCallbackPage from "@/pages/auth/OAuthCallbackPage";
+import OAuthCallbackPage from "@/pages/auth/OauthCallbackPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
