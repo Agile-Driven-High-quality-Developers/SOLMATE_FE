@@ -98,7 +98,7 @@ function UserProfile({
   user: NonNullable<SidebarNavProps["user"]>;
   onLogout?: () => void;
 }) {
-  const initials = (user.name ?? "?").slice(0, 1);
+  const initials = (user.name?.trim() || "?").slice(0, 1);
   const isPositive = user.returnRate.startsWith("+");
 
   return (

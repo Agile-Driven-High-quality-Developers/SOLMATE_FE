@@ -372,7 +372,7 @@ export default function SignUpPage() {
             {/* ── 회원가입 버튼 ─────────────────────────────────────────────── */}
             <Button
               type="submit"
-              variant={isFormValid ? "primary" : "invaild"}
+              variant={isFormValid ? "primary" : "invalid"}
               className={[
                 "w-full py-3 text-[15px] font-semibold mt-1",
                 !isFormValid || isSubmitting ? "cursor-not-allowed opacity-60" : "",

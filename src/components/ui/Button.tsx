@@ -1,6 +1,6 @@
 type ButtonProps = {
   children: React.ReactNode;
-  variant?: "primary" | "basic" | "invaild";
+  variant?: "primary" | "basic" | "invalid";
   width?: number;
   className?: string;
   onClick?: () => void;
@@ -9,7 +9,7 @@ type ButtonProps = {
 const variantClass = {
   primary: "bg-[#0046FF] text-white hover:bg-[#0038CC]",
   basic: "border border-[#0046FF] text-[#0046FF] hover:bg-blue-50",
-  invaild: "text-gray-600 hover:bg-gray-100",
+  invalid: "text-gray-600 hover:bg-gray-100",
 };
 
 export default function Button({

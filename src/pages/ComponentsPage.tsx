@@ -45,8 +45,8 @@ function ButtonSection() {
         <Button variant="basic" width={120}>취소</Button>
       </Col>
       <Col>
-        <Label>invaild</Label>
-        <Button variant="invaild" width={120}>건너뛰기</Button>
+        <Label>invalid</Label>
+        <Button variant="invalid" width={120}>건너뛰기</Button>
       </Col>
       <Col>
         <Label>primary (full width)</Label>
