@@ -24,14 +24,13 @@ export default function OAuthCallbackPage() {
 
     authApi
       .googleCallback(code)
-      .then(({ data }) => {
-        console.log("[OAuth] 응답:", data);
-        setAuth(data.data.accessToken, { nickname: data.data.nickname });
+      .then((res) => {
+        console.log("[OAuth] 응답:", res);
+        setAuth(res.data.accessToken, { nickname: res.data.nickname });
         navigate("/", { replace: true });
       })
       .catch((err) => {
-        console.error("[OAuth] 에러 status:", err.response?.status);
-        console.error("[OAuth] 에러 data:", err.response?.data ?? err.message);
+        console.error("[OAuth] 에러:", err.message);
         navigate("/login", { replace: true });
       });
   }, [navigate, searchParams, setAuth]);
