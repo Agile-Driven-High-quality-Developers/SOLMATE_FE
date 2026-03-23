@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import type { NavItemConfig, SidebarNavProps } from "../../types/nav";
+import type { LucideIcon } from "lucide-react";
 import {
   Home,
   BarChart2,
@@ -15,6 +15,29 @@ import {
 import Logo from "../ui/Logo";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
+
+
+export type NavItemConfig = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  badge?: number;
+  href: string;
+};
+
+export type SidebarNavProps = {
+  appName?: string;
+  appSubtitle?: string;
+  navItems: NavItemConfig[];
+  activeId: string;
+  onNavChange: (id: string) => void;
+  user?: {
+    name: string;
+    returnRate: string;
+    avatarColor?: string;
+  };
+  onLogout?: () => void;
+};
 
 const NAV_ITEMS: NavItemConfig[] = [
   { id: "home", label: "홈", icon: Home, href: "/" },

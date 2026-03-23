@@ -1,22 +1,17 @@
-import axios from "axios";
+import { fetchClient } from "@/lib/fetchClient";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "",
-  withCredentials: true, // refreshToken 쿠키 자동 포함
-});
-
-// ─── Request / Response Types ──────────────────────────────────────────────────
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ApiResponse<T> {
   isSuccess: boolean;
   code: string;
   message: string;
   data: T;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
 }
 
 export interface LoginData {
@@ -36,33 +31,36 @@ export interface SignUpRequest {
 export const authApi = {
   /** POST /api/auth/login */
   login: (data: LoginRequest) =>
-    api.post<ApiResponse<LoginData>>("/api/auth/login", data),
+    fetchClient.post<ApiResponse<LoginData>>("/api/auth/login", data),
 
   /** POST /api/auth/signup */
-  signup: (data: SignUpRequest) => api.post("/api/auth/signup", data),
+  signup: (data: SignUpRequest) =>
+    fetchClient.post<ApiResponse<void>>("/api/auth/signup", data),
 
   /** POST /api/auth/email/send — 인증 메일 발송 */
-  sendEmailCode: (email: string) => api.post("/api/auth/email/send", { email }),
+  sendEmailCode: (email: string) =>
+    fetchClient.post<ApiResponse<void>>("/api/auth/email/send", { email }),
 
   /** POST /api/auth/email/verify — 이메일 인증 코드 확인 */
   verifyEmailCode: (email: string, emailVerificationCode: string) =>
-    api.post("/api/auth/email/verify", { email, emailVerificationCode }),
+    fetchClient.post<ApiResponse<void>>("/api/auth/email/verify", { email, emailVerificationCode }),
 
   /** GET /api/auth/nickname/check — 닉네임 중복 확인 */
   checkNickname: (nickname: string) =>
-    api.get("/api/auth/nickname/check", { params: { nickname } }),
+    fetchClient.get<ApiResponse<void>>("/api/auth/nickname/check", { nickname }),
 
   /** GET /api/auth/google/authorize-uri — 구글 로그인 URL 조회 */
   getGoogleAuthorizeUri: () =>
-    api.get<ApiResponse<{ authorizeUri: string }>>("/api/auth/google/authorize-uri"),
+    fetchClient.get<ApiResponse<{ authorizeUri: string }>>("/api/auth/google/authorize-uri"),
 
   /** GET /api/auth/google/callback — 구글 로그인 콜백 처리 */
   googleCallback: (code: string) =>
-    api.get<ApiResponse<LoginData>>("/api/auth/google/callback", { params: { code } }),
+    fetchClient.get<ApiResponse<LoginData>>("/api/auth/google/callback", { code }),
 
   /** POST /api/auth/logout */
-  logout: () => api.post("/api/auth/logout"),
+  logout: () => fetchClient.post<ApiResponse<void>>("/api/auth/logout"),
 
   /** POST /api/auth/reissue — 토큰 재발급 */
-  reissue: () => api.post<ApiResponse<{ accessToken: string }>>("/api/auth/reissue"),
+  reissue: () =>
+    fetchClient.post<ApiResponse<{ accessToken: string }>>("/api/auth/reissue"),
 };

@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { Bell, ChevronRight, TrendingUp, TrendingDown, Loader2 } from "lucide-react";
+import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import Avatar from "@/components/ui/Avatar";
-// import { homeApi } from "@/api/homeApi";
+import {
+  useMarketIndicesQuery,
+  parseMarketIndicatorMessage,
+  homeQueryKeys,
+} from "@/api/homeApi";
 import type {
   MarketIndexData,
+  MarketIndicatorMessage,
   PortfolioData,
   HoldingStockData,
   TopInvestorData,
@@ -265,56 +273,40 @@ function PopularStocks({ data, loading }: { data: PopularStockData[]; loading: b
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
-  const [marketIndices, setMarketIndices] = useState<MarketIndexData[]>([]);
-  const [portfolio, setPortfolio] = useState<PortfolioData | null>(null);
-  const [holdings, setHoldings] = useState<HoldingStockData[]>([]);
-  const [topInvestors, setTopInvestors] = useState<TopInvestorData[]>([]);
-  const [popularStocks, setPopularStocks] = useState<PopularStockData[]>([]);
+  const queryClient = useQueryClient();
 
-  const [loadingMarket, setLoadingMarket] = useState(true);
-  const [loadingPortfolio, setLoadingPortfolio] = useState(true);
-  const [loadingHoldings, setLoadingHoldings] = useState(true);
-  const [loadingInvestors, setLoadingInvestors] = useState(true);
-  const [loadingPopular, setLoadingPopular] = useState(true);
+  // ── 서버 상태: React Query ────────────────────────────────────────────────
+  const { data: marketIndices = [], isLoading: loadingMarket } = useMarketIndicesQuery();
 
+  // ── 클라이언트 상태: 백엔드 API 완성 후 useQuery로 교체 ─────────────────
+  const [portfolio] = useState<PortfolioData | null>(null);
+  const [holdings] = useState<HoldingStockData[]>([]);
+  const [topInvestors] = useState<TopInvestorData[]>([]);
+  const [popularStocks] = useState<PopularStockData[]>([]);
+
+  // ── STOMP 실시간 업데이트 → React Query 캐시 갱신 ───────────────────────
   useEffect(() => {
-    // TODO: 백엔드 API 구현 후 주석 해제
-    // homeApi.getMarketIndices()
-    //   .then((res) => setMarketIndices(res.data.data))
-    //   .finally(() => setLoadingMarket(false));
-    setLoadingMarket(false);
-
-    // homeApi.getPortfolio()
-    //   .then((res) => setPortfolio(res.data.data))
-    //   .finally(() => setLoadingPortfolio(false));
-    setLoadingPortfolio(false);
-
-    // homeApi.getHoldings()
-    //   .then((res) => setHoldings(res.data.data))
-    //   .finally(() => setLoadingHoldings(false));
-    setLoadingHoldings(false);
-
-    // homeApi.getTopInvestors()
-    //   .then((res) => setTopInvestors(res.data.data))
-    //   .finally(() => setLoadingInvestors(false));
-    setLoadingInvestors(false);
-
-    // homeApi.getPopularStocks()
-    //   .then((res) => setPopularStocks(res.data.data))
-    //   .finally(() => setLoadingPopular(false));
-    setLoadingPopular(false);
-  }, []);
-
-  const isInitialLoading =
-    loadingMarket && loadingPortfolio && loadingHoldings && loadingInvestors && loadingPopular;
-
-  if (isInitialLoading) {
-    return (
-      <div className="flex items-center justify-center h-full min-h-screen">
-        <Loader2 size={32} className="animate-spin text-[#0046FF]" />
-      </div>
-    );
-  }
+    const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+    const client = new Client({
+      webSocketFactory: () => new SockJS(wsUrl),
+      onConnect: () => {
+        console.log("[STOMP] 연결됨");
+        client.subscribe("/topic/market/indicators", (message) => {
+          const msg: MarketIndicatorMessage = JSON.parse(message.body);
+          console.log("[STOMP] 메시지 수신:", msg.data);
+          const updated = parseMarketIndicatorMessage(msg);
+          queryClient.setQueryData<MarketIndexData[]>(
+            homeQueryKeys.marketIndices,
+            (prev = []) => prev.map((item) => (item.label === updated.label ? updated : item)),
+          );
+        });
+      },
+      onDisconnect: () => console.log("[STOMP] 연결 끊김"),
+      onStompError: (frame) => console.error("[STOMP] 에러:", frame),
+    });
+    client.activate();
+    return () => { client.deactivate(); };
+  }, [queryClient]);
 
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
@@ -336,14 +328,14 @@ export default function HomePage() {
       <div className="flex gap-5 items-start">
         {/* 왼쪽: 포트폴리오 + 보유 종목 */}
         <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
-          <PortfolioCard data={portfolio} loading={loadingPortfolio} />
-          <HoldingsTable data={holdings} loading={loadingHoldings} />
+          <PortfolioCard data={portfolio} loading={false} />
+          <HoldingsTable data={holdings} loading={false} />
         </div>
 
         {/* 오른쪽: TOP 투자자 + 인기 종목 */}
         <div className="flex flex-col gap-4 flex-1 min-w-0">
-          <TopInvestors data={topInvestors} loading={loadingInvestors} />
-          <PopularStocks data={popularStocks} loading={loadingPopular} />
+          <TopInvestors data={topInvestors} loading={false} />
+          <PopularStocks data={popularStocks} loading={false} />
         </div>
       </div>
     </div>

@@ -69,11 +69,11 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrorMsg("");
     try {
-      const { data } = await authApi.login({
+      const res = await authApi.login({
         email: form.email,
         password: form.password,
       });
-      setAuth(data.data.accessToken, { nickname: data.data.nickname });
+      setAuth(res.data.accessToken, { nickname: res.data.nickname });
       navigate("/");
     } catch {
       setErrorMsg("이메일 또는 비밀번호가 올바르지 않습니다.");
@@ -87,8 +87,8 @@ export default function LoginPage() {
     if (isGoogleLoading) return;
     setIsGoogleLoading(true);
     try {
-      const { data } = await authApi.getGoogleAuthorizeUri();
-      window.location.href = data.data.authorizeUri;
+      const res = await authApi.getGoogleAuthorizeUri();
+      window.location.href = res.data.authorizeUri;
     } catch {
       setErrorMsg("구글 로그인을 시작할 수 없습니다. 다시 시도해 주세요.");
       setIsGoogleLoading(false);
