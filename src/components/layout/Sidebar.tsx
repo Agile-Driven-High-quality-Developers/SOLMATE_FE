@@ -11,10 +11,10 @@ import {
   UserCheck,
   UserCircle,
   LogOut,
-  TrendingUp,
 } from "lucide-react";
-import Avatar from "../ui/Avatar";
-import Badge from "../ui/Badge";
+import Logo from "../ui/Logo";
+import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/api/authApi";
 
 const NAV_ITEMS: NavItemConfig[] = [
   { id: "home", label: "홈", icon: Home, href: "/" },
@@ -27,33 +27,6 @@ const NAV_ITEMS: NavItemConfig[] = [
   { id: "mentee", label: "나의 멘티", icon: UserCheck, href: "/mentee" },
   { id: "profile", label: "프로필", icon: UserCircle, href: "/profile" },
 ];
-
-// ────────────────────────────────────────────────────────────
-// AppLogo
-// ────────────────────────────────────────────────────────────
-function AppLogo({
-  appName,
-  appSubtitle,
-}: {
-  appName: string;
-  appSubtitle: string;
-}) {
-  return (
-    <div className="flex items-center gap-2.5 px-4 pb-2">
-      <div className="w-9 h-9 rounded-[10px] bg-[#0046FF] flex items-center justify-center shrink-0">
-        <TrendingUp className="w-4.5 h-4.5 text-white" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-[18px] font-bold text-gray-900 leading-tight truncate">
-          {appName}
-        </p>
-        <p className="text-[12px] text-gray-400 mt-px truncate">
-          {appSubtitle}
-        </p>
-      </div>
-    </div>
-  );
-}
 
 // ────────────────────────────────────────────────────────────
 // NavItem
@@ -125,7 +98,7 @@ function UserProfile({
   user: NonNullable<SidebarNavProps["user"]>;
   onLogout?: () => void;
 }) {
-  const initials = user.name.slice(0, 1);
+  const initials = (user.name ?? "?").slice(0, 1);
   const isPositive = user.returnRate.startsWith("+");
 
   return (
@@ -174,16 +147,27 @@ export default function SidebarNav() {
   const activeId =
     NAV_ITEMS.find((item) => item.href === pathname)?.id ?? "home";
 
-  // user 정보는 나중에 zustand로 → 일단 하드코딩
-  const user = {
-    name: "투자왕김철수",
-    returnRate: "+12.5%",
-    avatarColor: "#0046FF",
+  const storeUser = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  const user = storeUser
+    ? { name: storeUser.nickname, returnRate: "-", avatarColor: "#0046FF" }
+    : null;
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+    } finally {
+      clearAuth();
+      navigate("/login");
+    }
   };
 
   return (
-    <nav className="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col py-5 shrink-0">
-      <AppLogo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
+    <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
+      <div className="px-4 pb-2">
+        <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
+      </div>
       <div className="mx-4 my-3 h-px bg-gray-100" />
       <ul className="flex flex-col gap-0.5 px-2.5 list-none">
         {NAV_ITEMS.map((item) => (
@@ -197,7 +181,7 @@ export default function SidebarNav() {
       </ul>
 
       <div className="flex-1" />
-      {user && <UserProfile user={user} onLogout={() => navigate("/login")} />}
+      {user && <UserProfile user={user} onLogout={handleLogout} />}
     </nav>
   );
 }
