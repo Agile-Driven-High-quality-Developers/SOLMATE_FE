@@ -7,6 +7,7 @@ import SignUpPage from "@/pages/auth/SignUpPage";
 import OAuthCallbackPage from "@/pages/auth/OauthCallbackPage";
 import StockList from "@/pages/stocks/StockList";
 import ProtectedRoute from "./ProtectedRoute";
+import TradeDiaryPage from "@/pages/TradeDiaryPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,15 +20,7 @@ export const router = createBrowserRouter([
           { index: true, element: <HomePage /> },
           { path: "invest", element: <StockList /> },
           { path: "components", element: <ComponentsPage /> },
-          // { index: true, element: <HomePage /> },
-          // { path: "invest", element: <InvestPage /> },
-          // { path: "account", element: <AccountPage /> },
-          // { path: "trade", element: <TradePage /> },
-          // { path: "users", element: <UsersPage /> },
-          // { path: "alarm", element: <AlarmPage /> },
-          // { path: "mentor", element: <MentorPage /> },
-          // { path: "mentee", element: <MenteePage /> },
-          // { path: "profile", element: <ProfilePage /> },
+          { path: "trade-diary", element: <TradeDiaryPage /> },
         ],
       },
     ],

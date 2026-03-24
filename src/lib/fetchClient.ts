@@ -13,6 +13,7 @@ function buildUrl(path: string, params?: Record<string, string>): string {
 async function request<T>(
   path: string,
   options: RequestInit & { params?: Record<string, string> } = {},
+  _retry = true,
 ): Promise<T> {
   const { params, headers, ...init } = options;
   const token = useAuthStore.getState().accessToken;
@@ -26,6 +27,26 @@ async function request<T>(
       ...headers,
     },
   });
+
+  // 401/403: 토큰 재발급 후 1회 재시도
+  if ((res.status === 401 || res.status === 403) && _retry) {
+    try {
+      const reissueRes = await fetch(buildUrl("/api/auth/reissue"), {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!reissueRes.ok) throw new Error();
+      const { data } = await reissueRes.json();
+      if (!data?.accessToken) throw new Error();
+      useAuthStore.getState().setAccessToken(data.accessToken);
+      return request<T>(path, options, false);
+    } catch {
+      useAuthStore.getState().clearAuth();
+      window.location.href = "/login";
+      throw new Error("Unauthorized");
+    }
+  }
 
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json() as Promise<T>;
