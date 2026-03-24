@@ -16,7 +16,6 @@ import Logo from "../ui/Logo";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
 
-
 export type NavItemConfig = {
   id: string;
   label: string;
@@ -43,7 +42,7 @@ const NAV_ITEMS: NavItemConfig[] = [
   { id: "home", label: "홈", icon: Home, href: "/" },
   { id: "invest", label: "모의투자", icon: BarChart2, href: "/invest" },
   { id: "account", label: "내 계좌", icon: Wallet, href: "/account" },
-  { id: "trade", label: "매매일지", icon: BookOpen, href: "/trade" },
+  { id: "trade", label: "매매일지", icon: BookOpen, href: "/trade-diary" },
   { id: "users", label: "유저 목록", icon: Users, href: "/users" },
   { id: "alarm", label: "알림", icon: Bell, href: "/alarm", badge: 3 },
   { id: "mentor", label: "나의 멘토", icon: GraduationCap, href: "/mentor" },

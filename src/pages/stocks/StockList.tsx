@@ -1,37 +1,57 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
-import { useMarketIndicesQuery } from "@/api/homeApi";
-import type { MarketIndexData } from "@/api/homeApi";
-import type { StockItem } from "@/api/stockApi";
+
+import {
+  useMarketIndicesQuery,
+  parseMarketIndicatorMessage,
+  homeQueryKeys,
+} from "@/api/homeApi";
+import {
+  useStocksQuery,
+  stockQueryKeys,
+  parseStockItemMessage,
+} from "@/api/stockApi";
+import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
+import type { StockItem, StockItemMessage } from "@/api/stockApi";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SECTORS = [
-  "전체", "반도체", "2차전지", "바이오", "자동차",
-  "IT", "금융", "철강", "화학", "통신", "가변", "건설",
-];
+const SECTOR_MAP: Record<string, string> = {
+  INFORMATION_TECHNOLOGY: "반도체",
+  SECONDARY_BATTERY: "2차전지",
+  HEALTHCARE: "바이오",
+  AUTOMOBILE: "자동차",
+  IT: "IT",
+  FINANCIALS: "금융",
+  STEEL_MATERIALS: "철강",
+  ENERGY_CHEMICALS: "화학",
+  TELECOM: "통신",
+  UTILITIES: "가변",
+  CONSTRUCTION: "건설",
+  CONSUMER_STAPLES: "소비재",
+  INDUSTRIALS: "산업재",
+  HEAVY_INDUSTRIES: "중공업",
+  COMMUNICATION_SERVICES: "통신",
+};
+
+const SECTORS = ["전체", ...new Set(Object.values(SECTOR_MAP))];
 
 const SORTS = ["거래량순", "상승순", "하락순", "고가순"] as const;
 type SortType = (typeof SORTS)[number];
 
-// ─── Mock 데이터 (백엔드 API 완성 후 교체) ──────────────────────────────────
-
-const MOCK_STOCKS: StockItem[] = [
-  { code: "005930", name: "삼성전자",   sector: "반도체",  price: "73,400원",  change: "+900",   changeRate: "+1.24%", isPositive: true,  volume: "1284만", marketCap: "4382000억원", isHolding: true,  color: "#F59E0B" },
-  { code: "000660", name: "SK하이닉스", sector: "반도체",  price: "192,500원", change: "+4,500", changeRate: "+2.39%", isPositive: true,  volume: "324만",  marketCap: "139800억원",  isHolding: false, color: "#10B981" },
-  { code: "035720", name: "카카오",     sector: "IT",      price: "44,850원",  change: "-550",   changeRate: "-1.21%", isPositive: false, volume: "234만",  marketCap: "19500억원",   isHolding: false, color: "#F59E0B" },
-  { code: "247540", name: "에코프로비엠", sector: "2차전지", price: "148,500원", change: "-4,900", changeRate: "-3.19%", isPositive: false, volume: "123만",  marketCap: "13200억원",   isHolding: false, color: "#6366F1" },
-  { code: "068270", name: "셀트리온",   sector: "바이오",  price: "178,500원", change: "+4,000", changeRate: "+2.28%", isPositive: true,  volume: "98만",   marketCap: "24300억원",   isHolding: false, color: "#8B5CF6" },
-  { code: "000270", name: "기아",       sector: "자동차",  price: "108,500원", change: "+2,200", changeRate: "+2.07%", isPositive: true,  volume: "124만",  marketCap: "43800억원",   isHolding: false, color: "#F97316" },
-  { code: "005380", name: "현대차",     sector: "자동차",  price: "241,500원", change: "+4,000", changeRate: "+1.68%", isPositive: true,  volume: "84만",   marketCap: "51500억원",   isHolding: false, color: "#3B82F6" },
-  { code: "105560", name: "KB금융",     sector: "금융",    price: "87,200원",  change: "+800",   changeRate: "+0.92%", isPositive: true,  volume: "72만",   marketCap: "34800억원",   isHolding: false, color: "#14B8A6" },
-  { code: "035420", name: "NAVER",      sector: "IT",      price: "192,000원", change: "+1,500", changeRate: "+0.79%", isPositive: true,  volume: "67만",   marketCap: "31500억원",   isHolding: false, color: "#22C55E" },
-];
-
 // ─── 시장 지수 패널 ────────────────────────────────────────────────────────────
 
-function MarketPanel({ data, loading }: { data: MarketIndexData[]; loading: boolean }) {
+function MarketPanel({
+  data,
+  loading,
+}: {
+  data: MarketIndexData[];
+  loading: boolean;
+}) {
   if (loading) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100 animate-pulse">
@@ -51,14 +71,22 @@ function MarketPanel({ data, loading }: { data: MarketIndexData[]; loading: bool
     <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100">
       {data.map((idx) => (
         <div key={idx.label} className="flex-1 px-6 py-5">
-          <p className="text-[13px] text-gray-400 font-medium mb-1">{idx.label}</p>
+          <p className="text-[13px] text-gray-400 font-medium mb-1">
+            {idx.label}
+          </p>
           <p className="text-[24px] font-bold text-gray-900">{idx.value}</p>
           <div className="flex items-center gap-1 mt-0.5">
-            {idx.isPositive
-              ? <TrendingUp size={12} className="text-red-500" />
-              : <TrendingDown size={12} className="text-blue-600" />}
-            <span className={`text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}>
-              {idx.isPositive ? "▲" : "▼"}{idx.change} ({idx.isPositive ? "+" : "-"}{idx.changePercent}%)
+            {idx.isPositive ? (
+              <TrendingUp size={12} className="text-red-500" />
+            ) : (
+              <TrendingDown size={12} className="text-blue-600" />
+            )}
+            <span
+              className={`text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}
+            >
+              {idx.isPositive ? "▲" : "▼"}
+              {idx.change} ({idx.isPositive ? "+" : "-"}
+              {idx.changePercent}%)
             </span>
           </div>
           <p className="text-[12px] text-gray-400 mt-1">
@@ -77,37 +105,31 @@ function StockRow({ stock }: { stock: StockItem }) {
     <tr className="hover:bg-gray-50/50 transition-colors">
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <Avatar name={stock.name} color={stock.color} size={34} />
+          <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-semibold text-gray-900">{stock.name}</span>
-              {stock.isHolding && (
-                <span className="text-[10px] font-medium text-[#0046FF] bg-blue-50 px-1.5 py-0.5 rounded">
-                  보유
-                </span>
-              )}
+              <span className="text-[14px] font-semibold text-gray-900">
+                {stock.stockName}
+              </span>
             </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">{stock.code}</p>
+            <p className="text-[11px] text-gray-400 mt-0.5">
+              {stock.tickerCode}
+            </p>
           </div>
         </div>
       </td>
-      <td className="px-4 py-3.5 text-[13px] text-gray-500">{stock.sector}</td>
-      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">{stock.price}</td>
+      <td className="px-4 py-3.5 text-[13px] text-gray-500">
+        {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
+      </td>
+      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+        {stock.currentPrice.toLocaleString()}
+      </td>
       <td className="px-4 py-3.5 text-right">
-        <span className={`text-[13px] font-semibold ${stock.isPositive ? "text-red-500" : "text-blue-600"}`}>
+        <span
+          className={`text-[13px] font-semibold ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
+        >
           {stock.changeRate}
         </span>
-        <br />
-        <span className={`text-[11px] ${stock.isPositive ? "text-red-400" : "text-blue-400"}`}>
-          {stock.change}
-        </span>
-      </td>
-      <td className="px-4 py-3.5 text-right text-[13px] text-gray-600">{stock.volume}</td>
-      <td className="px-4 py-3.5 text-right text-[13px] text-gray-600">{stock.marketCap}</td>
-      <td className="px-5 py-3.5 text-right">
-        <button className="bg-[#0046FF] text-white text-[12px] font-medium px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap">
-          거래 &gt;
-        </button>
       </td>
     </tr>
   );
@@ -116,20 +138,73 @@ function StockRow({ stock }: { stock: StockItem }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function StockList() {
-  const { data: marketIndices = [], isLoading: loadingMarket } = useMarketIndicesQuery();
-  const [stocks] = useState<StockItem[]>(MOCK_STOCKS);
-  // TODO: 백엔드 API 완성 후 교체
-  // const { data: stocks = [] } = useStocksQuery();
+  const queryClient = useQueryClient();
+  const { data: marketIndices = [], isLoading: loadingMarket } =
+    useMarketIndicesQuery();
+  const { data: stocks = [] } = useStocksQuery();
+
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState("전체");
   const [sort, setSort] = useState<SortType>("거래량순");
 
+  // ── STOMP 실시간 업데이트 → React Query 캐시 갱신 ───────────────────────
+  useEffect(() => {
+    const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+    const client = new Client({
+      webSocketFactory: () => new SockJS(wsUrl),
+      onConnect: () => {
+        console.log("[STOMP] 연결됨");
+        client.subscribe("/topic/market/indicators", (message) => {
+          const msg: MarketIndicatorMessage = JSON.parse(message.body);
+          console.log("[STOMP] 지수 메시지 수신:", msg.data);
+          const updated = parseMarketIndicatorMessage(msg);
+          queryClient.setQueryData<MarketIndexData[]>(
+            homeQueryKeys.marketIndices,
+            (prev = []) =>
+              prev.map((item) =>
+                item.label === updated.label ? updated : item,
+              ),
+          );
+        });
+
+        stocks.forEach(({ tickerCode }) => {
+          client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
+            const msg: StockItemMessage = JSON.parse(message.body);
+            console.log("[STOMP] 종목리스트 메시지 수신:", msg.data);
+            const updated = parseStockItemMessage(msg);
+            queryClient.setQueryData<StockItem[]>(
+              stockQueryKeys.stocks,
+              (prev = []) =>
+                prev.map((item) =>
+                  item.tickerCode === updated.tickerCode ? updated : item,
+                ),
+            );
+          });
+        });
+      },
+      onDisconnect: () => console.log("[STOMP] 연결 끊김"),
+      onStompError: (frame) => console.error("[STOMP] 에러:", frame),
+    });
+    client.activate();
+    return () => {
+      client.deactivate();
+    };
+  }, [queryClient, stocks]);
+
   const filtered = stocks
-    .filter((s) => sector === "전체" || s.sector === sector)
-    .filter((s) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.code.includes(search)
-    );
+    .filter((s) => sector === "전체" || SECTOR_MAP[s.sectorType] === sector)
+    .filter(
+      (s) =>
+        s.stockName.toLowerCase().includes(search.toLowerCase()) ||
+        s.tickerCode.includes(search),
+    )
+    .slice()
+    .sort((a, b) => {
+      if (sort === "상승순") return b.changeRate - a.changeRate;
+      if (sort === "하락순") return a.changeRate - b.changeRate;
+      if (sort === "고가순") return b.currentPrice - a.currentPrice;
+      return 0; // 거래량순: 서버 기본 순서 유지
+    });
 
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
@@ -147,7 +222,10 @@ export default function StockList() {
       {/* 검색 + 정렬 */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-xs">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
           <input
             type="text"
             placeholder="종목명 또는 코드 검색"
@@ -195,21 +273,31 @@ export default function StockList() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium">종목명</th>
-              <th className="text-left px-4 py-3 text-[12px] text-gray-400 font-medium">섹터</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">현재가</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">등락률</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">거래량</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">시가총액</th>
-              <th className="px-5 py-3" />
+              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium">
+                종목명
+              </th>
+              <th className="text-left px-4 py-3 text-[12px] text-gray-400 font-medium">
+                섹터
+              </th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+                현재가
+              </th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+                등락률
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.length > 0 ? (
-              filtered.map((stock) => <StockRow key={stock.code} stock={stock} />)
+              filtered.map((stock) => (
+                <StockRow key={stock.tickerCode} stock={stock} />
+              ))
             ) : (
               <tr>
-                <td colSpan={7} className="text-center py-12 text-[14px] text-gray-400">
+                <td
+                  colSpan={4}
+                  className="text-center py-12 text-[14px] text-gray-400"
+                >
                   검색 결과가 없습니다.
                 </td>
               </tr>
