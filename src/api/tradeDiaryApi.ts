@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/fetchClient";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "./authApi";
 
 export type MyDiariesItem = {
@@ -14,15 +14,37 @@ export type MyDiariesItem = {
   createdAt: string;
 };
 
+export type DiaryComment = {
+  commentId: number;
+  nickname: string;
+  isMentor: boolean;
+  content: string;
+};
+
+export type DiaryDetail = {
+  diaryId: number;
+  tradeType: string;
+  stockName: string;
+  tickerCode: string;
+  filledPrice: number;
+  quantity: number;
+  profit: number;
+  profitRate: number;
+  content: string;
+  createdAt: string;
+  comments: DiaryComment[];
+};
+
 export const myDiariesQueryKeys = {
-  stocks: ["my-diaries"] as const,
+  myDiaries: ["my-diaries"] as const,
+  diaryDetail: (diaryId: string) => ["diary-detail", diaryId] as const,
 };
 
 // ─── React Query Hooks ────────────────────────────────────────────────────────
 
 export function useMyDiariesQuery() {
   return useQuery({
-    queryKey: myDiariesQueryKeys.stocks,
+    queryKey: myDiariesQueryKeys.myDiaries,
     queryFn: () =>
       fetchClient
         .get<ApiResponse<MyDiariesItem[]>>("/api/diaries/my")
@@ -30,5 +52,30 @@ export function useMyDiariesQuery() {
           return res.data;
         }),
     staleTime: 30_000,
+  });
+}
+
+export function useDiaryDetailQuery(diaryId: string) {
+  return useQuery({
+    queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<DiaryDetail>>(`/api/diaries/${diaryId}`)
+        .then((res) => res.data),
+    staleTime: 30_000,
+    enabled: !!diaryId,
+  });
+}
+
+export function usePostCommentMutation(diaryId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      fetchClient.post(`/api/diaries/${diaryId}/comments`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
+      });
+    },
   });
 }

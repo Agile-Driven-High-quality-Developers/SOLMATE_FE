@@ -5,7 +5,8 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 function buildUrl(path: string, params?: Record<string, string>): string {
   const base = BASE_URL || window.location.origin;
   const url = new URL(path, base);
-  if (params) Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  if (params)
+    Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
   // BASE_URL 없으면 Vite 프록시를 통해 요청 (상대 경로)
   return BASE_URL ? url.toString() : url.pathname + url.search;
 }
@@ -59,6 +60,12 @@ export const fetchClient = {
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, {
       method: "POST",
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    }),
+
+  delete: <T>(path: string, body?: unknown) =>
+    request<T>(path, {
+      method: "DELETE",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
 };

@@ -1,16 +1,26 @@
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
 import Badge from "@/components/ui/Badge";
 
-function MyDiariesRow({ myDiaries }: { myDiaries: MyDiariesItem }) {
+function MyDiariesRow({
+  myDiaries,
+  onClick,
+}: {
+  myDiaries: MyDiariesItem;
+  onClick: () => void;
+}) {
   const isBuy = myDiaries.tradeType === "BUY";
   const hasProfit = myDiaries.profit !== 0;
   const isPositive = myDiaries.profit > 0;
 
   return (
-    <div className="flex flex-col gap-2 px-6 py-5 border-b border-gray-100 last:border-b-0">
+    <div
+      onClick={onClick}
+      className="flex flex-col gap-2 px-6 py-5 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50"
+    >
       {/* 상단: 뱃지 + 종목명 + 수량/가격/날짜 + 수익 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -36,7 +46,7 @@ function MyDiariesRow({ myDiaries }: { myDiaries: MyDiariesItem }) {
         {hasProfit && (
           <span
             className={`text-[14px] font-semibold ${
-              isPositive ? "text-[#0046FF]" : "text-[#FF4444]"
+              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
             }`}
           >
             {isPositive ? "+" : ""}
@@ -73,6 +83,7 @@ function MyDiariesRow({ myDiaries }: { myDiaries: MyDiariesItem }) {
 }
 
 export default function TradeDiaryPage() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: myDiaries = [] } = useMyDiariesQuery();
 
@@ -107,7 +118,11 @@ export default function TradeDiaryPage() {
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         {filtered.length > 0 ? (
           filtered.map((item) => (
-            <MyDiariesRow key={item.diaryId} myDiaries={item} />
+            <MyDiariesRow
+              key={item.diaryId}
+              myDiaries={item}
+              onClick={() => navigate(`/trade-diary/${item.diaryId}`)}
+            />
           ))
         ) : (
           <div className="text-center py-12 text-[14px] text-gray-400">

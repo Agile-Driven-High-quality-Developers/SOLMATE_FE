@@ -8,6 +8,7 @@ import OAuthCallbackPage from "@/pages/auth/OauthCallbackPage";
 import StockList from "@/pages/stocks/StockList";
 import ProtectedRoute from "./ProtectedRoute";
 import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
+import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +21,13 @@ export const router = createBrowserRouter([
           { index: true, element: <HomePage /> },
           { path: "invest", element: <StockList /> },
           { path: "components", element: <ComponentsPage /> },
-          { path: "trade-diary", element: <TradeDiaryPage /> },
+          {
+            path: "trade-diary",
+            children: [
+              { index: true, element: <TradeDiaryPage /> },
+              { path: ":tradeDiaryId", element: <DiaryDetailPage /> },
+            ],
+          },
         ],
       },
     ],
