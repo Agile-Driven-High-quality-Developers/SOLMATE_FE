@@ -64,7 +64,7 @@ export default function HoldingList({
             <tr className="bg-gray-50 border-b border-gray-100">
               <th className="text-left px-6 py-3 text-[12px] text-gray-400 font-medium">종목</th>
               <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">수량</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">평균단가</th>
+              {showAvgPrice && <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">평균단가</th>}
               <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">현재가</th>
               <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">평가액</th>
               <th className="text-right px-6 py-3 text-[12px] text-gray-400 font-medium">수익률</th>
@@ -87,9 +87,11 @@ export default function HoldingList({
                   <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900 tabular-nums">
                     {item.quantity}주
                   </td>
-                  <td className="px-4 py-3.5 text-right text-[13px] text-gray-500 tabular-nums">
-                    {item.averageBuyPrice.toLocaleString()}원
-                  </td>
+                  {showAvgPrice && (
+                    <td className="px-4 py-3.5 text-right text-[13px] text-gray-500 tabular-nums">
+                      {item.averageBuyPrice.toLocaleString()}원
+                    </td>
+                  )}
                   <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900 tabular-nums">
                     {item.currentPrice.toLocaleString()}원
                   </td>

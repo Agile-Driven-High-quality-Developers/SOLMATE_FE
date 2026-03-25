@@ -1,4 +1,5 @@
 import ProfileCard from "@/components/profile/ProfileCard";
+import ProfileTabs from "@/components/profile/ProfileTabs";
 
 export default function ProfilePage() {
   return (
@@ -15,7 +16,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="flex-1">
-        {/* 탭 영역 — 다음 단계 */}
+        <ProfileTabs />
       </div>
     </div>
   );
