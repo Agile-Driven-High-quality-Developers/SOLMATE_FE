@@ -10,6 +10,7 @@ import StockDetailPage from "@/pages/stocks/StockDetailPage";
 import ProtectedRoute from "./ProtectedRoute";
 import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
 import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPage";
+import UserListPage from "@/pages/user-list/userListPage";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
               { path: ":tradeDiaryId", element: <DiaryDetailPage /> },
             ],
           },
+          { path: "users", element: <UserListPage /> },
         ],
       },
     ],
