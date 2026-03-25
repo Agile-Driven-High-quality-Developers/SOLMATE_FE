@@ -5,12 +5,18 @@ import type { PortfolioItem } from "@/components/account/PortfolioChart";
 import type { HoldingItem } from "@/components/account/HoldingList";
 
 const DUMMY_PORTFOLIO: PortfolioItem[] = [
-  { stockName: "KB금융", ratio: 35 },
-  { stockName: "NAVER", ratio: 20 },
-  { stockName: "현대차", ratio: 17 },
-  { stockName: "SK하이닉스", ratio: 9 },
-  { stockName: "삼성전자", ratio: 10 },
-  { stockName: "셀트리온", ratio: 6 },
+  { stockName: "KB금융", ratio: 17 },
+  { stockName: "삼성SDI", ratio: 14 },
+  { stockName: "NAVER", ratio: 13 },
+  { stockName: "현대차", ratio: 11 },
+  { stockName: "삼성물산", ratio: 8 },
+  { stockName: "LG화학", ratio: 7 },
+  { stockName: "삼성전자", ratio: 6 },
+  { stockName: "SK하이닉스", ratio: 5 },
+  { stockName: "카카오", ratio: 5 },
+  { stockName: "LG", ratio: 5 },
+  { stockName: "SK이노베이션", ratio: 5 },
+  { stockName: "셀트리온", ratio: 4 },
 ];
 
 const DUMMY_HOLDINGS: HoldingItem[] = [
@@ -20,6 +26,12 @@ const DUMMY_HOLDINGS: HoldingItem[] = [
   { tickerCode: "005380", stockName: "현대차", stockLogo: "", quantity: 8, averageBuyPrice: 225000, currentPrice: 241500, evaluationAmount: 1932000, profitRate: 7.33, profitAmount: 132000 },
   { tickerCode: "105560", stockName: "KB금융", stockLogo: "", quantity: 35, averageBuyPrice: 81500, currentPrice: 87200, evaluationAmount: 3052000, profitRate: 9.04, profitAmount: 253000 },
   { tickerCode: "068270", stockName: "셀트리온", stockLogo: "", quantity: 4, averageBuyPrice: 162000, currentPrice: 178500, evaluationAmount: 714000, profitRate: 10.19, profitAmount: 66000 },
+  { tickerCode: "035720", stockName: "카카오", stockLogo: "", quantity: 20, averageBuyPrice: 52000, currentPrice: 48300, evaluationAmount: 966000, profitRate: -7.12, profitAmount: -74000 },
+  { tickerCode: "051910", stockName: "LG화학", stockLogo: "", quantity: 3, averageBuyPrice: 412000, currentPrice: 389000, evaluationAmount: 1167000, profitRate: -5.58, profitAmount: -69000 },
+  { tickerCode: "006400", stockName: "삼성SDI", stockLogo: "", quantity: 6, averageBuyPrice: 398000, currentPrice: 421000, evaluationAmount: 2526000, profitRate: 5.78, profitAmount: 138000 },
+  { tickerCode: "003550", stockName: "LG", stockLogo: "", quantity: 10, averageBuyPrice: 88000, currentPrice: 94500, evaluationAmount: 945000, profitRate: 7.39, profitAmount: 65000 },
+  { tickerCode: "096770", stockName: "SK이노베이션", stockLogo: "", quantity: 7, averageBuyPrice: 132000, currentPrice: 118000, evaluationAmount: 826000, profitRate: -10.61, profitAmount: -98000 },
+  { tickerCode: "028260", stockName: "삼성물산", stockLogo: "", quantity: 9, averageBuyPrice: 142000, currentPrice: 158000, evaluationAmount: 1422000, profitRate: 11.27, profitAmount: 144000 },
 ];
 
 function fmt(n: number) {
@@ -69,12 +81,12 @@ export default function AccountPage() {
         />
 
         {/* 종목 비중 차트 — col 1 (2fr) */}
-        <div className="row-start-2">
+        <div className="row-start-2 h-130">
           <PortfolioChart items={DUMMY_PORTFOLIO} />
         </div>
 
         {/* 보유 종목 테이블 — col 2~4 (3fr) */}
-        <div className="col-span-3 row-start-2">
+        <div className="col-span-3 row-start-2 h-130">
           <HoldingList items={DUMMY_HOLDINGS} />
         </div>
       </div>

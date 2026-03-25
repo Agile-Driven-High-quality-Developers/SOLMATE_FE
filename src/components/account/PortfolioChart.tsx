@@ -44,6 +44,7 @@ export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
   };
 
   const options = {
+    layout: { padding: 8 },
     cutout: "68%",
     plugins: {
       legend: { display: false },
