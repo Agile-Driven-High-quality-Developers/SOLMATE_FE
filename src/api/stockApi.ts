@@ -11,17 +11,19 @@ export type StockItem = {
   sectorType: string;
   currentPrice: number;
   changeRate: number;
+  total: number;
+  volume: number;
 };
 
 export type StockItemMessage = {
-  data: {
-    tickerCode: string;
-    stockName: string;
-    stockLogo: string;
-    sectorType: string;
-    currentPrice: number;
-    changeRate: number;
-  };
+  stockCode: string;
+  currentPrice: number;
+  changePrice: number;
+  changeRate: number;
+  highPrice: number;
+  lowPrice: number;
+  volume: number;
+  chetime: string;
 };
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
@@ -38,7 +40,9 @@ export function useStocksQuery() {
     queryFn: () =>
       fetchClient
         .get<ApiResponse<StockItem[]>>("/api/stocks")
-        .then((res) => res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }))),
+        .then((res) =>
+          res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) })),
+        ),
     staleTime: 30_000,
   });
 }
@@ -50,7 +54,17 @@ function toLogoUrl(logo: string): string {
   return `${S3_BASE_URL}/${logo}`;
 }
 
-export function parseStockItemMessage(msg: StockItemMessage): StockItem {
-  const { tickerCode, stockName, stockLogo, sectorType, currentPrice, changeRate } = msg.data;
-  return { tickerCode, stockName, stockLogo: toLogoUrl(stockLogo), sectorType, currentPrice, changeRate };
+export function parseStockItemMessage(msg: StockItemMessage): {
+  tickerCode: string;
+  currentPrice: number;
+  changeRate: number;
+  volume: number;
+} {
+  const { stockCode, currentPrice, changeRate, volume } = msg;
+  return {
+    tickerCode: stockCode,
+    currentPrice,
+    changeRate,
+    volume,
+  };
 }
