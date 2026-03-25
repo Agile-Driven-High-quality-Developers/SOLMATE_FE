@@ -7,7 +7,7 @@ import SignUpPage from "@/pages/auth/SignUpPage";
 import OAuthCallbackPage from "@/pages/auth/OauthCallbackPage";
 import StockList from "@/pages/stocks/StockList";
 import ProtectedRoute from "./ProtectedRoute";
-import TradeDiaryPage from "@/pages/TradeDiaryPage";
+import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
 
 export const router = createBrowserRouter([
   {
