@@ -48,10 +48,10 @@ export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
   const total = items.reduce((s, i) => s + i.ratio, 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6">
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 h-full">
       <h2 className="text-[16px] font-bold text-gray-900 mb-5">종목 비중</h2>
       <div className="flex flex-col items-center gap-6">
-        <div className="relative w-48 h-48">
+        <div className="relative w-56 h-56">
           <Doughnut data={chartData} options={options as never} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <p className="text-[11px] text-gray-400">총 자산</p>
