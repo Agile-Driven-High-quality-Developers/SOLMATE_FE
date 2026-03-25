@@ -19,6 +19,7 @@ import StockInfoGrid from "@/components/stocks/StockInfoGrid";
 import TradeHistory from "@/components/stocks/TradeHistory";
 import HoldingStatus from "@/components/stocks/HoldingStatus";
 import OrderBook from "@/components/stocks/OrderBook";
+import StockChart from "@/components/stocks/StockChart";
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
@@ -119,10 +120,7 @@ export default function StockDetailPage() {
       <div className="flex gap-5 items-start">
         {/* 왼쪽 */}
         <div className="flex flex-col gap-5 flex-1 min-w-0">
-          {/* 차트 — 추후 구현 */}
-          <div className="bg-white rounded-2xl border border-gray-100 h-75 flex items-center justify-center text-[14px] text-gray-300">
-            주가 차트 준비 중
-          </div>
+          <StockChart stockCode={stockCode} />
 
           <StockInfoGrid quote={quote} />
 
