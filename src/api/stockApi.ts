@@ -179,9 +179,8 @@ export function useOrderBookQuery(stockCode: string) {
       fetchClient
         .get<ApiResponse<OrderBookData>>(`/api/stocks/${stockCode}/orderbook`)
         .then((res) => res.data),
-    staleTime: 2_000,
+    staleTime: 60_000,
     enabled: !!stockCode,
-    refetchInterval: 3_000,
   });
 }
 
