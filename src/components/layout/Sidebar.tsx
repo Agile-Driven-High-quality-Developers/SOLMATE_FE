@@ -167,7 +167,9 @@ export default function SidebarNav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const activeId =
-    NAV_ITEMS.find((item) => item.href === pathname)?.id ?? "home";
+    NAV_ITEMS.find((item) => item.href !== "/" && pathname.startsWith(item.href))?.id ??
+    (pathname === "/" ? "home" : undefined) ??
+    "home";
 
   const storeUser = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
