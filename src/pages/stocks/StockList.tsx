@@ -1,22 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 
-import {
-  useMarketIndicesQuery,
-  parseMarketIndicatorMessage,
-  homeQueryKeys,
-} from "@/api/homeApi";
-import {
-  useStocksQuery,
-  stockQueryKeys,
-  parseStockItemMessage,
-} from "@/api/stockApi";
-import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
+import { useMarketIndicesQuery } from "@/api/homeApi";
+import { fetchStocks, parseStockItemMessage } from "@/api/stockApi";
+import type { MarketIndexData } from "@/api/homeApi";
 import type { StockItem, StockItemMessage } from "@/api/stockApi";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -101,7 +92,11 @@ function StockRow({ stock }: { stock: StockItem }) {
     <tr className="hover:bg-gray-50/50 transition-colors">
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
+          <Avatar
+            name={stock.stockName}
+            src={stock.stockLogo}
+            size={34}
+          />
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-semibold text-gray-900">
@@ -141,80 +136,53 @@ function StockRow({ stock }: { stock: StockItem }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function StockList() {
-  const queryClient = useQueryClient();
   const { data: marketIndices = [], isLoading: loadingMarket } =
     useMarketIndicesQuery();
-  const { data: stocks = [] } = useStocksQuery();
 
+  const [stocks, setStocks] = useState<StockItem[]>([]);
   const [search, setSearch] = useState("");
   const [sector, setSector] = useState("전체");
   const [sort, setSort] = useState<SortType>("거래량순");
 
-  const clientRef = useRef<Client | null>(null);
-  const stocksSubscribedRef = useRef(false);
+  // ── 초기 fetch 후 STOMP 연결 ────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+    let client: Client;
 
-  const subscribeStocks = (client: Client, stockList: StockItem[]) => {
-    stockList.forEach(({ tickerCode }) => {
-      client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
-        const msg: StockItemMessage = JSON.parse(message.body);
-        console.log("[STOMP] 종목리스트 메시지 수신:", msg);
-        const updated = parseStockItemMessage(msg);
-        queryClient.setQueryData<StockItem[]>(
-          stockQueryKeys.stocks,
-          (prev = []) =>
-            prev.map((item) =>
-              item.tickerCode === updated.tickerCode
-                ? { ...item, ...updated }
-                : item,
-            ),
-        );
+    fetchStocks().then((initialStocks) => {
+      if (cancelled) return;
+      setStocks(initialStocks);
+
+      const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+      client = new Client({
+        webSocketFactory: () => new SockJS(wsUrl),
+        onConnect: () => {
+          console.log("[STOMP] 연결됨");
+          initialStocks.forEach(({ tickerCode }) => {
+            client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
+              const msg: StockItemMessage = JSON.parse(message.body);
+              const updated = parseStockItemMessage(msg);
+              setStocks((prev) =>
+                prev.map((item) =>
+                  item.tickerCode === updated.tickerCode
+                    ? { ...item, ...updated }
+                    : item,
+                ),
+              );
+            });
+          });
+        },
+        onDisconnect: () => console.log("[STOMP] 연결 끊김"),
+        onStompError: (frame) => console.error("[STOMP] 에러:", frame),
       });
+      client.activate();
     });
-    stocksSubscribedRef.current = true;
-  };
 
-  // ── STOMP 연결 및 지수 구독 ─────────────────────────────────────────────
-  useEffect(() => {
-    const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
-    const client = new Client({
-      webSocketFactory: () => new SockJS(wsUrl),
-      onConnect: () => {
-        console.log("[STOMP] 연결됨");
-        client.subscribe("/topic/market/indicators", (message) => {
-          const msg: MarketIndicatorMessage = JSON.parse(message.body);
-          console.log("[STOMP] 지수 메시지 수신:", msg.data);
-          const updated = parseMarketIndicatorMessage(msg);
-          queryClient.setQueryData<MarketIndexData[]>(
-            homeQueryKeys.marketIndices,
-            (prev = []) =>
-              prev.map((item) =>
-                item.label === updated.label ? updated : item,
-              ),
-          );
-        });
-      },
-      onDisconnect: () => {
-        console.log("[STOMP] 연결 끊김");
-        stocksSubscribedRef.current = false;
-      },
-      onStompError: (frame) => console.error("[STOMP] 에러:", frame),
-    });
-    clientRef.current = client;
-    client.activate();
     return () => {
-      client.deactivate();
-      clientRef.current = null;
-      stocksSubscribedRef.current = false;
+      cancelled = true;
+      client?.forceDisconnect();
     };
-  }, [queryClient]);
-
-  // ── stocks 로드 완료 후 구독 (STOMP가 먼저 연결된 경우) ────────────────
-  useEffect(() => {
-    if (stocks.length === 0 || stocksSubscribedRef.current) return;
-    const client = clientRef.current;
-    if (!client?.connected) return;
-    subscribeStocks(client, stocks);
-  }, [stocks]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = stocks
     .filter((s) => sector === "전체" || SECTOR_MAP[s.sectorType] === sector)

@@ -237,12 +237,18 @@ export function useCancelOrderMutation(tickerCode: string) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── API ──────────────────────────────────────────────────────────────────────
 
 const S3_BASE_URL = import.meta.env.VITE_S3_BASE_URL ?? "";
 
 function toLogoUrl(logo: string): string {
   if (!logo || logo.startsWith("http")) return logo;
   return `${S3_BASE_URL}/${logo}`;
+}
+
+export async function fetchStocks(): Promise<StockItem[]> {
+  const res = await fetchClient.get<ApiResponse<StockItem[]>>("/api/stocks");
+  return res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }));
 }
 
 export function parseStockItemMessage(msg: StockItemMessage): {
