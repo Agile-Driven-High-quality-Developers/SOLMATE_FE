@@ -18,6 +18,7 @@ type Props = {
   hasMore?: boolean;
   onLoadMore?: () => void;
   isLoading?: boolean;
+  showAvgPrice?: boolean;
 };
 
 function fmt(n: number) {
