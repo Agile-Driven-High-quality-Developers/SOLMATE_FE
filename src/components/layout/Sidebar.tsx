@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import {
   Home,
@@ -208,7 +208,11 @@ export default function SidebarNav() {
             key={item.id}
             item={item}
             isActive={item.id === activeId}
-            onClick={() => navigate(item.href)}
+            onClick={() =>
+              item.id === "shinhan"
+                ? window.open(item.href, "_blank")
+                : navigate(item.href)
+            }
           />
         ))}
       </ul>
