@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@/store/authStore";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
+import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import ProfileCard from "@/components/profile/ProfileCard";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
-import type { TradeDiaryItem } from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import type { TradeHistoryItem } from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
@@ -21,7 +21,6 @@ const TABS = [
 type TabId = (typeof TABS)[number]["id"];
 
 // TODO: API 연동 후 제거
-const DUMMY_DIARIES: TradeDiaryItem[] = [];
 const DUMMY_HISTORIES: TradeHistoryItem[] = [];
 const DUMMY_PORTFOLIO: PortfolioData = {
   totalValue: 0,
@@ -35,6 +34,7 @@ export default function ProfilePage() {
   const user = useUser();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [activeTab, setActiveTab] = useState<TabId>("diary");
+  const { data: diaries = [] } = useMyDiariesQuery();
 
   const handleLogout = async () => {
     try {
@@ -82,7 +82,7 @@ export default function ProfilePage() {
 
           {/* 탭 콘텐츠 */}
           <div className="p-5">
-            {activeTab === "diary" && <TradeDiaryTab items={DUMMY_DIARIES} />}
+            {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={DUMMY_HISTORIES} />}
             {activeTab === "portfolio" && <PortfolioTab data={DUMMY_PORTFOLIO} />}
           </div>
