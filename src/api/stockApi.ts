@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/fetchClient";
 import type { ApiResponse } from "./authApi";
+import { accountQueryKeys } from "./accountApi";
 
 // ─── Types: 종목 목록 ─────────────────────────────────────────────────────────
 
@@ -253,6 +254,8 @@ export function useBuyOrderMutation() {
         queryKey: stockQueryKeys.holding(variables.ticker),
       });
       queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.summary });
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.holdings });
     },
   });
 }
@@ -272,6 +275,8 @@ export function useSellOrderMutation() {
         queryKey: stockQueryKeys.holding(variables.ticker),
       });
       queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.summary });
+      queryClient.invalidateQueries({ queryKey: accountQueryKeys.holdings });
     },
   });
 }
