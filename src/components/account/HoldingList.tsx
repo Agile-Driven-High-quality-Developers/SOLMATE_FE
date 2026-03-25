@@ -48,23 +48,23 @@ export default function HoldingList({ items }: { items: HoldingItem[] }) {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900 tabular-nums">
                   {item.quantity}주
                 </td>
-                <td className="px-4 py-3.5 text-right text-[13px] text-gray-500">
+                <td className="px-4 py-3.5 text-right text-[13px] text-gray-500 tabular-nums">
                   {item.averageBuyPrice.toLocaleString()}원
                 </td>
-                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900 tabular-nums">
                   {item.currentPrice.toLocaleString()}원
                 </td>
-                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+                <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900 tabular-nums">
                   {fmt(item.evaluationAmount)}
                 </td>
                 <td className="px-6 py-3.5 text-right">
-                  <p className={`text-[13px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+                  <p className={`text-[13px] font-semibold tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}>
                     {isPositive ? "+" : ""}{item.profitRate.toFixed(2)}%
                   </p>
-                  <p className={`text-[11px] font-medium ${isPositive ? "text-red-400" : "text-blue-400"}`}>
+                  <p className={`text-[11px] font-medium tabular-nums ${isPositive ? "text-red-400" : "text-blue-400"}`}>
                     {isPositive ? "+" : ""}{fmt(item.profitAmount)}
                   </p>
                 </td>
