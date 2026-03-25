@@ -11,6 +11,7 @@ import {
   UserCheck,
   UserCircle,
   LogOut,
+  Receipt,
 } from "lucide-react";
 import Logo from "../ui/Logo";
 import { useAuthStore } from "@/store/authStore";
@@ -48,6 +49,12 @@ const NAV_ITEMS: NavItemConfig[] = [
   { id: "mentor", label: "나의 멘토", icon: GraduationCap, href: "/mentor" },
   { id: "mentee", label: "나의 멘티", icon: UserCheck, href: "/mentee" },
   { id: "profile", label: "프로필", icon: UserCircle, href: "/profile" },
+  {
+    id: "shinhan",
+    label: "실전투자 바로가기",
+    icon: Receipt,
+    href: "https://www.shinhansec.com/siw/customer-center/channel/channel_homeTrading-a/contents.do",
+  },
 ];
 
 // ────────────────────────────────────────────────────────────
@@ -167,7 +174,9 @@ export default function SidebarNav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const activeId =
-    NAV_ITEMS.find((item) => item.href !== "/" && pathname.startsWith(item.href))?.id ??
+    NAV_ITEMS.find(
+      (item) => item.href !== "/" && pathname.startsWith(item.href),
+    )?.id ??
     (pathname === "/" ? "home" : undefined) ??
     "home";
 

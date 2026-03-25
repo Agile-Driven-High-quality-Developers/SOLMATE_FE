@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
 import Avatar from "@/components/ui/Avatar";
-import {
-  useMarketIndicesQuery,
-  parseMarketIndicatorMessage,
-  homeQueryKeys,
-} from "@/api/homeApi";
+import { useMarketIndicesQuery } from "@/api/homeApi";
 import type {
   MarketIndexData,
-  MarketIndicatorMessage,
   PortfolioData,
   HoldingStockData,
   TopInvestorData,
@@ -273,40 +265,12 @@ function PopularStocks({ data, loading }: { data: PopularStockData[]; loading: b
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
-  const queryClient = useQueryClient();
-
-  // ── 서버 상태: React Query ────────────────────────────────────────────────
   const { data: marketIndices = [], isLoading: loadingMarket } = useMarketIndicesQuery();
 
-  // ── 클라이언트 상태: 백엔드 API 완성 후 useQuery로 교체 ─────────────────
   const [portfolio] = useState<PortfolioData | null>(null);
   const [holdings] = useState<HoldingStockData[]>([]);
   const [topInvestors] = useState<TopInvestorData[]>([]);
   const [popularStocks] = useState<PopularStockData[]>([]);
-
-  // ── STOMP 실시간 업데이트 → React Query 캐시 갱신 ───────────────────────
-  useEffect(() => {
-    const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
-    const client = new Client({
-      webSocketFactory: () => new SockJS(wsUrl),
-      onConnect: () => {
-        console.log("[STOMP] 연결됨");
-        client.subscribe("/topic/market/indicators", (message) => {
-          const msg: MarketIndicatorMessage = JSON.parse(message.body);
-          console.log("[STOMP] 메시지 수신:", msg.data);
-          const updated = parseMarketIndicatorMessage(msg);
-          queryClient.setQueryData<MarketIndexData[]>(
-            homeQueryKeys.marketIndices,
-            (prev = []) => prev.map((item) => (item.label === updated.label ? updated : item)),
-          );
-        });
-      },
-      onDisconnect: () => console.log("[STOMP] 연결 끊김"),
-      onStompError: (frame) => console.error("[STOMP] 에러:", frame),
-    });
-    client.activate();
-    return () => { client.deactivate(); };
-  }, [queryClient]);
 
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
