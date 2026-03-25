@@ -128,6 +128,27 @@ export type TradeOrderResponse = {
   status: string;
 };
 
+// ─── Types: 캔들 데이터 ───────────────────────────────────────────────────────
+
+export type CandleData = {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+
+export type PeriodType =
+  | "1"
+  | "5"
+  | "30"
+  | "60"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
 export const stockQueryKeys = {
@@ -137,6 +158,8 @@ export const stockQueryKeys = {
   orderBook: (code: string) => ["stocks", code, "orderbook"] as const,
   tradeHistory: (code: string) => ["trades", code] as const,
   cash: ["holdings", "cash"] as const,
+  candles: (code: string, period: string) =>
+    ["stocks", code, "candles", period] as const,
 };
 
 // ─── React Query Hooks ────────────────────────────────────────────────────────
@@ -281,6 +304,28 @@ function toLogoUrl(logo: string): string {
 export async function fetchStocks(): Promise<StockItem[]> {
   const res = await fetchClient.get<ApiResponse<StockItem[]>>("/api/stocks");
   return res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }));
+}
+
+export function useCandleQuery(stockCode: string, period: PeriodType, limit = 365) {
+  const url = (() => {
+    if (period === "1" || period === "5" || period === "30" || period === "60") {
+      return `/api/stocks/${stockCode}/candles/minute?unit=${period}`;
+    }
+    if (period === "day") return `/api/stocks/${stockCode}/candles/daily?days=${limit}`;
+    if (period === "week") return `/api/stocks/${stockCode}/candles/weekly?weeks=${Math.ceil(limit / 7)}`;
+    if (period === "month") return `/api/stocks/${stockCode}/candles/monthly?months=${Math.ceil(limit / 30)}`;
+    return `/api/stocks/${stockCode}/candles/yearly?years=${Math.ceil(limit / 365)}`;
+  })();
+
+  return useQuery({
+    queryKey: [...stockQueryKeys.candles(stockCode, period), limit],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<CandleData[]>>(url)
+        .then((res) => res.data),
+    staleTime: period === "1" ? 30_000 : 60_000,
+    enabled: !!stockCode,
+  });
 }
 
 export function parseStockItemMessage(msg: StockItemMessage): {
