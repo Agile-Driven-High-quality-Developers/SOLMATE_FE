@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 
@@ -21,21 +21,17 @@ import { useQueryClient } from "@tanstack/react-query";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const SECTOR_MAP: Record<string, string> = {
-  INFORMATION_TECHNOLOGY: "반도체",
-  SECONDARY_BATTERY: "2차전지",
-  HEALTHCARE: "바이오",
-  AUTOMOBILE: "자동차",
-  IT: "IT",
-  FINANCIALS: "금융",
-  STEEL_MATERIALS: "철강",
-  ENERGY_CHEMICALS: "화학",
-  TELECOM: "통신",
-  UTILITIES: "가변",
   CONSTRUCTION: "건설",
-  CONSUMER_STAPLES: "소비재",
+  CONSUMER_DISCRETIONARY: "경기소비재",
+  CONSUMER_STAPLES: "필수소비재",
+  FINANCIALS: "금융",
   INDUSTRIALS: "산업재",
+  ENERGY_CHEMICALS: "화학",
+  INFORMATION_TECHNOLOGY: "반도체",
   HEAVY_INDUSTRIES: "중공업",
+  STEEL_MATERIALS: "철강",
   COMMUNICATION_SERVICES: "통신",
+  HEALTHCARE: "바이오",
 };
 
 const SECTORS = ["전체", ...new Set(Object.values(SECTOR_MAP))];
@@ -128,8 +124,15 @@ function StockRow({ stock }: { stock: StockItem }) {
         <span
           className={`text-[13px] font-semibold ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
         >
-          {stock.changeRate}
+          {stock.changeRate > 0 ? "+" : ""}
+          {stock.changeRate.toFixed(2)}%
         </span>
+      </td>
+      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+        {stock.volume.toLocaleString()}
+      </td>
+      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+        {stock.total.toLocaleString()}
       </td>
     </tr>
   );
@@ -147,7 +150,30 @@ export default function StockList() {
   const [sector, setSector] = useState("전체");
   const [sort, setSort] = useState<SortType>("거래량순");
 
-  // ── STOMP 실시간 업데이트 → React Query 캐시 갱신 ───────────────────────
+  const clientRef = useRef<Client | null>(null);
+  const stocksSubscribedRef = useRef(false);
+
+  const subscribeStocks = (client: Client, stockList: StockItem[]) => {
+    stockList.forEach(({ tickerCode }) => {
+      client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
+        const msg: StockItemMessage = JSON.parse(message.body);
+        console.log("[STOMP] 종목리스트 메시지 수신:", msg);
+        const updated = parseStockItemMessage(msg);
+        queryClient.setQueryData<StockItem[]>(
+          stockQueryKeys.stocks,
+          (prev = []) =>
+            prev.map((item) =>
+              item.tickerCode === updated.tickerCode
+                ? { ...item, ...updated }
+                : item,
+            ),
+        );
+      });
+    });
+    stocksSubscribedRef.current = true;
+  };
+
+  // ── STOMP 연결 및 지수 구독 ─────────────────────────────────────────────
   useEffect(() => {
     const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
     const client = new Client({
@@ -166,30 +192,29 @@ export default function StockList() {
               ),
           );
         });
-
-        stocks.forEach(({ tickerCode }) => {
-          client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
-            const msg: StockItemMessage = JSON.parse(message.body);
-            console.log("[STOMP] 종목리스트 메시지 수신:", msg.data);
-            const updated = parseStockItemMessage(msg);
-            queryClient.setQueryData<StockItem[]>(
-              stockQueryKeys.stocks,
-              (prev = []) =>
-                prev.map((item) =>
-                  item.tickerCode === updated.tickerCode ? updated : item,
-                ),
-            );
-          });
-        });
       },
-      onDisconnect: () => console.log("[STOMP] 연결 끊김"),
+      onDisconnect: () => {
+        console.log("[STOMP] 연결 끊김");
+        stocksSubscribedRef.current = false;
+      },
       onStompError: (frame) => console.error("[STOMP] 에러:", frame),
     });
+    clientRef.current = client;
     client.activate();
     return () => {
       client.deactivate();
+      clientRef.current = null;
+      stocksSubscribedRef.current = false;
     };
-  }, [queryClient, stocks]);
+  }, [queryClient]);
+
+  // ── stocks 로드 완료 후 구독 (STOMP가 먼저 연결된 경우) ────────────────
+  useEffect(() => {
+    if (stocks.length === 0 || stocksSubscribedRef.current) return;
+    const client = clientRef.current;
+    if (!client?.connected) return;
+    subscribeStocks(client, stocks);
+  }, [stocks]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = stocks
     .filter((s) => sector === "전체" || SECTOR_MAP[s.sectorType] === sector)
@@ -203,7 +228,7 @@ export default function StockList() {
       if (sort === "상승순") return b.changeRate - a.changeRate;
       if (sort === "하락순") return a.changeRate - b.changeRate;
       if (sort === "고가순") return b.currentPrice - a.currentPrice;
-      return 0; // 거래량순: 서버 기본 순서 유지
+      return b.volume - a.volume; // 거래량순: 서버 기본 순서 유지
     });
 
   return (
@@ -285,6 +310,12 @@ export default function StockList() {
               <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
                 등락률
               </th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+                거래량
+              </th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+                시가총액
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -295,7 +326,7 @@ export default function StockList() {
             ) : (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={6}
                   className="text-center py-12 text-[14px] text-gray-400"
                 >
                   검색 결과가 없습니다.
