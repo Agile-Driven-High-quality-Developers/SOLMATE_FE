@@ -27,10 +27,9 @@ export default function SummaryCard({
         {label}
       </p>
       <p
-        className={`text-[22px] font-bold ${
+        className={`font-bold ${isBlue ? "text-[28px]" : "text-[22px]"} ${
           valueColor ?? (isBlue ? "text-white" : "text-gray-900")
         }`}
-        style={variant === "blue" ? { fontSize: "28px" } : undefined}
       >
         {value}
       </p>
