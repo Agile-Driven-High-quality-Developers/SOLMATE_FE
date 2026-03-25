@@ -31,6 +31,7 @@ export default function HoldingList({
   hasMore = false,
   onLoadMore,
   isLoading = false,
+  showAvgPrice = true,
 }: Props) {
   const sentinelRef = useRef<HTMLTableRowElement>(null);
 
