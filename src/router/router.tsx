@@ -9,6 +9,7 @@ import StockList from "@/pages/stocks/StockList";
 import ProtectedRoute from "./ProtectedRoute";
 import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
 import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPage";
+import ProfilePage from "@/pages/profile/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
           { index: true, element: <HomePage /> },
           { path: "invest", element: <StockList /> },
           { path: "components", element: <ComponentsPage /> },
+          { path: "profile", element: <ProfilePage /> },
           {
             path: "trade-diary",
             children: [
