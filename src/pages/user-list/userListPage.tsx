@@ -2,8 +2,16 @@ import { useRef, useCallback, useState } from "react";
 import { Search } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
-import { useUserListInfiniteQuery } from "@/api/userListApi";
+import {
+  useUserListInfiniteQuery,
+  useUserListCacheUpdate,
+  followUser,
+  unfollowUser,
+  requestMentoring,
+  cancelMentoring,
+} from "@/api/userListApi";
 import type { UserItem } from "@/api/userListApi";
+import { useAccountSummaryQuery, useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
@@ -62,14 +70,20 @@ function Podium({ users }: { users: UserItem[] }) {
 
 // ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
 
-function FollowButton({ user }: { user: UserItem }) {
+function FollowButton({
+  user,
+  onToggle,
+}: {
+  user: UserItem;
+  onToggle: (user: UserItem) => void;
+}) {
   if (user.me) return null;
   return user.following ? (
-    <Button variant="primary" width={64} className="text-[12px]">
+    <Button variant="basic" className="text-[12px] w-full" onClick={() => onToggle(user)}>
       팔로잉
     </Button>
   ) : (
-    <Button variant="basic" width={64} className="text-[12px]">
+    <Button variant="primary" className="text-[12px] w-full" onClick={() => onToggle(user)}>
       팔로우
     </Button>
   );
@@ -78,33 +92,86 @@ function FollowButton({ user }: { user: UserItem }) {
 function MentoringButton({
   user,
   hasAcceptedMentor,
+  onRequest,
+  onCancel,
 }: {
   user: UserItem;
   hasAcceptedMentor: boolean;
+  onRequest: (user: UserItem) => void;
+  onCancel: (user: UserItem) => void;
 }) {
   if (user.me) return null;
 
+  // 멘토가 있는 상태에서 다른 사람은 버튼 숨김 (내 멘토만 표시)
+  if (hasAcceptedMentor && user.mentoringStatus !== "ACCEPTED") return null;
+
   if (user.mentoringStatus === "ACCEPTED") {
     return (
-      <Button variant="primary" width={72} className="text-[12px] bg-orange-400 hover:bg-orange-500 border-none">
+      <button
+        disabled
+        className="w-full py-1.5 rounded-[10px] text-[12px] text-white bg-orange-400 cursor-default"
+      >
         멘토
-      </Button>
+      </button>
     );
   }
   if (user.mentoringStatus === "PENDING") {
     return (
       <button
         disabled
-        className="w-18 py-1.5 rounded-[10px] text-[12px] border border-orange-400 text-orange-400 bg-white cursor-default"
+        className="w-full py-1.5 rounded-[10px] text-[12px] border border-orange-400 text-orange-400 bg-white cursor-default opacity-60"
       >
         신청완료
       </button>
     );
   }
   return (
-    <Button variant="basic" width={72} className="text-[12px]">
-      <span className={hasAcceptedMentor ? "opacity-40" : ""}>멘토신청</span>
-    </Button>
+    <button
+      disabled={hasAcceptedMentor}
+      className={`w-full py-1.5 rounded-[10px] text-[12px] text-white bg-orange-400 hover:bg-orange-500 ${hasAcceptedMentor ? "opacity-40 cursor-default" : ""}`}
+      onClick={() => !hasAcceptedMentor && onRequest(user)}
+    >
+      멘토신청
+    </button>
+  );
+}
+
+// ─── Return Rate / Amount Cells ───────────────────────────────────────────────
+
+function ReturnCells({ userId, me }: { userId: number; me: boolean }) {
+  const myQuery = useAccountSummaryQuery();
+  const otherQuery = useAccountSummaryByUserQuery(userId);
+  const { data, isLoading } = me ? myQuery : otherQuery;
+
+  if (isLoading) {
+    return (
+      <>
+        <td className="px-4 py-3.5 text-right">
+          <div className="h-3 bg-gray-100 rounded-full w-14 ml-auto animate-pulse" />
+        </td>
+        <td className="px-4 py-3.5 text-right">
+          <div className="h-3 bg-gray-100 rounded-full w-16 ml-auto animate-pulse" />
+        </td>
+      </>
+    );
+  }
+
+  const rate = data?.totalReturnRate ?? 0;
+  const amount = data?.totalReturnAmount ?? 0;
+  const isPositive = rate > 0;
+  const isNegative = rate < 0;
+  const color = isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400";
+  const prefix = isPositive ? "+" : "";
+
+  return (
+    <>
+      <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
+        {prefix}{rate.toFixed(1)}%
+      </td>
+      <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
+        {prefix}{(amount / 10000).toFixed(0)}만원
+      </td>
+    </>
   );
 }
 
@@ -114,15 +181,21 @@ function UserRow({
   user,
   rank,
   hasAcceptedMentor,
+  onFollowToggle,
+  onMentoringRequest,
+  onMentoringCancel,
 }: {
   user: UserItem;
   rank: number;
   hasAcceptedMentor: boolean;
+  onFollowToggle: (user: UserItem) => void;
+  onMentoringRequest: (user: UserItem) => void;
+  onMentoringCancel: (user: UserItem) => void;
 }) {
   return (
     <tr className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${user.me ? "bg-blue-50/40" : ""}`}>
       {/* 순위 */}
-      <td className="px-5 py-3.5 w-12">
+      <td className="px-5 py-3.5 text-center">
         <span className={`text-[14px] font-bold ${rank <= 3 ? "text-[#0046FF]" : "text-gray-400"}`}>
           {rank}
         </span>
@@ -151,14 +224,22 @@ function UserRow({
         {user.followerCount.toLocaleString()}명
       </td>
 
+      {/* 총 수익률 / 총 수익 */}
+      <ReturnCells userId={user.userId} me={user.me} />
+
       {/* 팔로우 */}
-      <td className="px-3 py-3.5 text-right">
-        <FollowButton user={user} />
+      <td className="px-4 py-3.5 text-center">
+        <FollowButton user={user} onToggle={onFollowToggle} />
       </td>
 
-      {/* 멘토신청 */}
-      <td className="px-5 py-3.5 text-right">
-        <MentoringButton user={user} hasAcceptedMentor={hasAcceptedMentor} />
+      {/* 멘토 */}
+      <td className="px-4 py-3.5 text-center">
+        <MentoringButton
+          user={user}
+          hasAcceptedMentor={hasAcceptedMentor}
+          onRequest={onMentoringRequest}
+          onCancel={onMentoringCancel}
+        />
       </td>
     </tr>
   );
@@ -172,9 +253,41 @@ export default function UserListPage() {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useUserListInfiniteQuery();
+  const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
 
   const allUsers = data?.pages.flatMap((p) => p.users) ?? [];
   const hasAcceptedMentor = data?.pages[0]?.hasAcceptedMentor ?? false;
+
+  async function handleFollowToggle(user: UserItem) {
+    toggleFollow(user.userId, !user.following);
+    try {
+      if (user.following) {
+        await unfollowUser(user.userId);
+      } else {
+        await followUser(user.userId);
+      }
+    } catch {
+      toggleFollow(user.userId, user.following);
+    }
+  }
+
+  async function handleMentoringRequest(user: UserItem) {
+    setMentoringStatus(user.userId, "PENDING", hasAcceptedMentor);
+    try {
+      await requestMentoring(user.userId);
+    } catch {
+      setMentoringStatus(user.userId, "NONE", hasAcceptedMentor);
+    }
+  }
+
+  async function handleMentoringCancel(user: UserItem) {
+    setMentoringStatus(user.userId, "NONE", false);
+    try {
+      await cancelMentoring(user.userId);
+    } catch {
+      setMentoringStatus(user.userId, "ACCEPTED", true);
+    }
+  }
 
   const filtered = allUsers
     .filter((u) => tab === "전체" || u.following)
@@ -249,11 +362,13 @@ export default function UserListPage() {
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium">순위</th>
+              <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-16">순위</th>
               <th className="text-left px-2 py-3 text-[12px] text-gray-400 font-medium">투자자</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">팔로워</th>
-              <th className="text-right px-3 py-3 text-[12px] text-gray-400 font-medium">팔로우</th>
-              <th className="text-right px-5 py-3 text-[12px] text-gray-400 font-medium">멘토신청</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-20">팔로워</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">총 수익률</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-28">총 수익</th>
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">팔로우</th>
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">멘토</th>
             </tr>
           </thead>
           <tbody>
@@ -268,6 +383,8 @@ export default function UserListPage() {
                       </div>
                     </td>
                     <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-10 ml-auto" /></td>
+                    <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-14 ml-auto" /></td>
+                    <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-16 ml-auto" /></td>
                     <td className="px-3 py-4"><div className="h-7 bg-gray-100 rounded-lg w-16 ml-auto" /></td>
                     <td className="px-5 py-4"><div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" /></td>
                   </tr>
@@ -278,6 +395,9 @@ export default function UserListPage() {
                     user={user}
                     rank={i + 1}
                     hasAcceptedMentor={hasAcceptedMentor}
+                    onFollowToggle={handleFollowToggle}
+                    onMentoringRequest={handleMentoringRequest}
+                    onMentoringCancel={handleMentoringCancel}
                   />
                 ))}
           </tbody>

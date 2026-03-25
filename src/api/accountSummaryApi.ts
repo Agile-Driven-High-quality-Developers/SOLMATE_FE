@@ -43,3 +43,14 @@ export function useAccountSummaryQuery() {
     refetchInterval: 10_000,
   });
 }
+
+export function useAccountSummaryByUserQuery(userId: number) {
+  return useQuery({
+    queryKey: ["account-summary", userId],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<AccountSummaryData>>(`/api/account/summary/${userId}`)
+        .then((res) => res.data),
+    staleTime: 30_000,
+  });
+}

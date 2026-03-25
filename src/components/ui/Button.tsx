@@ -3,6 +3,7 @@ type ButtonProps = {
   variant?: "primary" | "basic" | "invalid";
   width?: number;
   className?: string;
+  disabled?: boolean;
   onClick?: () => void;
 };
 
@@ -17,6 +18,7 @@ export default function Button({
   variant = "primary",
   width,
   className,
+  disabled,
   onClick,
 }: ButtonProps) {
   return (
@@ -28,6 +30,7 @@ export default function Button({
         variantClass[variant],
         className,
       ].join(" ")}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}
