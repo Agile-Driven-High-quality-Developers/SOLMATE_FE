@@ -19,13 +19,24 @@ const COLORS = [
   "#84CC16",
 ];
 
+const TOP_N = 5;
+
+function toDisplayItems(items: PortfolioItem[]) {
+  if (items.length <= TOP_N) return items;
+  const top = items.slice(0, TOP_N);
+  const etcRatio = items.slice(TOP_N).reduce((s, i) => s + i.ratio, 0);
+  return [...top, { stockName: "기타", ratio: etcRatio }];
+}
+
 export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
+  const displayed = toDisplayItems(items);
+
   const chartData = {
-    labels: items.map((i) => i.stockName),
+    labels: displayed.map((i) => i.stockName),
     datasets: [
       {
-        data: items.map((i) => i.ratio),
-        backgroundColor: COLORS.slice(0, items.length),
+        data: displayed.map((i) => i.ratio),
+        backgroundColor: COLORS.slice(0, displayed.length),
         borderWidth: 0,
         hoverOffset: 6,
       },
@@ -60,7 +71,7 @@ export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
         </div>
 
         <div className="w-full flex flex-col gap-2.5">
-          {items.map((item, idx) => (
+          {displayed.map((item, idx) => (
             <div key={item.stockName} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span
