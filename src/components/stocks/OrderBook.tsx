@@ -12,10 +12,10 @@ export default function OrderBook({ orderBook }: Props) {
     <div className="bg-white rounded-2xl border border-gray-100 p-4">
       <h3 className="text-[14px] font-semibold text-gray-900 mb-3">호가 (10단계)</h3>
       <div className="flex flex-col text-[13px]">
-        {/* 매도호가 — 파랑, 높은 가격이 위 */}
+        {/* 매도호가 — 빨강, 높은 가격이 위 */}
         {sellLevels.map((level, i) => (
           <div key={i} className="flex justify-between py-1.5 border-b border-gray-50">
-            <span className="text-blue-500 font-medium tabular-nums">
+            <span className="text-red-500 font-medium tabular-nums">
               {level.price.toLocaleString()}
             </span>
             <span className="text-gray-400 tabular-nums">{level.quantity.toLocaleString()}</span>
@@ -32,10 +32,10 @@ export default function OrderBook({ orderBook }: Props) {
           </span>
         </div>
 
-        {/* 매수호가 — 빨강, 높은 가격이 위 */}
+        {/* 매수호가 — 파랑, 높은 가격이 위 */}
         {buyLevels.map((level, i) => (
           <div key={i} className="flex justify-between py-1.5 border-b border-gray-50">
-            <span className="text-red-500 font-medium tabular-nums">
+            <span className="text-blue-500 font-medium tabular-nums">
               {level.price.toLocaleString()}
             </span>
             <span className="text-gray-400 tabular-nums">{level.quantity.toLocaleString()}</span>

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
+import { useStockStore } from "@/store/stockStore";
 
 import { useMarketIndicesQuery } from "@/api/homeApi";
 import { fetchStocks, parseStockItemMessage } from "@/api/stockApi";
@@ -87,9 +89,9 @@ function MarketPanel({
 
 // ─── 종목 행 ──────────────────────────────────────────────────────────────────
 
-function StockRow({ stock }: { stock: StockItem }) {
+function StockRow({ stock, onClick }: { stock: StockItem; onClick: () => void }) {
   return (
-    <tr className="hover:bg-gray-50/50 transition-colors">
+    <tr className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={onClick}>
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
           <Avatar
@@ -124,10 +126,10 @@ function StockRow({ stock }: { stock: StockItem }) {
         </span>
       </td>
       <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
-        {stock.volume.toLocaleString()}
+        {stock.volume?.toLocaleString() ?? "-"}
       </td>
       <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
-        {stock.total.toLocaleString()}
+        {stock.total?.toLocaleString() ?? "-"}
       </td>
     </tr>
   );
@@ -136,6 +138,8 @@ function StockRow({ stock }: { stock: StockItem }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function StockList() {
+  const navigate = useNavigate();
+  const setSelectedStock = useStockStore((s) => s.setSelectedStock);
   const { data: marketIndices = [], isLoading: loadingMarket } =
     useMarketIndicesQuery();
 
@@ -289,7 +293,14 @@ export default function StockList() {
           <tbody className="divide-y divide-gray-50">
             {filtered.length > 0 ? (
               filtered.map((stock) => (
-                <StockRow key={stock.tickerCode} stock={stock} />
+                <StockRow
+                  key={stock.tickerCode}
+                  stock={stock}
+                  onClick={() => {
+                    setSelectedStock(stock);
+                    navigate(`/invest/${stock.tickerCode}`);
+                  }}
+                />
               ))
             ) : (
               <tr>

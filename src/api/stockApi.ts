@@ -196,9 +196,8 @@ export function useOrderBookQuery(stockCode: string) {
       fetchClient
         .get<ApiResponse<OrderBookData>>(`/api/stocks/${stockCode}/orderbook`)
         .then((res) => res.data),
-    staleTime: 2_000,
+    staleTime: 60_000,
     enabled: !!stockCode,
-    refetchInterval: 3_000,
   });
 }
 
@@ -270,6 +269,7 @@ export function useCancelOrderMutation(tickerCode: string) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── API ──────────────────────────────────────────────────────────────────────
 
 const S3_BASE_URL = import.meta.env.VITE_S3_BASE_URL ?? "";
 
