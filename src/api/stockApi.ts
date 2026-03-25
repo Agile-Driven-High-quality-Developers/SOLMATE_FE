@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/fetchClient";
 import type { ApiResponse } from "./authApi";
 
@@ -26,32 +25,18 @@ export type StockItemMessage = {
   chetime: string;
 };
 
-// ─── Query Keys ───────────────────────────────────────────────────────────────
-
-export const stockQueryKeys = {
-  stocks: ["stocks"] as const,
-};
-
-// ─── React Query Hooks ────────────────────────────────────────────────────────
-
-export function useStocksQuery() {
-  return useQuery({
-    queryKey: stockQueryKeys.stocks,
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<StockItem[]>>("/api/stocks")
-        .then((res) =>
-          res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) })),
-        ),
-    staleTime: 30_000,
-  });
-}
+// ─── API ──────────────────────────────────────────────────────────────────────
 
 const S3_BASE_URL = import.meta.env.VITE_S3_BASE_URL ?? "";
 
 function toLogoUrl(logo: string): string {
   if (!logo || logo.startsWith("http")) return logo;
   return `${S3_BASE_URL}/${logo}`;
+}
+
+export async function fetchStocks(): Promise<StockItem[]> {
+  const res = await fetchClient.get<ApiResponse<StockItem[]>>("/api/stocks");
+  return res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }));
 }
 
 export function parseStockItemMessage(msg: StockItemMessage): {
