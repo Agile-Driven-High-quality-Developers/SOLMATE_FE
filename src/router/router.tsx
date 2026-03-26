@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import ComponentsPage from "@/pages/ComponentsPage";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignUpPage from "@/pages/auth/SignUpPage";
@@ -10,9 +9,9 @@ import StockDetailPage from "@/pages/stocks/StockDetailPage";
 import ProtectedRoute from "./ProtectedRoute";
 import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
 import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPage";
+import ProfilePage from "@/pages/profile/ProfilePage";
 import UserListPage from "@/pages/user-list/userListPage";
 import AccountPage from "@/pages/account/AccountPage";
-import ProfilePage from "@/pages/profile/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -32,7 +31,6 @@ export const router = createBrowserRouter([
           },
           { path: "account", element: <AccountPage /> },
           { path: "profile", element: <ProfilePage /> },
-          { path: "components", element: <ComponentsPage /> },
           {
             path: "trade-diary",
             children: [

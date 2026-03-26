@@ -1,80 +1,116 @@
+import { Settings, LogOut, Trash2 } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
-import { Pencil, LogOut, Trash2 } from "lucide-react";
 
 type Props = {
   nickname: string;
-  email: string;
-  followerCount: number;
-  followingCount: number;
-  returnRate: number;
-  returnAmount: number;
-  onEditProfile?: () => void;
-  onLogout?: () => void;
-  onWithdraw?: () => void;
+  email?: string;
+  profileImageUrl?: string | null;
+
+  followers: number;
+  following: number;
+  totalReturnRate: number;
+  totalReturn: number;
+  onEditClick: () => void;
+  onLogoutClick: () => void;
+  onDeleteClick: () => void;
+  onFollowersClick: () => void;
+  onFollowingClick: () => void;
 };
 
-function fmt(n: number) {
-  if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(0)}만원`;
-  return `${n.toLocaleString()}원`;
+function fmtAmount(n: number) {
+  if (Math.abs(n) >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억`;
+  if (Math.abs(n) >= 10_000) return `${(n / 10_000).toFixed(0)}만`;
+  return n.toLocaleString("ko-KR");
 }
 
 export default function ProfileCard({
   nickname,
   email,
-  followerCount,
-  followingCount,
-  returnRate,
-  returnAmount,
-  onEditProfile,
-  onLogout,
-  onWithdraw,
+  profileImageUrl,
+  followers,
+  following,
+  totalReturnRate,
+  totalReturn,
+  onEditClick,
+  onLogoutClick,
+  onDeleteClick,
+  onFollowersClick,
+  onFollowingClick,
 }: Props) {
-  const isPositive = returnRate >= 0;
+  const isPositive = totalReturnRate >= 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col items-center gap-5">
-      <div className="flex flex-col items-center gap-2">
-        <Avatar name={nickname} size={80} />
-        <div className="text-center">
-          <p className="text-[17px] font-bold text-gray-900">{nickname}</p>
+    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+      {/* 아바타 + 닉네임 + 이메일 */}
+      <div className="flex flex-col items-center text-center mb-4">
+        <div className="mb-3">
+          <Avatar name={nickname} src={profileImageUrl ?? undefined} size={80} />
+        </div>
+        <h2 className="text-[17px] font-bold text-gray-900">{nickname}</h2>
+        {email && (
           <p className="text-[13px] text-gray-400 mt-0.5">{email}</p>
-        </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 w-full border-y border-gray-100 py-3">
-        <div className="flex flex-col items-center gap-0.5 border-r border-gray-100">
-          <p className="text-[16px] font-bold text-gray-900">{followerCount}</p>
+      {/* 팔로워 / 팔로잉 */}
+      <div className="flex gap-1 mb-4">
+        <button
+          onClick={onFollowersClick}
+          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 transition-colors"
+        >
+          <p className="text-[15px] font-bold text-gray-900">{followers}</p>
           <p className="text-[12px] text-gray-400">팔로워</p>
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <p className="text-[16px] font-bold text-gray-900">{followingCount}</p>
+        </button>
+        <div className="w-px bg-gray-100" />
+        <button
+          onClick={onFollowingClick}
+          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 transition-colors"
+        >
+          <p className="text-[15px] font-bold text-gray-900">{following}</p>
           <p className="text-[12px] text-gray-400">팔로잉</p>
-        </div>
-        <div className="flex flex-col items-center gap-0.5 border-r border-gray-100 pt-3">
-          <p className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-            {isPositive ? "+" : ""}{returnRate.toFixed(2)}%
-          </p>
-          <p className="text-[12px] text-gray-400">수익률</p>
-        </div>
-        <div className="flex flex-col items-center gap-0.5 pt-3">
-          <p className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-            {isPositive ? "+" : ""}{fmt(returnAmount)}
-          </p>
-          <p className="text-[12px] text-gray-400">총 수익</p>
-        </div>
-
+        </button>
       </div>
 
-      <div className="flex flex-col w-full gap-2">
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-1.5" onClick={onEditProfile}>
-          <Pencil size={14} />프로필 편집
+      {/* 수익률 / 총 수익 */}
+      <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mb-4">
+        <div className="text-center">
+          <p className="text-[12px] text-gray-400 mb-1">수익률</p>
+          <p
+            className={`text-[13px] font-bold ${
+              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
+            }`}
+          >
+            {isPositive ? "+" : ""}
+            {totalReturnRate.toFixed(1)}%
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-[12px] text-gray-400 mb-1">총 수익</p>
+          <p
+            className={`text-[13px] font-bold ${
+              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
+            }`}
+          >
+            {isPositive ? "+" : ""}
+            {fmtAmount(totalReturn)}원
+          </p>
+        </div>
+      </div>
+
+      {/* 액션 버튼 */}
+      <div className="space-y-2 pt-4 border-t border-gray-100">
+        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
+          <Settings size={14} />
+          프로필 편집
         </Button>
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-1.5" onClick={onLogout}>
-          <LogOut size={14} />로그아웃
+        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
+          <LogOut size={14} />
+          로그아웃
         </Button>
-        <Button variant="danger" className="w-full flex items-center justify-center gap-1.5" onClick={onWithdraw}>
-          <Trash2 size={14} />회원탈퇴
+        <Button variant="invalid" className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50!" onClick={onDeleteClick}>
+          <Trash2 size={14} />
+          회원탈퇴
         </Button>
       </div>
     </div>
