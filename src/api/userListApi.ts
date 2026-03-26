@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/fetchClient";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "./authApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
