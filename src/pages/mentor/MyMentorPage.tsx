@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, TrendingUp, Loader2 } from "lucide-react";
+import { Users, TrendingUp, Loader2, X } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
@@ -28,9 +28,33 @@ function fmtAmount(n: number) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+function CancelMentorModal({ mentorNickname, onClose, onConfirm }: { mentorNickname: string; onClose: () => void; onConfirm: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="bg-white rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <p className="text-[15px] font-bold text-gray-900">멘토 취소</p>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="px-6 py-6">
+          <p className="text-[14px] text-gray-700 font-medium mb-1"><span className="font-bold text-[#0046FF]">{mentorNickname}</span> 멘토를 취소하시겠어요?</p>
+          <p className="text-[13px] text-gray-400">멘토 취소 후에도 다시 신청할 수 있어요.</p>
+        </div>
+        <div className="flex gap-2 px-6 pb-6">
+          <Button variant="invalid" className="flex-1 py-2.5" onClick={onClose}>취소</Button>
+          <Button variant="danger" className="flex-1 py-2.5" onClick={onConfirm}>멘토 취소</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MyMentorPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("portfolio");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const mentorId = 10;
   const { data: mentor, isLoading: loadingMentor } = useUserProfileQuery(mentorId);
@@ -74,6 +98,16 @@ export default function MyMentorPage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+      {showCancelModal && (
+        <CancelMentorModal
+          mentorNickname={mentor.nickname}
+          onClose={() => setShowCancelModal(false)}
+          onConfirm={() => {
+            // TODO: 멘토 취소 API 연동
+            setShowCancelModal(false);
+          }}
+        />
+      )}
       {/* 헤더 */}
       <div>
         <h1 className="text-[22px] font-bold text-gray-900">나의 멘토</h1>
@@ -118,7 +152,7 @@ export default function MyMentorPage() {
             <Button variant="basic" className="px-4 py-2 text-[13px]" onClick={() => navigate(`/users/${mentor.userId}`)}>
               프로필 보기
             </Button>
-            <Button variant="danger" className="px-4 py-2 text-[13px] flex items-center gap-1.5">
+            <Button variant="danger" className="px-4 py-2 text-[13px] flex items-center gap-1.5" onClick={() => setShowCancelModal(true)}>
               <Users size={13} />
               멘토 취소
             </Button>
