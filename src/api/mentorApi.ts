@@ -79,7 +79,7 @@ export function useMentorDiariesQuery(userId: number) {
     queryKey: mentorQueryKeys.diaries(userId),
     queryFn: () =>
       fetchClient
-        .get<ApiResponse<MyDiariesItem[]>>(`/api/diaries/user/${userId}`)
+        .get<ApiResponse<MyDiariesItem[]>>(`/api/diaries/users/${userId}`)
         .then((res) => res.data),
     staleTime: 30_000,
     enabled: !!userId,

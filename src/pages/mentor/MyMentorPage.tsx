@@ -7,7 +7,7 @@ import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
-import { useMyMentorQuery, useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
+import { useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -32,10 +32,8 @@ export default function MyMentorPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("portfolio");
 
-  const { data: mentorRef, isLoading: loadingMentor } = useMyMentorQuery();
-  const mentorId = mentorRef?.userId ?? 0;
-
-  const { data: mentor } = useUserProfileQuery(mentorId);
+  const mentorId = 10;
+  const { data: mentor, isLoading: loadingMentor } = useUserProfileQuery(mentorId);
   const { data: summary } = useAccountSummaryByUserQuery(mentorId);
   const { data: holdingsRaw = [] } = useMentorHoldingsQuery(mentorId);
   const { data: diaries = [] } = useMentorDiariesQuery(mentorId);
