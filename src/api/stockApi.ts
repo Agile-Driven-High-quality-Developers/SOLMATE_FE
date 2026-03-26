@@ -32,6 +32,7 @@ export type StockItemMessage = {
 export type StockQuote = {
   stockCode: string;
   stockName: string;
+  stockLogo: string;
   currentPrice: number;
   changePrice: number; // 전일 대비
   changeRate: number; // 등락률 (%)

@@ -119,7 +119,7 @@ export default function StockDetailPage() {
   const headerStock = {
     tickerCode: quote.stockCode,
     stockName: quote.stockName,
-    stockLogo: selectedStock?.stockLogo ?? "",
+    stockLogo: quote.stockLogo,
     sectorType: selectedStock?.sectorType ?? "",
     currentPrice: quote.currentPrice,
     change: quote.changePrice,
