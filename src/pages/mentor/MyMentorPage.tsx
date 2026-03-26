@@ -1,39 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, TrendingUp } from "lucide-react";
+import { Users, TrendingUp, Loader2 } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const MOCK_MENTOR = {
-  userId: 10,
-  nickname: "주식마스터",
-  imageUrl: "",
-  followerCount: 542,
-  totalReturnRate: 48.3,
-  totalReturnAmount: 18500000,
-};
-
-const MOCK_PORTFOLIO = [
-  { tickerCode: "005930", name: "삼성전자", ratio: 30 },
-  { tickerCode: "000660", name: "SK하이닉스", ratio: 20 },
-  { tickerCode: "035420", name: "NAVER", ratio: 18 },
-  { tickerCode: "005380", name: "현대차", ratio: 17 },
-  { tickerCode: "105560", name: "KB금융", ratio: 15 },
-];
-
-const MOCK_HOLDINGS = [
-  { tickerCode: "005930", stockName: "삼성전자", stockLogo: "", quantity: 15, averageBuyPrice: 0, currentPrice: 73400, evaluationAmount: 1101000, profitRate: 7.62, profitAmount: 78000 },
-  { tickerCode: "000660", stockName: "SK하이닉스", stockLogo: "", quantity: 5, averageBuyPrice: 0, currentPrice: 192500, evaluationAmount: 962500, profitRate: 10.63, profitAmount: 92500 },
-  { tickerCode: "035420", stockName: "NAVER", stockLogo: "", quantity: 12, averageBuyPrice: 0, currentPrice: 178000, evaluationAmount: 2136000, profitRate: 7.87, profitAmount: 156800 },
-  { tickerCode: "005380", stockName: "현대차", stockLogo: "", quantity: 8, averageBuyPrice: 0, currentPrice: 241500, evaluationAmount: 1932000, profitRate: 7.33, profitAmount: 132000 },
-  { tickerCode: "105560", stockName: "KB금융", stockLogo: "", quantity: 35, averageBuyPrice: 0, currentPrice: 87200, evaluationAmount: 3052000, profitRate: 9.04, profitAmount: 253000 },
-];
+import { useMyMentorQuery, useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
+import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -56,8 +31,48 @@ function fmtAmount(n: number) {
 export default function MyMentorPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("portfolio");
-  const mentor = MOCK_MENTOR;
-  const isPositive = mentor.totalReturnRate >= 0;
+
+  const { data: mentorRef, isLoading: loadingMentor } = useMyMentorQuery();
+  const mentorId = mentorRef?.userId ?? 0;
+
+  const { data: mentor } = useUserProfileQuery(mentorId);
+  const { data: summary } = useAccountSummaryByUserQuery(mentorId);
+  const { data: holdingsRaw = [] } = useMentorHoldingsQuery(mentorId);
+  const { data: diaries = [] } = useMentorDiariesQuery(mentorId);
+  const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(mentorId);
+
+  const holdings = holdingsRaw.map((h) => ({
+    tickerCode: h.tickerCode,
+    stockName: h.stockName,
+    stockLogo: h.stockLogo,
+    quantity: h.quantity,
+    averageBuyPrice: 0,
+    currentPrice: h.currentPrice,
+    evaluationAmount: h.evaluation,
+    profitRate: h.returnRate,
+    profitAmount: h.returnAmount,
+  }));
+
+  if (loadingMentor) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-screen">
+        <Loader2 size={32} className="animate-spin text-[#0046FF]" />
+      </div>
+    );
+  }
+
+  if (!mentor) {
+    return (
+      <div className="flex flex-col h-screen p-6 gap-5 bg-gray-50">
+        <h1 className="text-[22px] font-bold text-gray-900">나의 멘토</h1>
+        <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400">
+          아직 멘토가 없습니다.
+        </div>
+      </div>
+    );
+  }
+
+  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
@@ -87,13 +102,13 @@ export default function MyMentorPage() {
                   <TrendingUp size={12} className="text-gray-400" />
                   <span>총 수익률</span>
                   <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{mentor.totalReturnRate.toFixed(1)}%
+                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
                   <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{fmtAmount(mentor.totalReturnAmount)}
+                    {isPositive ? "+" : ""}{fmtAmount(summary?.totalReturnAmount ?? 0)}
                   </span>
                 </div>
               </div>
@@ -121,15 +136,15 @@ export default function MyMentorPage() {
           onChange={(id) => setActiveTab(id as TabId)}
         />
         <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
-          {activeTab === "diary" && <TradeDiaryTab items={[]} />}
-          {activeTab === "history" && <TradeHistoryTab items={[]} />}
+          {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
+          {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
           {activeTab === "portfolio" && (
             <PortfolioTab
-              totalEvaluation={9183500}
-              totalReturnRate={12.5}
-              totalReturnAmount={1250000}
-              portfolio={MOCK_PORTFOLIO}
-              holdings={MOCK_HOLDINGS}
+              totalEvaluation={summary?.totalEvaluation ?? 0}
+              totalReturnRate={summary?.totalReturnRate ?? 0}
+              totalReturnAmount={summary?.totalReturnAmount ?? 0}
+              portfolio={summary?.holdingsRatio ?? []}
+              holdings={holdings}
               compact={false}
               showAvgPrice={false}
             />
