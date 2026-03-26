@@ -12,6 +12,7 @@ import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPag
 import ProfilePage from "@/pages/profile/ProfilePage";
 import UserListPage from "@/pages/user-list/userListPage";
 import AccountPage from "@/pages/account/AccountPage";
+import NotificationPage from "@/pages/notification/NotificationPage";
 import MyMentorPage from "@/pages/mentor/MyMentorPage";
 
 export const router = createBrowserRouter([
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
             ],
           },
           { path: "users", element: <UserListPage /> },
+          { path: "notifications", element: <NotificationPage /> },
           { path: "users/:userId", element: <div /> },
           { path: "mentor", element: <MyMentorPage /> },
         ],
