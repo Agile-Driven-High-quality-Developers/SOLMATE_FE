@@ -6,7 +6,7 @@ import { authApi } from "@/api/authApi";
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { useTradeHistoryQuery } from "@/api/tradeApi";
 import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
-import { useFollowersQuery, useFollowingQuery } from "@/api/userListApi";
+import { useMyProfileQuery } from "@/api/userListApi";
 import ProfileCard from "@/components/profile/ProfileCard";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
@@ -16,17 +16,6 @@ import FollowList from "@/components/profile/FollowList";
 import EditProfileModal from "@/components/profile/EditProfileModal";
 import DeleteAccountModal from "@/components/profile/DeleteAccountModal";
 import LogoutModal from "@/components/profile/LogoutModal";
-
-const MOCK_FOLLOWERS = [
-  { userId: 1, nickname: "투자왕김철수", imageUrl: "" },
-  { userId: 2, nickname: "주식고수박영희", imageUrl: "" },
-  { userId: 3, nickname: "강남불패이민준", imageUrl: "" },
-];
-
-const MOCK_FOLLOWING = [
-  { userId: 4, nickname: "워렌버핏팬", imageUrl: "" },
-  { userId: 5, nickname: "테슬라홀더", imageUrl: "" },
-];
 
 const TABS = [
   { id: "diary", label: "매매일지" },
@@ -46,12 +35,11 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
   const [modal, setModal] = useState<"edit" | "logout" | "delete" | null>(null);
+  const { data: myProfile } = useMyProfileQuery();
   const { data: diaries = [] } = useMyDiariesQuery();
   const { data: tradeHistories = [] } = useTradeHistoryQuery();
   const { data: summary } = useAccountSummaryQuery();
   const { data: holdingsRaw = [] } = useHoldingsQuery();
-  const { data: followers = MOCK_FOLLOWERS } = useFollowersQuery();
-  const { data: following = MOCK_FOLLOWING } = useFollowingQuery();
 
   const holdings = holdingsRaw.map((h) => ({
     tickerCode: h.tickerCode,
@@ -80,7 +68,8 @@ export default function ProfilePage() {
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
       {modal === "edit" && (
         <EditProfileModal
-          nickname={user.nickname}
+          nickname={myProfile?.nickname ?? user.nickname}
+          profileImageUrl={myProfile?.imageUrl}
           onClose={() => setModal(null)}
           onSave={(newNickname) => useAuthStore.getState().setAuth(useAuthStore.getState().accessToken!, { nickname: newNickname })}
         />
@@ -103,9 +92,10 @@ export default function ProfilePage() {
         {/* 왼쪽: 프로필 카드 */}
         <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
           <ProfileCard
-            nickname={user.nickname}
-            followers={followers.length}
-            following={following.length}
+            nickname={myProfile?.nickname ?? user.nickname}
+            profileImageUrl={myProfile?.imageUrl}
+            followers={myProfile?.followerCount ?? 0}
+            following={myProfile?.followingCount ?? 0}
             totalReturnRate={summary?.totalReturnRate ?? 0}
             totalReturn={summary?.totalReturnAmount ?? 0}
             onEditClick={() => setModal("edit")}
@@ -115,10 +105,7 @@ export default function ProfilePage() {
             onFollowingClick={() => setFollowModal("following")}
           />
           {followModal && (
-            <FollowList
-              type={followModal}
-              items={followModal === "followers" ? followers : following}
-            />
+            <FollowList type={followModal} />
           )}
         </div>
 

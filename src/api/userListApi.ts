@@ -138,23 +138,33 @@ type FollowListData = {
   hasNext: boolean;
 };
 
-export function useFollowersQuery() {
-  return useQuery({
+export function useFollowersInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "followers"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowListData>>("/api/users/me/followers")
-        .then((res) => res.data.users),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/followers${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
-export function useFollowingQuery() {
-  return useQuery({
+export function useFollowingInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "following"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowListData>>("/api/users/me/following")
-        .then((res) => res.data.users),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/following${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
