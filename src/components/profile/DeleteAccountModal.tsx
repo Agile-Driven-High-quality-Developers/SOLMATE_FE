@@ -17,8 +17,12 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
   const handleDelete = async () => {
     if (!password.trim()) return;
     setLoading(true);
+    setError("");
     try {
-      await fetchClient.delete<ApiResponse<void>>("/api/users/me", { password });
+      // 1단계: 비밀번호 확인
+      await fetchClient.post<ApiResponse<void>>("/api/users/password/check", { password });
+      // 2단계: 회원 탈퇴
+      await fetchClient.delete<ApiResponse<void>>("/api/users");
       onDeleted();
     } catch {
       setError("비밀번호가 올바르지 않습니다.");
@@ -38,7 +42,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
           <p className="text-[13px] text-gray-400 text-center">정말 이 모든 데이터가 삭제됩니다.</p>
         </div>
 
-        <div className="mb-1">
+        <div>
           <input
             type="password"
             value={password}
@@ -50,7 +54,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button variant="ghost" className="flex-1" onClick={onClose}>취소</Button>
+          <Button variant="invalid" className="flex-1" onClick={onClose}>취소</Button>
           <Button variant="danger" className="flex-1" onClick={handleDelete} disabled={!password || loading}>
             {loading ? "처리 중..." : "탈퇴"}
           </Button>

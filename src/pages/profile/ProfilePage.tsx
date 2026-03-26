@@ -13,6 +13,9 @@ import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
 import FollowList from "@/components/profile/FollowList";
+import EditProfileModal from "@/components/profile/EditProfileModal";
+import DeleteAccountModal from "@/components/profile/DeleteAccountModal";
+import LogoutModal from "@/components/profile/LogoutModal";
 
 const MOCK_FOLLOWERS = [
   { userId: 1, nickname: "투자왕김철수", imageUrl: "" },
@@ -40,6 +43,7 @@ export default function ProfilePage() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [activeTab, setActiveTab] = useState<TabId>("diary");
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
+  const [modal, setModal] = useState<"edit" | "logout" | "delete" | null>(null);
   const { data: diaries = [] } = useMyDiariesQuery();
   const { data: tradeHistories = [] } = useTradeHistoryQuery();
   const { data: summary } = useAccountSummaryQuery();
@@ -72,6 +76,22 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+      {modal === "edit" && (
+        <EditProfileModal
+          nickname={user.nickname}
+          onClose={() => setModal(null)}
+          onSave={(newNickname) => useAuthStore.getState().setAuth(useAuthStore.getState().accessToken!, { nickname: newNickname })}
+        />
+      )}
+      {modal === "logout" && (
+        <LogoutModal onClose={() => setModal(null)} onConfirm={handleLogout} />
+      )}
+      {modal === "delete" && (
+        <DeleteAccountModal
+          onClose={() => setModal(null)}
+          onDeleted={() => { clearAuth(); navigate("/login"); }}
+        />
+      )}
       {/* 헤더 */}
       <div>
         <h1 className="text-[22px] font-bold text-gray-900">내 프로필</h1>
@@ -86,9 +106,9 @@ export default function ProfilePage() {
             following={following.length}
             totalReturnRate={summary?.totalReturnRate ?? 0}
             totalReturn={summary?.totalReturnAmount ?? 0}
-            onEditClick={() => {}}
-            onLogoutClick={handleLogout}
-            onDeleteClick={() => {}}
+            onEditClick={() => setModal("edit")}
+            onLogoutClick={() => setModal("logout")}
+            onDeleteClick={() => setModal("delete")}
             onFollowersClick={() => setFollowModal("followers")}
             onFollowingClick={() => setFollowModal("following")}
           />
