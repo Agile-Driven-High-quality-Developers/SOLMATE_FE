@@ -89,16 +89,26 @@ function MarketPanel({
 
 // ─── 종목 행 ──────────────────────────────────────────────────────────────────
 
-function StockRow({ stock, onClick }: { stock: StockItem; onClick: () => void }) {
+function StockRow({
+  stock,
+  onClick,
+  index,
+}: {
+  stock: StockItem;
+  onClick: () => void;
+  index: number;
+}) {
   return (
-    <tr className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={onClick}>
-      <td className="px-5 py-3.5">
+    <tr
+      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+      onClick={onClick}
+    >
+      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 tabular-nums whitespace-nowrap">
+        {index}
+      </td>
+      <td className="px-5 py-3.5 whitespace-nowrap">
         <div className="flex items-center gap-3">
-          <Avatar
-            name={stock.stockName}
-            src={stock.stockLogo}
-            size={34}
-          />
+          <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-semibold text-gray-900">
@@ -111,24 +121,24 @@ function StockRow({ stock, onClick }: { stock: StockItem; onClick: () => void })
           </div>
         </div>
       </td>
-      <td className="px-4 py-3.5 text-[13px] text-gray-500">
+      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
-      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
         {stock.currentPrice.toLocaleString()}
       </td>
-      <td className="px-4 py-3.5 text-right">
+      <td className="px-4 py-3.5 text-center whitespace-nowrap">
         <span
-          className={`text-[13px] font-semibold ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
+          className={`text-[13px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
         >
           {stock.changeRate > 0 ? "+" : ""}
           {stock.changeRate.toFixed(2)}%
         </span>
       </td>
-      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
         {stock.volume?.toLocaleString() ?? "-"}
       </td>
-      <td className="px-4 py-3.5 text-right text-[14px] font-semibold text-gray-900">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
         {stock.total?.toLocaleString() ?? "-"}
       </td>
     </tr>
@@ -267,35 +277,48 @@ export default function StockList() {
 
       {/* 종목 테이블 */}
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <table className="w-full">
+        <table className="w-full table-fixed">
+          <colgroup>
+            <col className="w-[60px]" />
+            <col className="w-[220px]" />
+            <col className="w-[250px]" />
+            <col className="w-[150px]" />
+            <col className="w-[150px]" />
+            <col className="w-[150px]" />
+            <col />
+          </colgroup>
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+                순위
+              </th>
+              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 종목명
               </th>
-              <th className="text-left px-4 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 섹터
               </th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 현재가
               </th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 등락률
               </th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 거래량
               </th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 시가총액
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {filtered.length > 0 ? (
-              filtered.map((stock) => (
+              filtered.map((stock, idx) => (
                 <StockRow
                   key={stock.tickerCode}
                   stock={stock}
+                  index={idx + 1}
                   onClick={() => {
                     setSelectedStock(stock);
                     navigate(`/invest/${stock.tickerCode}`);
@@ -305,7 +328,7 @@ export default function StockList() {
             ) : (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-12 text-[14px] text-gray-400"
                 >
                   검색 결과가 없습니다.
