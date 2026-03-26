@@ -40,6 +40,7 @@ export const router = createBrowserRouter([
             ],
           },
           { path: "users", element: <UserListPage /> },
+          { path: "users/:userId", element: <div /> },
           { path: "mentor", element: <MyMentorPage /> },
         ],
       },
