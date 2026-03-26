@@ -286,14 +286,20 @@ export default function HomePage() {
       </div>
 
       {/* 시장 지수 */}
-      <MarketIndicesRow data={marketIndices} loading={loadingMarket} />
+      <div data-tour="market-indices">
+        <MarketIndicesRow data={marketIndices} loading={loadingMarket} />
+      </div>
 
       {/* 메인 콘텐츠 */}
       <div className="flex gap-5 items-start">
         {/* 왼쪽: 포트폴리오 + 보유 종목 */}
         <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
-          <PortfolioCard data={portfolio} loading={false} />
-          <HoldingsTable data={holdings} loading={false} />
+          <div data-tour="portfolio">
+            <PortfolioCard data={portfolio} loading={false} />
+          </div>
+          <div data-tour="holdings">
+            <HoldingsTable data={holdings} loading={false} />
+          </div>
         </div>
 
         {/* 오른쪽: TOP 투자자 + 인기 종목 */}
