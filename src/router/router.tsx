@@ -5,7 +5,7 @@ import LoginPage from "@/pages/auth/LoginPage";
 import SignUpPage from "@/pages/auth/SignUpPage";
 import OAuthCallbackPage from "@/pages/auth/OauthCallbackPage";
 import StockList from "@/pages/stocks/StockList";
-import StockDetailPage from "@/pages/stocks/StockDetailPage";
+import StockDetailPage from "@/pages/stocks/[stockId]/StockDetailPage";
 import ProtectedRoute from "./ProtectedRoute";
 import TradeDiaryPage from "@/pages/trade-diaries/TradeDiaryPage";
 import DiaryDetailPage from "@/pages/trade-diaries/[tradeDiaryId]/DiaryDetailPage";

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Client } from "@stomp/stompjs";
@@ -12,19 +12,39 @@ import {
   useOrderBookQuery,
   stockQueryKeys,
 } from "@/api/stockApi";
+import { useBuyOrderMutation, useSellOrderMutation } from "@/api/tradeApi";
 import type { StockQuote, StockItemMessage, OrderBookData } from "@/api/stockApi";
+
 import { useStockStore } from "@/store/stockStore";
 import StockDetailHeader from "@/components/stocks/StockDetailHeader";
 import StockInfoGrid from "@/components/stocks/StockInfoGrid";
 import TradeHistory from "@/components/stocks/TradeHistory";
 import HoldingStatus from "@/components/stocks/HoldingStatus";
 import OrderBook from "@/components/stocks/OrderBook";
+import StockChart from "@/components/stocks/StockChart";
+import TradeOrderModal from "@/components/stocks/TradeOrderModal";
+import type { OrderSide } from "@/components/stocks/TradeOrderModal";
+import TradeConfirmModal from "@/components/stocks/TradeConfirmModal";
+
+type PendingOrder = {
+  side: OrderSide;
+  orderType: "MARKET" | "LIMIT";
+  price: number;
+  quantity: number;
+  diary: string;
+};
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const selectedStock = useStockStore((s) => s.selectedStock);
+
+  const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+
+  const buyMutation = useBuyOrderMutation();
+  const sellMutation = useSellOrderMutation();
 
   const { data: quote, isLoading } = useStockQuoteQuery(stockCode);
   const { data: holding } = useStockHoldingQuery(stockCode);
@@ -113,16 +133,14 @@ export default function StockDetailPage() {
   };
 
   return (
+    <>
     <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
       <StockDetailHeader stock={headerStock} />
 
       <div className="flex gap-5 items-start">
         {/* 왼쪽 */}
         <div className="flex flex-col gap-5 flex-1 min-w-0">
-          {/* 차트 — 추후 구현 */}
-          <div className="bg-white rounded-2xl border border-gray-100 h-75 flex items-center justify-center text-[14px] text-gray-300">
-            주가 차트 준비 중
-          </div>
+          <StockChart stockCode={stockCode} />
 
           <StockInfoGrid quote={quote} />
 
@@ -137,12 +155,58 @@ export default function StockDetailPage() {
           <HoldingStatus
             holding={holding}
             cash={cash}
-            onBuy={() => navigate(`/invest/${stockCode}/buy`)}
-            onSell={() => navigate(`/invest/${stockCode}/sell`)}
+            onBuy={() => setOrderSide("buy")}
+            onSell={() => setOrderSide("sell")}
           />
           {orderBook && <OrderBook orderBook={orderBook} />}
         </div>
       </div>
     </div>
+
+    {orderSide && (
+      <TradeOrderModal
+        side={orderSide}
+        stockName={quote.stockName}
+        currentPrice={quote.currentPrice}
+        cash={cash ?? 0}
+        holdingQuantity={holding?.holdingQuantity ?? 0}
+        onClose={() => setOrderSide(null)}
+        onConfirm={(params) => {
+          setPendingOrder({ ...params, side: orderSide! });
+          setOrderSide(null);
+        }}
+      />
+    )}
+
+    {pendingOrder && (
+      <TradeConfirmModal
+        side={pendingOrder.side}
+        stockName={quote?.stockName ?? ""}
+        orderType={pendingOrder.orderType}
+        price={pendingOrder.price}
+        quantity={pendingOrder.quantity}
+        totalAmount={pendingOrder.price * pendingOrder.quantity}
+        onClose={() => setPendingOrder(null)}
+        onConfirm={() => {
+          if (!pendingOrder) return;
+          const body = {
+            ticker: stockCode,
+            orderType: pendingOrder.orderType,
+            price: pendingOrder.price,
+            quantity: pendingOrder.quantity,
+            diary: pendingOrder.diary,
+          };
+          const mutation = pendingOrder.side === "buy" ? buyMutation : sellMutation;
+          mutation.mutate(body, {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: stockQueryKeys.holding(stockCode) });
+              queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
+              setPendingOrder(null);
+            },
+          });
+        }}
+      />
+    )}
+    </>
   );
 }

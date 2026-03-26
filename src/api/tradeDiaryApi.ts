@@ -79,3 +79,30 @@ export function usePostCommentMutation(diaryId: string) {
     },
   });
 }
+
+
+export function useModifyCommentMutation(diaryId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ commentId, content }: { commentId: number; content: string }) =>
+      fetchClient.patch(`/api/comments/${commentId}`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
+      });
+    },
+  });
+}
+
+export function useDeleteCommentMutation(diaryId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (commentId: number) =>
+      fetchClient.delete(`/api/comments/${commentId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
+      });
+    },
+  });
+}

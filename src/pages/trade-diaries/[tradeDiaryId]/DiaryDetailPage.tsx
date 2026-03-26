@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Pencil } from "lucide-react";
-import { useDiaryDetailQuery, usePostCommentMutation } from "@/api/tradeDiaryApi";
+import {
+  useDiaryDetailQuery,
+  usePostCommentMutation,
+  useModifyCommentMutation,
+  useDeleteCommentMutation,
+} from "@/api/tradeDiaryApi";
 import Button from "@/components/ui/Button";
 import { useUser } from "@/store/authStore";
-
-function formatProfit(profit: number) {
-  const manwon = profit / 10000;
-  const sign = manwon >= 0 ? "+" : "";
-  return `${sign}${manwon % 1 === 0 ? manwon : manwon.toFixed(1)}만원`;
-}
+import Badge from "@/components/ui/Badge";
 
 function formatProfitRate(rate: number) {
   const sign = rate >= 0 ? "+" : "";
@@ -40,15 +40,19 @@ export default function DiaryDetailPage() {
     isError,
   } = useDiaryDetailQuery(tradeDiaryId ?? "");
   const [commentInput, setCommentInput] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editInput, setEditInput] = useState("");
   const user = useUser();
-  const { mutate: postComment, isPending } = usePostCommentMutation(tradeDiaryId ?? "");
+  const diaryId = tradeDiaryId ?? "";
+  const { mutate: postComment, isPending } = usePostCommentMutation(diaryId);
+  const { mutate: modifyComment } = useModifyCommentMutation(diaryId);
+  const { mutate: deleteComment } = useDeleteCommentMutation(diaryId);
 
   const isProfit = (diary?.profit ?? 0) >= 0;
   const profitColor = isProfit ? "text-[#FF4444]" : "text-[#0046FF]";
   const tradeTypeLabel = diary?.tradeType === "BUY" ? "매수" : "매도";
   const tradeTypeBg =
     diary?.tradeType === "BUY" ? "bg-[#FF4444]" : "bg-[#0046FF]";
-
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
       {/* 헤더 */}
@@ -58,7 +62,7 @@ export default function DiaryDetailPage() {
             onClick={() => navigate("/trade-diary")}
             className="text-gray-500 hover:text-gray-800 cursor-pointer"
           >
-            <ChevronLeft size={20}/>
+            <ChevronLeft size={20} />
           </button>
           <span className="text-gray-400 text-[14px]">매매일지</span>
           <span className="text-gray-300 text-[14px]">›</span>
@@ -100,11 +104,14 @@ export default function DiaryDetailPage() {
                   {diary.tickerCode}
                 </span>
               </div>
-              <div className="text-right">
-                <p className={`text-[16px] font-bold ${profitColor}`}>
-                  {formatProfit(diary.profit)}
-                </p>
-              </div>
+              {diary?.tradeType === "SELL" && (
+                <div className="text-right">
+                  <p className={`text-[16px] font-bold ${profitColor}`}>
+                    {isProfit ? "+" : ""}
+                    {diary.profit.toLocaleString()} 원
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* 체결 요약 */}
@@ -169,32 +176,67 @@ export default function DiaryDetailPage() {
                       {comment.nickname}
                     </span>
                     {comment.isMentor && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-semibold text-white bg-[#0046FF] rounded">
-                        멘토
+                      <span className="px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                        <Badge name="멘토" color="#FF9900" />
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="basic" className="text-[11px] px-2 py-0.5">
-                      수정
-                    </Button>
-                    {user?.nickname === comment.nickname ? (
+                  {user?.nickname === comment.nickname && (
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="basic"
+                        className="text-[11px] px-2 py-0.5"
+                        onClick={() => {
+                          setEditingCommentId(comment.commentId);
+                          setEditInput(comment.content);
+                        }}
+                      >
+                        수정
+                      </Button>
                       <Button
                         variant="basic"
                         className="text-[11px] px-2 py-0.5 border-red-500! text-red-500! hover:bg-red-50!"
+                        onClick={() => deleteComment(comment.commentId)}
                       >
                         삭제
                       </Button>
-                    ) : (
-                      <Button variant="invalid" className="text-[11px] px-2 py-0.5">
-                        삭제
-                      </Button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-[13px] text-gray-700 leading-relaxed">
-                  {comment.content}
-                </p>
+                {editingCommentId === comment.commentId ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="text"
+                      value={editInput}
+                      onChange={(e) => setEditInput(e.target.value)}
+                      className="flex-1 px-3 py-1.5 text-[13px] bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
+                    />
+                    <Button
+                      variant="basic"
+                      className="text-[12px] px-2 py-0.5"
+                      onClick={() => {
+                        if (!editInput.trim()) return;
+                        modifyComment(
+                          { commentId: comment.commentId, content: editInput },
+                          { onSuccess: () => setEditingCommentId(null) },
+                        );
+                      }}
+                    >
+                      저장
+                    </Button>
+                    <Button
+                      variant="basic"
+                      className="text-[12px] px-2 py-0.5"
+                      onClick={() => setEditingCommentId(null)}
+                    >
+                      취소
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-[12px] text-gray-700 leading-relaxed">
+                    {comment.content}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -216,7 +258,9 @@ export default function DiaryDetailPage() {
             disabled={isPending}
             onClick={() => {
               if (!commentInput.trim()) return;
-              postComment(commentInput, { onSuccess: () => setCommentInput("") });
+              postComment(commentInput, {
+                onSuccess: () => setCommentInput(""),
+              });
             }}
             className="px-4 py-2 text-[14px] font-semibold text-white bg-[#0046FF] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
           >

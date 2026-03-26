@@ -13,7 +13,6 @@ function MyDiariesRow({
   onClick: () => void;
 }) {
   const isBuy = myDiaries.tradeType === "BUY";
-  const hasProfit = myDiaries.profit !== 0;
   const isPositive = myDiaries.profit > 0;
 
   return (
@@ -43,14 +42,15 @@ function MyDiariesRow({
             {myDiaries.createdAt.slice(0, 10).replace(/-/g, ".")}
           </span>
         </div>
-        {hasProfit && (
+        {!isBuy && (
           <span
             className={`text-[14px] font-semibold ${
               isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
             }`}
           >
-            {isPositive ? "+" : ""}
-            {myDiaries.profit?.toLocaleString()}원
+            {isPositive
+              ? `+${myDiaries.profit?.toLocaleString()}원`
+              : ` ${myDiaries.profit?.toLocaleString()}원`}
           </span>
         )}
       </div>
@@ -92,43 +92,44 @@ export default function TradeDiaryPage() {
     .slice();
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
-      {/* 헤더 */}
-      <div>
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* 헤더 + 검색 (고정) */}
+      <div className="flex flex-col gap-5 p-6 pb-4 shrink-0">
         <h1 className="text-[22px] font-bold text-gray-900">매매일지</h1>
-      </div>
-      {/* 검색 + 정렬 */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search
-            size={15}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="text"
-            placeholder="종목명으로 검색"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-[13px] bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
-          />
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-xs">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              placeholder="종목명으로 검색"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 text-[13px] bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
+            />
+          </div>
         </div>
       </div>
 
-      {/* 매매일지 리스트 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        {filtered.length > 0 ? (
-          filtered.map((item) => (
-            <MyDiariesRow
-              key={item.diaryId}
-              myDiaries={item}
-              onClick={() => navigate(`/trade-diary/${item.diaryId}`)}
-            />
-          ))
-        ) : (
-          <div className="text-center py-12 text-[14px] text-gray-400">
-            검색 결과가 없습니다.
-          </div>
-        )}
+      {/* 매매일지 리스트 (스크롤) */}
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-y-scroll h-full">
+          {filtered.length > 0 ? (
+            filtered.map((item) => (
+              <MyDiariesRow
+                key={item.diaryId}
+                myDiaries={item}
+                onClick={() => navigate(`/trade-diary/${item.diaryId}`)}
+              />
+            ))
+          ) : (
+            <div className="text-center py-12 text-[14px] text-gray-400">
+              검색 결과가 없습니다.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
