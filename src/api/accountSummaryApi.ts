@@ -59,6 +59,6 @@ export function useAccountSummaryByUserQuery(userId: number) {
   return useQuery({
     queryKey: ["account-summary", userId],
     queryFn: () => fetchAccountSummaryByUser(userId),
-    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 }

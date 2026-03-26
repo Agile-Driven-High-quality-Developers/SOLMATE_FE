@@ -284,7 +284,7 @@ export default function UserListPage() {
     queries: allUsers.map((u) => ({
       queryKey: u.me ? ["account-summary"] : ["account-summary", u.userId],
       queryFn: u.me ? fetchAccountSummary : () => fetchAccountSummaryByUser(u.userId),
-      staleTime: u.me ? 0 : 30_000,
+      refetchInterval: u.me ? 10_000 : 60_000,
     })),
   });
 
