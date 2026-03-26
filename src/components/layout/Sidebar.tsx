@@ -45,7 +45,7 @@ const NAV_ITEMS: NavItemConfig[] = [
   { id: "account", label: "내 계좌", icon: Wallet, href: "/account" },
   { id: "trade", label: "매매일지", icon: BookOpen, href: "/trade-diary" },
   { id: "users", label: "유저 목록", icon: Users, href: "/users" },
-  { id: "alarm", label: "알림", icon: Bell, href: "/alarm" },
+  { id: "notifications", label: "알림", icon: Bell, href: "/notifications" },
   { id: "mentor", label: "나의 멘토", icon: GraduationCap, href: "/mentor" },
   { id: "mentee", label: "나의 멘티", icon: UserCheck, href: "/mentee" },
   { id: "profile", label: "프로필", icon: UserCircle, href: "/profile" },
