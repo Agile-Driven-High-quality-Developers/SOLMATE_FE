@@ -1,4 +1,3 @@
-import Badge from "@/components/ui/Badge";
 import Avatar from "@/components/ui/Avatar";
 import type { TradeHistoryItem } from "@/api/tradeApi";
 
@@ -44,11 +43,8 @@ export default function TradeHistoryTab({ items }: Props) {
                     </span>
                   </div>
                 </td>
-                <td className="px-3 py-3 text-center">
-                  <Badge
-                    name={isBuy ? "매수" : "매도"}
-                    color={isBuy ? "#FF4444" : "#0046FF"}
-                  />
+                <td className={`px-3 py-3 text-center text-[13px] font-semibold ${isBuy ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+                  {isBuy ? "매수" : "매도"}
                 </td>
                 <td className="px-3 py-3 text-right text-[13px] text-gray-600">
                   {item.quantity}주
