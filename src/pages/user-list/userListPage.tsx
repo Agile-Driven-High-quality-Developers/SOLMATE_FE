@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
@@ -50,9 +51,10 @@ const PODIUM_CONFIG = {
 } as const;
 
 function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
+  const navigate = useNavigate();
   const cfg = PODIUM_CONFIG[rank];
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
       {rank === 1 && <span className="text-xl mb-1">👑</span>}
       <Avatar
         name={user.nickname}
@@ -213,6 +215,7 @@ function UserRow({
   onMentoringRequest: (user: UserItem) => void;
   onMentoringCancel: (user: UserItem) => void;
 }) {
+  const navigate = useNavigate();
   return (
     <tr className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${user.me ? "bg-blue-50/40" : ""}`}>
       {/* 순위 */}
@@ -224,7 +227,7 @@ function UserRow({
 
       {/* 투자자 */}
       <td className="px-2 py-3.5">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-70 transition-opacity w-fit" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
           <Avatar
             name={user.nickname}
             src={user.imageUrl || undefined}

@@ -208,7 +208,7 @@ function HoldingsTable({ data, loading }: { data: HoldingItem[]; loading: boolea
             {top5.map((stock) => {
               const isPositive = stock.returnRate >= 0;
               return (
-                <tr key={stock.tickerCode} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={stock.tickerCode} onClick={() => navigate(`/invest/${stock.tickerCode}`)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
                       <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={28} color={getAvatarColor(stock.stockName)} />
@@ -288,7 +288,7 @@ function TopInvestors({ data, loading }: { data: UserItem[]; loading: boolean })
       ) : (
         <ul className="divide-y divide-gray-50">
           {top5.map((investor, i) => (
-            <li key={investor.userId} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors">
+            <li key={investor.userId} onClick={() => navigate(investor.me ? "/profile" : `/users/${investor.userId}`)} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer">
               <span className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}>
                 {i + 1}
               </span>

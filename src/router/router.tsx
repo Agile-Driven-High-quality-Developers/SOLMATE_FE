@@ -15,6 +15,7 @@ import AccountPage from "@/pages/account/AccountPage";
 import NotificationPage from "@/pages/notification/NotificationPage";
 import MyMentorPage from "@/pages/mentor/MyMentorPage";
 import MyMenteePage from "@/pages/mentee/MyMenteePage";
+import UserProfilePage from "@/pages/users/UserProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -43,7 +44,7 @@ export const router = createBrowserRouter([
           },
           { path: "users", element: <UserListPage /> },
           { path: "notifications", element: <NotificationPage /> },
-          { path: "users/:userId", element: <div /> },
+          { path: "users/:userId", element: <UserProfilePage /> },
           { path: "mentor", element: <MyMentorPage /> },
           { path: "mentee", element: <MyMenteePage /> },
         ],
