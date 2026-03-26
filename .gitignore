@@ -32,3 +32,9 @@ Thumbs.db
 # 6. 테스트 결과 및 캐시
 coverage/
 .eslintcache
+
+# 7. 백엔드 소스 (FE 레포에서 추적하지 않음)
+/src_be/
+
+# 8. Claude 로컬 지침 (개인용, 원격 저장소에 올리지 않음)
+/CLAUDE.local.md

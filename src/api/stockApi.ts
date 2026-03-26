@@ -33,14 +33,31 @@ export type StockQuote = {
   stockCode: string;
   stockName: string;
   currentPrice: number;
-  changePrice: number;          // 전일 대비
-  changeRate: number;           // 등락률 (%)
-  previousClosePrice: number;   // 전일종가
-  openPrice: number;            // 시가
-  highPrice: number;            // 고가
-  lowPrice: number;             // 저가
-  volume: number;               // 거래량
-  total: number;                // 시가총액
+  changePrice: number; // 전일 대비
+  changeRate: number; // 등락률 (%)
+  previousClosePrice: number; // 전일종가
+  openPrice: number; // 시가
+  highPrice: number; // 고가
+  lowPrice: number; // 저가
+  volume: number; // 거래량
+  total: number; // 시가총액
+};
+
+/** 상세 헤더 등 UI용 — `StockQuote` 등에서 매핑 */
+export type StockDetail = {
+  tickerCode: string;
+  stockName: string;
+  stockLogo: string;
+  sectorType: string;
+  currentPrice: number;
+  change: number;
+  changeRate: number;
+  open: number;
+  high: number;
+  low: number;
+  prevClose: number;
+  volume: number;
+  marketCap: number;
 };
 
 // ─── Types: 종목 보유현황 (GET /api/stocks/{stockCode}/holding) ───────────────
@@ -66,7 +83,7 @@ export type OrderBookData = {
   currentPrice: number;
   changeRate: number;
   sellLevels: OrderBookEntry[]; // 매도호가 (파랑, 위) — 높은 가격순
-  buyLevels: OrderBookEntry[];  // 매수호가 (빨강, 아래) — 높은 가격순
+  buyLevels: OrderBookEntry[]; // 매수호가 (빨강, 아래) — 높은 가격순
   timestamp: string;
 };
 
@@ -112,6 +129,27 @@ export type TradeOrderResponse = {
   status: string;
 };
 
+// ─── Types: 캔들 데이터 ───────────────────────────────────────────────────────
+
+export type CandleData = {
+  time: number;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+};
+
+export type PeriodType =
+  | "1"
+  | "5"
+  | "30"
+  | "60"
+  | "day"
+  | "week"
+  | "month"
+  | "year";
+
 // ─── Query Keys ───────────────────────────────────────────────────────────────
 
 export const stockQueryKeys = {
@@ -121,6 +159,8 @@ export const stockQueryKeys = {
   orderBook: (code: string) => ["stocks", code, "orderbook"] as const,
   tradeHistory: (code: string) => ["trades", code] as const,
   cash: ["holdings", "cash"] as const,
+  candles: (code: string, period: string) =>
+    ["stocks", code, "candles", period] as const,
 };
 
 // ─── React Query Hooks ────────────────────────────────────────────────────────
@@ -203,10 +243,16 @@ export function useBuyOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: TradeOrderRequest) =>
-      fetchClient.post<ApiResponse<TradeOrderResponse>>("/api/trades/buy", body).then((res) => res.data),
+      fetchClient
+        .post<ApiResponse<TradeOrderResponse>>("/api/trades/buy", body)
+        .then((res) => res.data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: stockQueryKeys.tradeHistory(variables.ticker) });
-      queryClient.invalidateQueries({ queryKey: stockQueryKeys.holding(variables.ticker) });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.tradeHistory(variables.ticker),
+      });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.holding(variables.ticker),
+      });
       queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.summary });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.holdings });
@@ -218,10 +264,16 @@ export function useSellOrderMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (body: TradeOrderRequest) =>
-      fetchClient.post<ApiResponse<TradeOrderResponse>>("/api/trades/sell", body).then((res) => res.data),
+      fetchClient
+        .post<ApiResponse<TradeOrderResponse>>("/api/trades/sell", body)
+        .then((res) => res.data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: stockQueryKeys.tradeHistory(variables.ticker) });
-      queryClient.invalidateQueries({ queryKey: stockQueryKeys.holding(variables.ticker) });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.tradeHistory(variables.ticker),
+      });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.holding(variables.ticker),
+      });
       queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.summary });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.holdings });
@@ -233,9 +285,13 @@ export function useCancelOrderMutation(tickerCode: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (orderId: number) =>
-      fetchClient.patch<ApiResponse<void>>(`/api/v1/orders/${orderId}/cancel`),
+      fetchClient.patch<ApiResponse<void>>(
+        `/api/v1/orders/${orderId}/cancel`,
+      ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: stockQueryKeys.tradeHistory(tickerCode) });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.tradeHistory(tickerCode),
+      });
     },
   });
 }
@@ -253,6 +309,28 @@ function toLogoUrl(logo: string): string {
 export async function fetchStocks(): Promise<StockItem[]> {
   const res = await fetchClient.get<ApiResponse<StockItem[]>>("/api/stocks");
   return res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }));
+}
+
+export function useCandleQuery(stockCode: string, period: PeriodType, limit = 365) {
+  const url = (() => {
+    if (period === "1" || period === "5" || period === "30" || period === "60") {
+      return `/api/stocks/${stockCode}/candles/minute?unit=${period}`;
+    }
+    if (period === "day") return `/api/stocks/${stockCode}/candles/daily?days=${limit}`;
+    if (period === "week") return `/api/stocks/${stockCode}/candles/weekly?weeks=${Math.ceil(limit / 7)}`;
+    if (period === "month") return `/api/stocks/${stockCode}/candles/monthly?months=${Math.ceil(limit / 30)}`;
+    return `/api/stocks/${stockCode}/candles/yearly?years=${Math.ceil(limit / 365)}`;
+  })();
+
+  return useQuery({
+    queryKey: [...stockQueryKeys.candles(stockCode, period), limit],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<CandleData[]>>(url)
+        .then((res) => res.data),
+    staleTime: period === "1" ? 30_000 : 60_000,
+    enabled: !!stockCode,
+  });
 }
 
 export function parseStockItemMessage(msg: StockItemMessage): {
