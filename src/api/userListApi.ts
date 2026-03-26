@@ -101,6 +101,27 @@ export function useUserListCacheUpdate() {
   return { toggleFollow, setMentoringStatus };
 }
 
+// ─── My Profile ───────────────────────────────────────────────────────────────
+
+export type MyProfile = {
+  userId: number;
+  nickname: string;
+  imageUrl: string;
+  followerCount: number;
+  followingCount: number;
+};
+
+export function useMyProfileQuery() {
+  return useQuery({
+    queryKey: ["users", "me"],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<MyProfile>>("/api/users/me")
+        .then((res) => res.data),
+    staleTime: 30_000,
+  });
+}
+
 // ─── Follow List Types ────────────────────────────────────────────────────────
 
 export type FollowUser = {
@@ -111,23 +132,39 @@ export type FollowUser = {
 
 // ─── Follow List Hooks ────────────────────────────────────────────────────────
 
-export function useFollowersQuery() {
-  return useQuery({
+type FollowListData = {
+  users: FollowUser[];
+  nextCursor: number | null;
+  hasNext: boolean;
+};
+
+export function useFollowersInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "followers"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowUser[]>>("/api/follows/followers")
-        .then((res) => res.data),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/followers${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
-export function useFollowingQuery() {
-  return useQuery({
+export function useFollowingInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "following"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowUser[]>>("/api/follows/following")
-        .then((res) => res.data),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/following${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
