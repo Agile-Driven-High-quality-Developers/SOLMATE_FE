@@ -27,24 +27,29 @@ export default function PortfolioTab({
   const isPositive = totalReturnRate >= 0;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-4">
-        <SummaryCard label="총 평가금액" value={fmt(totalEvaluation)} />
-        <SummaryCard
-          label="총 수익률"
-          value={`${isPositive ? "+" : ""}${totalReturnRate.toFixed(2)}%`}
-          valueColor={isPositive ? "text-red-500" : "text-blue-500"}
-        />
-        <SummaryCard
-          label="총 수익"
-          value={`${isPositive ? "+" : ""}${fmt(totalReturnAmount)}`}
-          valueColor={isPositive ? "text-red-500" : "text-blue-500"}
-        />
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-xl px-4 py-3 bg-white border border-gray-100">
+          <p className="text-[11px] font-medium text-gray-400 mb-1">총 평가금액</p>
+          <p className="text-[16px] font-bold text-gray-900">{fmt(totalEvaluation)}</p>
+        </div>
+        <div className="rounded-xl px-4 py-3 bg-white border border-gray-100">
+          <p className="text-[11px] font-medium text-gray-400 mb-1">총 수익률</p>
+          <p className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+            {isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%
+          </p>
+        </div>
+        <div className="rounded-xl px-4 py-3 bg-white border border-gray-100">
+          <p className="text-[11px] font-medium text-gray-400 mb-1">총 수익</p>
+          <p className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+            {isPositive ? "+" : ""}{fmt(totalReturnAmount)}
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_2fr] gap-4 h-130">
-        <PortfolioChart items={portfolio} />
-        <HoldingList items={holdings} showAvgPrice={false} />
+      <div className="grid grid-cols-[1fr_2fr] gap-3 h-[460px]">
+        <PortfolioChart items={portfolio} compact />
+        <HoldingList items={holdings} showAvgPrice={false} compact />
       </div>
     </div>
   );

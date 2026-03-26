@@ -88,7 +88,7 @@ export default function ProfilePage() {
           />
 
           {/* 탭 콘텐츠 */}
-          <div className="p-5 min-h-[600px]">
+          <div className={`p-5 h-[600px] ${activeTab !== "portfolio" ? "overflow-y-auto" : ""}`}>
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
             {activeTab === "portfolio" && (

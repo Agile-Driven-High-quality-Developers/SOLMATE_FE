@@ -29,7 +29,7 @@ function toDisplayItems(items: PortfolioItem[]) {
   return [...top, { stockName: "기타", ratio: etcRatio }];
 }
 
-export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
+export default function PortfolioChart({ items, compact = false }: { items: PortfolioItem[]; compact?: boolean }) {
   const displayed = toDisplayItems(items);
   const [hovered, setHovered] = useState<PortfolioItem | null>(null);
 
@@ -64,10 +64,10 @@ export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
   const total = items.reduce((s, i) => s + i.ratio, 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 h-full">
-      <h2 className="text-[16px] font-bold text-gray-900 mb-5">종목 비중</h2>
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative w-56 h-56">
+    <div className={`bg-white rounded-2xl border border-gray-100 h-full ${compact ? "p-3" : "p-6"}`}>
+      <h2 className={`font-bold text-gray-900 ${compact ? "text-[13px] mb-3" : "text-[16px] mb-5"}`}>종목 비중</h2>
+      <div className="flex flex-col items-center gap-4">
+        <div className={`relative ${compact ? "w-36 h-36" : "w-56 h-56"}`}>
           <Doughnut data={chartData} options={options as never} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {hovered ? (
