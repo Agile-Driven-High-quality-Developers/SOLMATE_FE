@@ -21,6 +21,15 @@ import HoldingStatus from "@/components/stocks/HoldingStatus";
 import OrderBook from "@/components/stocks/OrderBook";
 import TradeOrderModal from "@/components/stocks/TradeOrderModal";
 import type { OrderSide } from "@/components/stocks/TradeOrderModal";
+import TradeConfirmModal from "@/components/stocks/TradeConfirmModal";
+
+type PendingOrder = {
+  side: OrderSide;
+  orderType: "MARKET" | "LIMIT";
+  price: number;
+  quantity: number;
+  diary: string;
+};
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
@@ -29,6 +38,7 @@ export default function StockDetailPage() {
   const selectedStock = useStockStore((s) => s.selectedStock);
 
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
+  const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
 
   const { data: quote, isLoading } = useStockQuoteQuery(stockCode);
   const { data: holding } = useStockHoldingQuery(stockCode);
@@ -158,7 +168,26 @@ export default function StockDetailPage() {
         cash={cash ?? 0}
         holdingQuantity={holding?.holdingQuantity ?? 0}
         onClose={() => setOrderSide(null)}
-        onConfirm={() => setOrderSide(null)}
+        onConfirm={(params) => {
+          setPendingOrder({ ...params, side: orderSide! });
+          setOrderSide(null);
+        }}
+      />
+    )}
+
+    {pendingOrder && (
+      <TradeConfirmModal
+        side={pendingOrder.side}
+        stockName={quote?.stockName ?? ""}
+        orderType={pendingOrder.orderType}
+        price={pendingOrder.price}
+        quantity={pendingOrder.quantity}
+        totalAmount={pendingOrder.price * pendingOrder.quantity}
+        onClose={() => setPendingOrder(null)}
+        onConfirm={() => {
+          // TODO: API 호출
+          setPendingOrder(null);
+        }}
       />
     )}
     </>
