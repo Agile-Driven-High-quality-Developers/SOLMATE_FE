@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/Avatar";
 
 export type HoldingItem = {
@@ -33,6 +34,7 @@ export default function HoldingList({
   isLoading = false,
   showAvgPrice = true,
 }: Props) {
+  const navigate = useNavigate();
   const sentinelRef = useRef<HTMLTableRowElement>(null);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function HoldingList({
             {items.map((item) => {
               const isPositive = item.profitRate >= 0;
               return (
-                <tr key={item.tickerCode} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={item.tickerCode} className="hover:bg-gray-50/50 transition-colors cursor-pointer" onClick={() => navigate(`/invest/${item.tickerCode}`)}>
                   <td className="px-6 py-3.5">
                     <div className="flex items-center gap-3">
                       <Avatar name={item.stockName} src={item.stockLogo} size={34} />

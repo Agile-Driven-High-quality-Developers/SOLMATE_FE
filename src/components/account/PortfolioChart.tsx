@@ -20,10 +20,10 @@ const COLORS = [
   "#84CC16",
 ];
 
-const TOP_N = 5;
+const TOP_N = 4;
 
 function toDisplayItems(items: PortfolioItem[]) {
-  if (items.length <= TOP_N) return items;
+  if (items.length <= TOP_N + 1) return items;
   const top = items.slice(0, TOP_N);
   const etcRatio = items.slice(TOP_N).reduce((s, i) => s + i.ratio, 0);
   return [...top, { stockName: "기타", ratio: etcRatio }];
