@@ -4,7 +4,7 @@ import { Users, TrendingUp, Loader2, X } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
-import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
+import MentorTradeDiaryTab from "@/components/profile/MentorTradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
 import { useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
@@ -168,7 +168,15 @@ export default function MyMentorPage() {
           onChange={(id) => setActiveTab(id as TabId)}
         />
         <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
-          {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
+          {activeTab === "diary" && (
+            <MentorTradeDiaryTab
+              items={diaries}
+              onAskQuestion={async (diaryId, content) => {
+                // TODO: 질문 API 연동
+                console.log("질문 등록:", diaryId, content);
+              }}
+            />
+          )}
           {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
           {activeTab === "portfolio" && (
             <PortfolioTab
