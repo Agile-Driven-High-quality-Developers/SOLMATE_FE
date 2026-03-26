@@ -285,7 +285,8 @@ function HoldingsTable({
               return (
                 <tr
                   key={stock.tickerCode}
-                  className="hover:bg-gray-50/50 transition-colors"
+                  onClick={() => navigate(`/invest/${stock.tickerCode}`)}
+                  className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                 >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
@@ -391,7 +392,10 @@ function TopInvestors({
           {top5.map((investor, i) => (
             <li
               key={investor.userId}
-              className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors"
+              onClick={() =>
+                navigate(investor.me ? "/profile" : `/users/${investor.userId}`)
+              }
+              className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer"
             >
               <span
                 className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}

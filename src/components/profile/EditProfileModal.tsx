@@ -4,6 +4,7 @@ import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { fetchClient } from "@/lib/fetchClient";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "@/api/authApi";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function EditProfileModal({ nickname, profileImageUrl, onClose, onSave }: Props) {
+  const queryClient = useQueryClient();
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameMsg, setNicknameMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -30,17 +32,19 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   };
 
   const handleCheckNickname = async () => {
-    if (!nicknameValue.trim() || nicknameValue === nickname) {
-      setNicknameChecked(true);
-      return;
-    }
+    if (!nicknameValue.trim()) return;
     setChecking(true);
     try {
-      await fetchClient.get<ApiResponse<void>>("/api/auth/nickname/check", { nickname: nicknameValue });
+      await fetchClient.get<ApiResponse<void>>("/api/users/nickname/check", { nickname: nicknameValue });
       setNicknameChecked(true);
       setNicknameMsg({ text: "사용 가능한 닉네임이에요.", ok: true });
-    } catch {
-      setNicknameMsg({ text: "이미 사용 중인 닉네임이에요.", ok: false });
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message ?? "";
+      if (msg.includes("400")) {
+        setNicknameMsg({ text: "현재 사용 중인 닉네임이에요.", ok: false });
+      } else {
+        setNicknameMsg({ text: "이미 다른 사람이 사용 중인 닉네임이에요.", ok: false });
+      }
     } finally {
       setChecking(false);
     }
@@ -59,29 +63,32 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
       const token = useAuthStore.getState().accessToken;
       const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
       const formData = new FormData();
-      formData.append("nickname", nicknameValue);
-      if (imageFile) formData.append("profileImage", imageFile);
+      if (nicknameValue !== nickname) formData.append("nickname", nicknameValue);
+      if (imageFile) formData.append("image", imageFile);
 
-      await fetch(`${BASE_URL}/api/users/profile`, {
+      const res = await fetch(`${BASE_URL}/api/users/profile`, {
         method: "PATCH",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: "include",
         body: formData,
       });
 
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
       onSave(nicknameValue);
       onClose();
-    } catch {
+    } catch (e) {
+      console.error("프로필 저장 실패:", e);
       setNicknameMsg({ text: "저장에 실패했어요. 다시 시도해주세요.", ok: false });
     } finally {
       setSaving(false);
     }
   };
 
+  const nicknameUnchanged = nicknameValue === nickname;
   const canSave =
     nicknameValue.trim() &&
-    (nicknameValue === nickname || nicknameChecked) &&
-    nicknameMsg?.ok !== false;
+    (nicknameUnchanged || (nicknameChecked && nicknameMsg?.ok !== false));
 
   const displayImage = imagePreview ?? profileImageUrl ?? undefined;
 
@@ -98,15 +105,35 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
 
         <div className="px-6 py-6 flex flex-col gap-5">
           {/* 프로필 이미지 */}
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-2">
             <button
-              className="relative group"
+              className="relative group shrink-0"
+              style={{ width: 80, height: 80 }}
               onClick={() => fileRef.current?.click()}
             >
-              <Avatar name={nicknameValue} src={displayImage} size={80} />
-              <div className="absolute inset-0 rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Camera size={20} className="text-white" />
+              {/* 원형 클리핑 컨테이너 */}
+              <div style={{ width: 80, height: 80, borderRadius: "50%", overflow: "hidden", position: "relative" }}>
+                {displayImage ? (
+                  <img
+                    src={displayImage}
+                    alt="프로필"
+                    style={{ width: 80, height: 80, objectFit: "cover", display: "block" }}
+                  />
+                ) : (
+                  <Avatar name={nicknameValue} size={80} />
+                )}
+                <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
+              {/* 카메라 배지 */}
+              <div className="absolute bottom-0 right-0 w-6 h-6 bg-[#0046FF] rounded-full flex items-center justify-center border-2 border-white">
+                <Camera size={11} className="text-white" />
+              </div>
+            </button>
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="text-[12px] text-[#0046FF] font-medium hover:underline"
+            >
+              사진 변경
             </button>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           </div>

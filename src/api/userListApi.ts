@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/fetchClient";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import type { ApiResponse } from "./authApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -20,8 +20,6 @@ export type UserItem = {
 export type UserListData = {
   hasAcceptedMentor: boolean;
   users: UserItem[];
-  nextCursor: number | null;
-  hasNext: boolean;
 };
 
 // ─── Query Keys ───────────────────────────────────────────────────────────────
@@ -32,11 +30,8 @@ export const userListQueryKeys = {
 
 // ─── API ─────────────────────────────────────────────────────────────────────
 
-async function fetchUserList(cursor?: number): Promise<UserListData> {
-  const params = cursor !== undefined ? `?cursor=${cursor}` : "";
-  const res = await fetchClient.get<ApiResponse<UserListData>>(
-    `/api/users${params}`,
-  );
+async function fetchUserList(): Promise<UserListData> {
+  const res = await fetchClient.get<ApiResponse<UserListData>>("/api/users");
   return res.data;
 }
 
@@ -58,13 +53,11 @@ export async function cancelMentoring(mentorUserId: number): Promise<void> {
 
 // ─── Cache Updater ────────────────────────────────────────────────────────────
 
-type InfiniteData = { pages: UserListData[]; pageParams: unknown[] };
-
 export function useUserListCacheUpdate() {
   const queryClient = useQueryClient();
 
-  function updateCache(updater: (data: InfiniteData) => InfiniteData) {
-    queryClient.setQueryData<InfiniteData>(userListQueryKeys.userList, (old) =>
+  function updateCache(updater: (data: UserListData) => UserListData) {
+    queryClient.setQueryData<UserListData>(userListQueryKeys.userList, (old) =>
       old ? updater(old) : old,
     );
   }
@@ -72,12 +65,9 @@ export function useUserListCacheUpdate() {
   function toggleFollow(userId: number, newFollowing: boolean) {
     updateCache((old) => ({
       ...old,
-      pages: old.pages.map((page) => ({
-        ...page,
-        users: page.users.map((u) =>
-          u.userId === userId ? { ...u, following: newFollowing } : u,
-        ),
-      })),
+      users: old.users.map((u) =>
+        u.userId === userId ? { ...u, following: newFollowing } : u,
+      ),
     }));
   }
 
@@ -88,17 +78,35 @@ export function useUserListCacheUpdate() {
   ) {
     updateCache((old) => ({
       ...old,
-      pages: old.pages.map((page, i) => ({
-        ...page,
-        hasAcceptedMentor: i === 0 ? hasAcceptedMentor : page.hasAcceptedMentor,
-        users: page.users.map((u) =>
-          u.userId === userId ? { ...u, mentoringStatus: status } : u,
-        ),
-      })),
+      hasAcceptedMentor,
+      users: old.users.map((u) =>
+        u.userId === userId ? { ...u, mentoringStatus: status } : u,
+      ),
     }));
   }
 
   return { toggleFollow, setMentoringStatus };
+}
+
+// ─── My Profile ───────────────────────────────────────────────────────────────
+
+export type MyProfile = {
+  userId: number;
+  nickname: string;
+  imageUrl: string;
+  followerCount: number;
+  followingCount: number;
+};
+
+export function useMyProfileQuery() {
+  return useQuery({
+    queryKey: ["users", "me"],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<MyProfile>>("/api/users/me")
+        .then((res) => res.data),
+    staleTime: 30_000,
+  });
 }
 
 // ─── Follow List Types ────────────────────────────────────────────────────────
@@ -111,34 +119,56 @@ export type FollowUser = {
 
 // ─── Follow List Hooks ────────────────────────────────────────────────────────
 
-export function useFollowersQuery() {
-  return useQuery({
+type FollowListData = {
+  users: FollowUser[];
+  nextCursor: number | null;
+  hasNext: boolean;
+};
+
+export function useFollowersInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "followers"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowUser[]>>("/api/follows/followers")
-        .then((res) => res.data),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/followers${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
-export function useFollowingQuery() {
-  return useQuery({
+export function useFollowingInfiniteQuery() {
+  return useInfiniteQuery({
     queryKey: ["follows", "following"],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<FollowUser[]>>("/api/follows/following")
-        .then((res) => res.data),
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/me/following${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
   });
 }
 
 // ─── React Query Hook ─────────────────────────────────────────────────────────
 
-export function useUserListInfiniteQuery() {
-  return useInfiniteQuery({
+export function useUserListQuery() {
+  return useQuery({
     queryKey: userListQueryKeys.userList,
-    queryFn: ({ pageParam }) => fetchUserList(pageParam as number | undefined),
-    initialPageParam: undefined as number | undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
+    queryFn: fetchUserList,
   });
+}
+
+// HomePage 호환용 래퍼 (pages 구조 유지)
+export function useUserListInfiniteQuery() {
+  const query = useUserListQuery();
+  return {
+    ...query,
+    data: query.data ? { pages: [query.data], pageParams: [undefined] } : undefined,
+  };
 }

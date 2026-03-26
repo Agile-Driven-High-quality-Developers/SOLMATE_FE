@@ -10,6 +10,8 @@ type Props = {
   totalReturnAmount: number;
   portfolio: PortfolioItem[];
   holdings: HoldingItem[];
+  compact?: boolean;
+  showAvgPrice?: boolean;
 };
 
 function fmt(n: number) {
@@ -23,6 +25,8 @@ export default function PortfolioTab({
   totalReturnAmount,
   portfolio,
   holdings,
+  compact = true,
+  showAvgPrice = false,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
@@ -48,8 +52,8 @@ export default function PortfolioTab({
       </div>
 
       <div className="grid grid-cols-[1fr_2fr] gap-3 flex-1 min-h-0">
-        <PortfolioChart items={portfolio} compact totalEvaluation={totalEvaluation} />
-        <HoldingList items={holdings} showAvgPrice={false} compact />
+        <PortfolioChart items={portfolio} compact={compact} totalEvaluation={totalEvaluation} />
+        <HoldingList items={holdings} showAvgPrice={showAvgPrice} compact={compact} />
       </div>
     </div>
   );
