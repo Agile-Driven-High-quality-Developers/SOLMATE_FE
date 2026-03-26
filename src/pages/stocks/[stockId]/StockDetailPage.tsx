@@ -100,6 +100,29 @@ export default function StockDetailPage() {
     };
   }, [stockCode, queryClient]);
 
+  // ── 브라우저 탭 제목 실시간 업데이트 ────────────────────────────────────
+  useEffect(() => {
+    if (!quote) return;
+    const rate = quote.changeRate;
+    document.title = `${quote.currentPrice.toLocaleString()}원 ${rate > 0 ? "+" : ""}${rate.toFixed(2)}% | ${quote.stockName}`;
+
+    const setFavicon = (href: string) => {
+      const existing = document.querySelector("link[rel='icon']");
+      if (existing) existing.remove();
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = href;
+      document.head.appendChild(link);
+    };
+
+    if (quote.stockLogo) setFavicon(quote.stockLogo);
+
+    return () => {
+      document.title = "SOLMATE";
+      setFavicon("/vite.svg");
+    };
+  }, [quote]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-screen">
