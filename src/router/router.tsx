@@ -1,6 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/components/layout/Layout";
-import ComponentsPage from "@/pages/ComponentsPage";
 import HomePage from "@/pages/HomePage";
 import LoginPage from "@/pages/auth/LoginPage";
 import SignUpPage from "@/pages/auth/SignUpPage";
@@ -30,7 +29,6 @@ export const router = createBrowserRouter([
             ],
           },
           { path: "account", element: <AccountPage /> },
-          { path: "components", element: <ComponentsPage /> },
           {
             path: "trade-diary",
             children: [
