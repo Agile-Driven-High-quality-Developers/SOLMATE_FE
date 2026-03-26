@@ -12,6 +12,7 @@ import {
   useOrderBookQuery,
   stockQueryKeys,
 } from "@/api/stockApi";
+import { useBuyOrderMutation, useSellOrderMutation } from "@/api/tradeApi";
 import type { StockQuote, StockItemMessage, OrderBookData } from "@/api/stockApi";
 import { useStockStore } from "@/store/stockStore";
 import StockDetailHeader from "@/components/stocks/StockDetailHeader";
@@ -39,6 +40,9 @@ export default function StockDetailPage() {
 
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+
+  const buyMutation = useBuyOrderMutation();
+  const sellMutation = useSellOrderMutation();
 
   const { data: quote, isLoading } = useStockQuoteQuery(stockCode);
   const { data: holding } = useStockHoldingQuery(stockCode);
@@ -185,8 +189,22 @@ export default function StockDetailPage() {
         totalAmount={pendingOrder.price * pendingOrder.quantity}
         onClose={() => setPendingOrder(null)}
         onConfirm={() => {
-          // TODO: API 호출
-          setPendingOrder(null);
+          if (!pendingOrder) return;
+          const body = {
+            ticker: stockCode,
+            orderType: pendingOrder.orderType,
+            price: pendingOrder.price,
+            quantity: pendingOrder.quantity,
+            diary: pendingOrder.diary,
+          };
+          const mutation = pendingOrder.side === "buy" ? buyMutation : sellMutation;
+          mutation.mutate(body, {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: stockQueryKeys.holding(stockCode) });
+              queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
+              setPendingOrder(null);
+            },
+          });
         }}
       />
     )}
