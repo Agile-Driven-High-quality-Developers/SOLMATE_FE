@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "@/store/authStore";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
@@ -41,7 +41,9 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useUser();
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const [activeTab, setActiveTab] = useState<TabId>("diary");
+  const location = useLocation();
+  const initialTab = (location.state as { tab?: TabId } | null)?.tab ?? "diary";
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
   const [modal, setModal] = useState<"edit" | "logout" | "delete" | null>(null);
   const { data: diaries = [] } = useMyDiariesQuery();
