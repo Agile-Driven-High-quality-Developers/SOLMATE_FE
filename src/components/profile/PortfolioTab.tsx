@@ -27,7 +27,7 @@ export default function PortfolioTab({
   const isPositive = totalReturnRate >= 0;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 h-full">
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl px-4 py-3 bg-white border border-gray-100">
           <p className="text-[11px] font-medium text-gray-400 mb-1">총 평가금액</p>
@@ -47,7 +47,7 @@ export default function PortfolioTab({
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_2fr] gap-3 h-[460px]">
+      <div className="grid grid-cols-[1fr_2fr] gap-3 flex-1 min-h-0">
         <PortfolioChart items={portfolio} compact />
         <HoldingList items={holdings} showAvgPrice={false} compact />
       </div>

@@ -55,15 +55,15 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
       {/* 헤더 */}
       <div>
         <h1 className="text-[22px] font-bold text-gray-900">내 프로필</h1>
       </div>
 
-      <div className="flex gap-5 items-start">
+      <div className="flex gap-5 flex-1 min-h-0">
         {/* 왼쪽: 프로필 카드 */}
-        <div className="w-64 shrink-0">
+        <div className="w-64 shrink-0 overflow-y-auto h-full">
           <ProfileCard
             nickname={user.nickname}
             followers={0}
@@ -79,7 +79,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="flex-1 min-w-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
           {/* 탭 바 */}
           <UnderlineTabBar
             tabs={[...TABS]}
@@ -88,7 +88,7 @@ export default function ProfilePage() {
           />
 
           {/* 탭 콘텐츠 */}
-          <div className={`p-5 h-[600px] ${activeTab !== "portfolio" ? "overflow-y-auto" : ""}`}>
+          <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
             {activeTab === "portfolio" && (
