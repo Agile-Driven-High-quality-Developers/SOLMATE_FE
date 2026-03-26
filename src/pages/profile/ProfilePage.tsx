@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { useTradeHistoryQuery } from "@/api/tradeApi";
+import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
 import ProfileCard from "@/components/profile/ProfileCard";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
@@ -19,13 +20,6 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-const DUMMY_PORTFOLIO = {
-  totalEvaluation: 0,
-  totalReturnRate: 0,
-  totalReturnAmount: 0,
-  portfolio: [],
-  holdings: [],
-};
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -34,6 +28,20 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabId>("diary");
   const { data: diaries = [] } = useMyDiariesQuery();
   const { data: tradeHistories = [] } = useTradeHistoryQuery();
+  const { data: summary } = useAccountSummaryQuery();
+  const { data: holdingsRaw = [] } = useHoldingsQuery();
+
+  const holdings = holdingsRaw.map((h) => ({
+    tickerCode: h.tickerCode,
+    stockName: h.stockName,
+    stockLogo: h.stockLogo,
+    quantity: h.quantity,
+    averageBuyPrice: h.avgPrice,
+    currentPrice: h.currentPrice,
+    evaluationAmount: h.evaluation,
+    profitRate: h.returnRate,
+    profitAmount: h.returnAmount,
+  }));
 
   const handleLogout = async () => {
     try {
@@ -83,7 +91,15 @@ export default function ProfilePage() {
           <div className="p-5 min-h-[600px]">
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
-            {activeTab === "portfolio" && <PortfolioTab {...DUMMY_PORTFOLIO} />}
+            {activeTab === "portfolio" && (
+              <PortfolioTab
+                totalEvaluation={summary?.totalEvaluation ?? 0}
+                totalReturnRate={summary?.totalReturnRate ?? 0}
+                totalReturnAmount={summary?.totalReturnAmount ?? 0}
+                portfolio={summary?.holdingsRatio ?? []}
+                holdings={holdings}
+              />
+            )}
           </div>
         </div>
       </div>
