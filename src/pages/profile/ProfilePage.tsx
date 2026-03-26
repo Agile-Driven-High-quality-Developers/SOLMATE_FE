@@ -53,9 +53,9 @@ export default function ProfilePage() {
         <h1 className="text-[22px] font-bold text-gray-900">내 프로필</h1>
       </div>
 
-      <div className="grid grid-cols-4 gap-5">
+      <div className="flex gap-5 items-start">
         {/* 왼쪽: 프로필 카드 */}
-        <div className="col-span-1">
+        <div className="w-64 shrink-0">
           <ProfileCard
             nickname={user.nickname}
             followers={0}
@@ -71,7 +71,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="col-span-3 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
           {/* 탭 바 */}
           <UnderlineTabBar
             tabs={[...TABS]}
@@ -80,7 +80,7 @@ export default function ProfilePage() {
           />
 
           {/* 탭 콘텐츠 */}
-          <div className="p-5">
+          <div className="p-5 min-h-[600px]">
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
             {activeTab === "portfolio" && <PortfolioTab {...DUMMY_PORTFOLIO} />}
