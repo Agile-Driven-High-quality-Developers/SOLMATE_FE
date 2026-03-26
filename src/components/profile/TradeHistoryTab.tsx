@@ -1,17 +1,6 @@
 import Badge from "@/components/ui/Badge";
 import Avatar from "@/components/ui/Avatar";
-
-export type TradeHistoryItem = {
-  tradeId: string;
-  tradeType: "BUY" | "SELL";
-  stockName: string;
-  quantity: number;
-  filledPrice: number;
-  totalAmount: number;
-  profit?: number;
-  profitRate?: number;
-  executedAt: string;
-};
+import type { TradeHistoryItem } from "@/api/tradeApi";
 
 type Props = {
   items: TradeHistoryItem[];
@@ -41,15 +30,15 @@ export default function TradeHistoryTab({ items }: Props) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const isBuy = item.tradeType === "BUY";
-            const isPositive = (item.profit ?? 0) >= 0;
+            const isPositive = (item.profitAmount ?? 0) >= 0;
 
             return (
-              <tr key={item.tradeId} className="hover:bg-gray-50 transition-colors">
+              <tr key={index} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Avatar name={item.stockName} size={28} />
+                    <Avatar name={item.stockName} src={item.stockLogo} size={28} />
                     <span className="text-[13px] font-semibold text-gray-800">
                       {item.stockName}
                     </span>
@@ -65,19 +54,19 @@ export default function TradeHistoryTab({ items }: Props) {
                   {item.quantity}주
                 </td>
                 <td className="px-3 py-3 text-right text-[13px] font-medium text-gray-800">
-                  {item.filledPrice.toLocaleString()}원
+                  {item.price.toLocaleString()}원
                 </td>
                 <td className="px-3 py-3 text-right text-[13px] text-gray-600">
-                  {item.totalAmount.toLocaleString()}원
+                  {item.amount.toLocaleString()}원
                 </td>
                 <td className="px-3 py-3 text-right">
-                  {item.profit !== undefined ? (
+                  {item.profitAmount != null ? (
                     <div className={`flex flex-col items-end ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
                       <span className="text-[13px] font-bold">
                         {isPositive ? "+" : ""}
-                        {item.profit.toLocaleString()}원
+                        {item.profitAmount.toLocaleString()}원
                       </span>
-                      {item.profitRate !== undefined && (
+                      {item.profitRate != null && (
                         <span className="text-[11px]">
                           {isPositive ? "+" : ""}
                           {item.profitRate.toFixed(2)}%
@@ -89,7 +78,7 @@ export default function TradeHistoryTab({ items }: Props) {
                   )}
                 </td>
                 <td className="px-4 py-3 text-right text-[12px] text-gray-400">
-                  {new Date(item.executedAt).toLocaleDateString("ko-KR", {
+                  {new Date(item.tradedAt).toLocaleDateString("ko-KR", {
                     month: "short",
                     day: "numeric",
                   })}
