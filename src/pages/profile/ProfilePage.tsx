@@ -10,7 +10,6 @@ import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
-import type { PortfolioData } from "@/components/profile/PortfolioTab";
 
 const TABS = [
   { id: "diary", label: "매매일지" },
@@ -20,10 +19,11 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-const DUMMY_PORTFOLIO: PortfolioData = {
-  totalValue: 0,
-  totalProfitLoss: 0,
-  totalProfitLossRate: 0,
+const DUMMY_PORTFOLIO = {
+  totalEvaluation: 0,
+  totalReturnRate: 0,
+  totalReturnAmount: 0,
+  portfolio: [],
   holdings: [],
 };
 
@@ -83,7 +83,7 @@ export default function ProfilePage() {
           <div className="p-5">
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
-            {activeTab === "portfolio" && <PortfolioTab data={DUMMY_PORTFOLIO} />}
+            {activeTab === "portfolio" && <PortfolioTab {...DUMMY_PORTFOLIO} />}
           </div>
         </div>
       </div>
