@@ -24,9 +24,9 @@ export default function NotificationPage() {
 
   const { data: notifications = [] } = useNotificationsQuery();
   const { data: unreadCount } = useUnreadCountQuery();
-  const markRead = useMarkReadMutation();
   const acceptMentor = useAcceptMentorMutation();
   const rejectMentor = useRejectMentorMutation();
+  const markRead = useMarkReadMutation();
 
   const filtered = activeTab === "all"
     ? notifications
@@ -34,34 +34,18 @@ export default function NotificationPage() {
 
   const totalUnread = unreadCount?.total ?? 0;
 
-  const handleMarkAllRead = () => {
-    notifications
-      .filter((n) => !n.isRead)
-      .forEach((n) => markRead.mutate(n.notificationId));
-  };
-
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* 헤더 + 탭 (고정) */}
       <div className="flex flex-col gap-4 p-6 pb-4 shrink-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Bell size={22} className="text-[#0046FF]" />
-            <div>
-              <h1 className="text-[22px] font-bold text-gray-900">알림</h1>
-              {totalUnread > 0 && (
-                <p className="text-[13px] text-gray-400">읽지 않은 알림 {totalUnread}개</p>
-              )}
-            </div>
+        <div className="flex items-center gap-3">
+          <Bell size={22} className="text-[#0046FF]" />
+          <div>
+            <h1 className="text-[22px] font-bold text-gray-900">알림</h1>
+            {totalUnread > 0 && (
+              <p className="text-[13px] text-gray-400">읽지 않은 알림 {totalUnread}개</p>
+            )}
           </div>
-          {totalUnread > 0 && (
-            <button
-              onClick={handleMarkAllRead}
-              className="text-[13px] text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-            >
-              모두 읽음
-            </button>
-          )}
         </div>
 
         {/* 카테고리 탭 */}
@@ -107,6 +91,7 @@ export default function NotificationPage() {
               <NotificationCard
                 key={item.notificationId}
                 item={item}
+                onRead={(id) => markRead.mutate(id)}
                 onAccept={(id) => acceptMentor.mutate(id)}
                 onReject={(id) => rejectMentor.mutate(id)}
               />

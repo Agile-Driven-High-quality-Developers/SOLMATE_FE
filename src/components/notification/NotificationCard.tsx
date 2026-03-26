@@ -3,6 +3,7 @@ import type { NotificationItem } from "@/api/notificationApi";
 
 type Props = {
   item: NotificationItem;
+  onRead?: (id: number) => void;
   onAccept?: (id: number) => void;
   onReject?: (id: number) => void;
 };
@@ -67,13 +68,18 @@ function getIconConfig(type: NotificationItem["notificationType"]): IconConfig {
   }
 }
 
-export default function NotificationCard({ item, onAccept, onReject }: Props) {
+export default function NotificationCard({ item, onRead, onAccept, onReject }: Props) {
   const { bg, icon, badgeText, badgeClass } = getIconConfig(item.notificationType);
   const isUnread = !item.isRead;
 
+  const handleClick = () => {
+    if (isUnread) onRead?.(item.notificationId);
+  };
+
   return (
     <div
-      className={`rounded-2xl border p-5 shadow-sm ${
+      onClick={handleClick}
+      className={`rounded-2xl border p-5 shadow-sm cursor-pointer ${
         isUnread ? "bg-white border-blue-200" : "bg-white border-gray-100"
       }`}
     >
