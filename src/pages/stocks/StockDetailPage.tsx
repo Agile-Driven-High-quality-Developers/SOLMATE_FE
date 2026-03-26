@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Client } from "@stomp/stompjs";
@@ -19,12 +19,16 @@ import StockInfoGrid from "@/components/stocks/StockInfoGrid";
 import TradeHistory from "@/components/stocks/TradeHistory";
 import HoldingStatus from "@/components/stocks/HoldingStatus";
 import OrderBook from "@/components/stocks/OrderBook";
+import TradeOrderModal from "@/components/stocks/TradeOrderModal";
+import type { OrderSide } from "@/components/stocks/TradeOrderModal";
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const selectedStock = useStockStore((s) => s.selectedStock);
+
+  const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
 
   const { data: quote, isLoading } = useStockQuoteQuery(stockCode);
   const { data: holding } = useStockHoldingQuery(stockCode);
@@ -113,6 +117,7 @@ export default function StockDetailPage() {
   };
 
   return (
+    <>
     <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
       <StockDetailHeader stock={headerStock} />
 
@@ -137,12 +142,25 @@ export default function StockDetailPage() {
           <HoldingStatus
             holding={holding}
             cash={cash}
-            onBuy={() => navigate(`/invest/${stockCode}/buy`)}
-            onSell={() => navigate(`/invest/${stockCode}/sell`)}
+            onBuy={() => setOrderSide("buy")}
+            onSell={() => setOrderSide("sell")}
           />
           {orderBook && <OrderBook orderBook={orderBook} />}
         </div>
       </div>
     </div>
+
+    {orderSide && (
+      <TradeOrderModal
+        side={orderSide}
+        stockName={quote.stockName}
+        currentPrice={quote.currentPrice}
+        cash={cash ?? 0}
+        holdingQuantity={holding?.holdingQuantity ?? 0}
+        onClose={() => setOrderSide(null)}
+        onConfirm={() => setOrderSide(null)}
+      />
+    )}
+    </>
   );
 }

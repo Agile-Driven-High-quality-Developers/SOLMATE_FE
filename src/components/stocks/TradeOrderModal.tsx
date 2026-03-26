@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, AlertCircle } from "lucide-react";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 
 type OrderType = "MARKET" | "LIMIT";
@@ -56,16 +55,16 @@ export default function TradeOrderModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl p-6 w-full max-w-md z-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white rounded-2xl p-4 w-full max-w-sm z-10 shadow-2xl">
 
         {/* 헤더 */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h3 className="text-[18px] font-bold text-gray-900">
+            <h3 className="text-[17px] font-bold text-gray-900">
               <span className={accent.text}>{isBuy ? "매수" : "매도"}</span>{" "}
               {stockName}
             </h3>
-            <p className="text-[13px] text-gray-400 mt-0.5">
+            <p className="text-[12px] text-gray-400 mt-0.5">
               현재가: {currentPrice.toLocaleString()}원
             </p>
           </div>
@@ -75,60 +74,62 @@ export default function TradeOrderModal({
         </div>
 
         {/* 주문 가능금액 */}
-        <div className={`rounded-xl px-4 py-3 mb-4 ${accent.bgLight}`}>
+        <div className={`rounded-xl px-3 py-2 mb-3 ${accent.bgLight}`}>
           <div className="flex justify-between items-center">
             <span className="text-[12px] font-semibold text-gray-500">주문 가능금액</span>
-            <span className={`text-[13px] font-bold ${accent.text}`}>
+            <span className={`text-[12px] font-bold ${accent.text}`}>
               {cash.toLocaleString()}원
             </span>
           </div>
         </div>
 
         {/* 시장가 / 지정가 */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-3">
           {(["MARKET", "LIMIT"] as OrderType[]).map((t) => (
-            <Button
+            <button
               key={t}
               onClick={() => setOrderType(t)}
-              className={`flex-1 py-2 text-[13px] cursor-pointer ${
-                orderType === t ? `${accent.bg} text-white` : "bg-gray-100 text-gray-500"
+              className={`flex-1 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
+                orderType === t ? "bg-white text-[#0046FF] shadow-sm" : "text-gray-400"
               }`}
             >
               {t === "MARKET" ? "시장가" : "지정가"}
-            </Button>
+            </button>
           ))}
         </div>
 
         {/* 가격 */}
-        <div className="mb-4">
-          <label className="text-[12px] font-semibold text-gray-500 mb-1.5 block">
+        <div className="mb-3">
+          <label className="text-[12px] font-semibold text-gray-500 mb-1 block">
             주문가격
           </label>
           {orderType === "MARKET" ? (
-            <div className="w-full px-4 py-2.5 rounded-xl border border-gray-100 bg-gray-50 text-[13px] text-gray-500">
+            <div className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[13px] text-gray-500">
               {currentPrice.toLocaleString()}원 (시장가)
             </div>
           ) : (
-            <Input
+            <input
               type="number"
               value={limitPrice}
               onChange={(e) => setLimitPrice(e.target.value)}
               placeholder="가격을 입력하세요"
+              className="w-full px-4 py-2 rounded-xl border border-gray-200 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[#0046FF] transition-colors"
             />
           )}
         </div>
 
         {/* 수량 */}
-        <div className="mb-4">
-          <label className="text-[12px] font-semibold text-gray-500 mb-1.5 block">
+        <div className="mb-3">
+          <label className="text-[12px] font-semibold text-gray-500 mb-1 block">
             수량 (주)
           </label>
-          <Input
+          <input
             type="number"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="0"
             min="1"
+            className="w-full px-4 py-2 rounded-xl border border-gray-200 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[#0046FF] transition-colors"
           />
           <p className="text-[12px] text-gray-400 mt-1">
             최대 {maxQty}주 {isBuy ? "매수" : "매도"} 가능
@@ -136,7 +137,7 @@ export default function TradeOrderModal({
         </div>
 
         {/* 주문금액 */}
-        <div className="bg-gray-50 rounded-xl px-4 py-3 mb-4">
+        <div className="bg-gray-50 rounded-xl px-3 py-2 mb-3">
           <div className="flex justify-between text-[13px]">
             <span className="text-gray-500">주문금액</span>
             <span className="font-bold text-gray-900">
@@ -146,8 +147,8 @@ export default function TradeOrderModal({
         </div>
 
         {/* 매매일지 */}
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-1">
             <label className="text-[13px] font-semibold text-gray-700">
               매매일지 <span className="text-red-400">*</span>
               <span className="text-[12px] font-normal text-gray-400 ml-1">(필수)</span>
@@ -160,8 +161,8 @@ export default function TradeOrderModal({
             value={diary}
             onChange={(e) => e.target.value.length <= 500 && setDiary(e.target.value)}
             placeholder="이 종목을 매수/매도한 이유, 전략, 목표가 등을 기록하세요."
-            rows={4}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-[13px] outline-none focus:border-[#0046FF] transition-colors resize-none leading-relaxed"
+            rows={3}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] outline-none focus:border-[#0046FF] transition-colors resize-none leading-relaxed"
           />
           {!diary.trim() && qty > 0 && (
             <p className="text-[12px] text-red-400 mt-1 flex items-center gap-1">
