@@ -69,38 +69,34 @@ export default function MyMentorPage() {
       {/* 멘토 카드 */}
       <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4 shrink-0">
         <div className="flex items-center gap-4">
-          {/* 아바타 + 닉네임 + 배지 */}
-          <div className="flex items-center gap-3 shrink-0">
+          {/* 아바타 + 닉네임 + 통계 */}
+          <div className="flex items-center gap-3 flex-1">
             <Avatar name={mentor.nickname} src={mentor.imageUrl || undefined} size={52} />
-            <div>
+            <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span className="text-[16px] font-bold text-gray-900">{mentor.nickname}</span>
                 <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">멘토</span>
               </div>
-            </div>
-          </div>
-
-          <div className="w-px h-10 bg-gray-100 mx-1 shrink-0" />
-
-          {/* 통계 */}
-          <div className="flex items-center gap-6 flex-1">
-            <div className="flex items-center gap-1.5 text-[13px] text-gray-500">
-              <Users size={13} className="text-gray-400" />
-              <span>팔로워</span>
-              <span className="font-semibold text-gray-800">{mentor.followerCount.toLocaleString()}명</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[13px] text-gray-500">
-              <TrendingUp size={13} className="text-gray-400" />
-              <span>총 수익률</span>
-              <span className={`font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                {isPositive ? "+" : ""}{mentor.totalReturnRate.toFixed(1)}%
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[13px] text-gray-500">
-              <span>총 수익</span>
-              <span className={`font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                {isPositive ? "+" : ""}{fmtAmount(mentor.totalReturnAmount)}
-              </span>
+              <div className="flex items-center gap-4 text-[13px] text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Users size={12} className="text-gray-400" />
+                  <span>팔로워</span>
+                  <span className="font-semibold text-gray-700 ml-0.5">{mentor.followerCount.toLocaleString()}명</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <TrendingUp size={12} className="text-gray-400" />
+                  <span>총 수익률</span>
+                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+                    {isPositive ? "+" : ""}{mentor.totalReturnRate.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>총 수익</span>
+                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+                    {isPositive ? "+" : ""}{fmtAmount(mentor.totalReturnAmount)}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
