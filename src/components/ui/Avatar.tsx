@@ -40,9 +40,9 @@ export default function Avatar({
         src={src}
         alt={name}
         onClick={onClick}
-        style={{ width: `${size}px` }}
+        style={{ width: `${size}px`, height: `${size}px` }}
         className={[
-          "rounded-full flex items-center justify-center shrink-0 select-none object-cover",
+          "rounded-full flex items-center justify-center shrink-0 select-none object-cover overflow-hidden",
           onClick ? "cursor-pointer" : "",
           className,
         ].join(" ")}
