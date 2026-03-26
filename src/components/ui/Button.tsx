@@ -1,3 +1,5 @@
+import { cn } from "@/lib/cn";
+
 type ButtonProps = {
   children: React.ReactNode;
   variant?: "primary" | "basic" | "invalid" | "danger";
@@ -25,12 +27,7 @@ export default function Button({
   return (
     <button
       style={{ width: width ? `${width}px` : undefined }}
-      className={[
-        "rounded-[10px]",
-        "py-1.5",
-        variantClass[variant],
-        className,
-      ].join(" ")}
+      className={cn("rounded-[10px] py-1.5", variantClass[variant], className)}
       disabled={disabled}
       onClick={onClick}
     >
