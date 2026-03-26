@@ -30,15 +30,26 @@ export const accountSummaryQueryKeys = {
   summary: ["account-summary"] as const,
 };
 
+// ─── Fetch Functions ──────────────────────────────────────────────────────────
+
+export function fetchAccountSummary(): Promise<AccountSummaryData> {
+  return fetchClient
+    .get<ApiResponse<AccountSummaryData>>("/api/account/summary")
+    .then((res) => res.data);
+}
+
+export function fetchAccountSummaryByUser(userId: number): Promise<AccountSummaryData> {
+  return fetchClient
+    .get<ApiResponse<AccountSummaryData>>(`/api/account/summary/${userId}`)
+    .then((res) => res.data);
+}
+
 // ─── React Query Hook ─────────────────────────────────────────────────────────
 
 export function useAccountSummaryQuery() {
   return useQuery({
     queryKey: accountSummaryQueryKeys.summary,
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<AccountSummaryData>>("/api/account/summary")
-        .then((res) => res.data),
+    queryFn: fetchAccountSummary,
     staleTime: 0,
     refetchInterval: 10_000,
   });
@@ -47,10 +58,7 @@ export function useAccountSummaryQuery() {
 export function useAccountSummaryByUserQuery(userId: number) {
   return useQuery({
     queryKey: ["account-summary", userId],
-    queryFn: () =>
-      fetchClient
-        .get<ApiResponse<AccountSummaryData>>(`/api/account/summary/${userId}`)
-        .then((res) => res.data),
-    staleTime: 30_000,
+    queryFn: () => fetchAccountSummaryByUser(userId),
+    refetchInterval: 60_000,
   });
 }

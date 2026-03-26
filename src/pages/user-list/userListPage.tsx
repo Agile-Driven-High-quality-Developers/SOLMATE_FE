@@ -1,9 +1,10 @@
-import { useRef, useCallback, useState } from "react";
+import { useState } from "react";
 import { Search } from "lucide-react";
+import { useQueries } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import {
-  useUserListInfiniteQuery,
+  useUserListQuery,
   useUserListCacheUpdate,
   followUser,
   unfollowUser,
@@ -11,7 +12,21 @@ import {
   cancelMentoring,
 } from "@/api/userListApi";
 import type { UserItem } from "@/api/userListApi";
-import { useAccountSummaryQuery, useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
+import {
+  fetchAccountSummary,
+  fetchAccountSummaryByUser,
+} from "@/api/accountSummaryApi";
+import type { AccountSummaryData } from "@/api/accountSummaryApi";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type SortBy = "returnRate" | "returnAmount" | "follower";
+
+const SORT_OPTIONS: { value: SortBy; label: string }[] = [
+  { value: "returnRate",   label: "수익률순"  },
+  { value: "returnAmount", label: "수익순"    },
+  { value: "follower",     label: "팔로워수순" },
+];
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
@@ -138,11 +153,13 @@ function MentoringButton({
 
 // ─── Return Rate / Amount Cells ───────────────────────────────────────────────
 
-function ReturnCells({ userId, me }: { userId: number; me: boolean }) {
-  const myQuery = useAccountSummaryQuery();
-  const otherQuery = useAccountSummaryByUserQuery(userId);
-  const { data, isLoading } = me ? myQuery : otherQuery;
-
+function ReturnCells({
+  summary,
+  isLoading,
+}: {
+  summary?: AccountSummaryData;
+  isLoading: boolean;
+}) {
   if (isLoading) {
     return (
       <>
@@ -156,8 +173,8 @@ function ReturnCells({ userId, me }: { userId: number; me: boolean }) {
     );
   }
 
-  const rate = data?.totalReturnRate ?? 0;
-  const amount = data?.totalReturnAmount ?? 0;
+  const rate = summary?.totalReturnRate ?? 0;
+  const amount = summary?.totalReturnAmount ?? 0;
   const isPositive = rate > 0;
   const isNegative = rate < 0;
   const color = isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400";
@@ -180,6 +197,8 @@ function ReturnCells({ userId, me }: { userId: number; me: boolean }) {
 function UserRow({
   user,
   rank,
+  summary,
+  summaryLoading,
   hasAcceptedMentor,
   onFollowToggle,
   onMentoringRequest,
@@ -187,6 +206,8 @@ function UserRow({
 }: {
   user: UserItem;
   rank: number;
+  summary?: AccountSummaryData;
+  summaryLoading: boolean;
   hasAcceptedMentor: boolean;
   onFollowToggle: (user: UserItem) => void;
   onMentoringRequest: (user: UserItem) => void;
@@ -225,7 +246,7 @@ function UserRow({
       </td>
 
       {/* 총 수익률 / 총 수익 */}
-      <ReturnCells userId={user.userId} me={user.me} />
+      <ReturnCells summary={summary} isLoading={summaryLoading} />
 
       {/* 팔로우 */}
       <td className="px-4 py-3.5 text-center">
@@ -250,13 +271,30 @@ function UserRow({
 export default function UserListPage() {
   const [tab, setTab] = useState<"전체" | "팔로잉">("전체");
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("returnRate");
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useUserListInfiniteQuery();
+  const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
 
-  const allUsers = data?.pages.flatMap((p) => p.users) ?? [];
-  const hasAcceptedMentor = data?.pages[0]?.hasAcceptedMentor ?? false;
+  const allUsers = data?.users ?? [];
+  const hasAcceptedMentor = data?.hasAcceptedMentor ?? false;
+
+  // 모든 유저의 수익 데이터를 병렬 프리페치 (정렬에 사용)
+  const summaryQueries = useQueries({
+    queries: allUsers.map((u) => ({
+      queryKey: u.me ? ["account-summary"] : ["account-summary", u.userId],
+      queryFn: u.me ? fetchAccountSummary : () => fetchAccountSummaryByUser(u.userId),
+      refetchInterval: u.me ? 10_000 : 60_000,
+    })),
+  });
+
+  const summaryMap = new Map<number, { data?: AccountSummaryData; isLoading: boolean }>();
+  allUsers.forEach((u, i) => {
+    summaryMap.set(u.userId, {
+      data: summaryQueries[i]?.data,
+      isLoading: summaryQueries[i]?.isLoading ?? false,
+    });
+  });
 
   async function handleFollowToggle(user: UserItem) {
     toggleFollow(user.userId, !user.following);
@@ -290,51 +328,36 @@ export default function UserListPage() {
   }
 
   const filtered = allUsers
-    .filter((u) => tab === "전체" || u.following)
+    .filter((u) => tab === "전체" || u.following || u.me)
     .filter((u) => !search || u.nickname.includes(search));
 
-  // ─── Infinite Scroll Sentinel ─────────────────────────────────────────────
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const sentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (observerRef.current) observerRef.current.disconnect();
-      if (!node) return;
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      });
-      observerRef.current.observe(node);
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage],
-  );
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "follower") return b.followerCount - a.followerCount;
+    const aData = summaryMap.get(a.userId)?.data;
+    const bData = summaryMap.get(b.userId)?.data;
+    if (sortBy === "returnRate") {
+      return (bData?.totalReturnRate ?? -Infinity) - (aData?.totalReturnRate ?? -Infinity);
+    }
+    return (bData?.totalReturnAmount ?? -Infinity) - (aData?.totalReturnAmount ?? -Infinity);
+  });
 
-  const top3 = filtered.slice(0, 3);
+  const top3 = sorted.slice(0, 3);
 
   return (
-    <div className="flex flex-col h-full p-6 gap-4 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50">
       {/* 헤더 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0046FF]">
-            👥
-          </div>
-          <div>
-            <h1 className="text-[20px] font-bold text-gray-900">유저 목록</h1>
-            <p className="text-[12px] text-gray-400">수익률 기준 투자자 랭킹</p>
-          </div>
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0046FF]">
+          👥
         </div>
-        {/* 검색 */}
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2 w-52">
-          <Search size={14} className="text-gray-400 shrink-0" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="투자자 검색..."
-            className="text-[13px] text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
-          />
+        <div>
+          <h1 className="text-[20px] font-bold text-gray-900">유저 목록</h1>
+          <p className="text-[12px] text-gray-400">투자자 랭킹</p>
         </div>
       </div>
+
+      {/* 포디움 */}
+      {!isLoading && top3.length >= 3 && <Podium users={top3} />}
 
       {/* 탭 */}
       <div className="flex gap-2">
@@ -354,14 +377,40 @@ export default function UserListPage() {
         ))}
       </div>
 
-      {/* 포디움 */}
-      {!isLoading && top3.length >= 3 && <Podium users={top3} />}
-
       {/* 랭킹 테이블 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+      <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden min-h-0">
+        {/* 검색 + 정렬 */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-52">
+            <Search size={14} className="text-gray-400 shrink-0" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="투자자 검색..."
+              className="text-[13px] text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
+            />
+          </div>
+          <div className="flex items-center gap-1.5">
+            {SORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setSortBy(opt.value)}
+                className={[
+                  "px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors whitespace-nowrap",
+                  sortBy === opt.value
+                    ? "bg-[#0046FF]/10 text-[#0046FF] border border-[#0046FF]/30"
+                    : "bg-white text-gray-400 border border-gray-200 hover:bg-gray-50",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="overflow-y-auto flex-1">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
+            <tr className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100">
               <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-16">순위</th>
               <th className="text-left px-2 py-3 text-[12px] text-gray-400 font-medium">투자자</th>
               <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-20">팔로워</th>
@@ -389,27 +438,25 @@ export default function UserListPage() {
                     <td className="px-5 py-4"><div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" /></td>
                   </tr>
                 ))
-              : filtered.map((user, i) => (
-                  <UserRow
-                    key={user.userId}
-                    user={user}
-                    rank={i + 1}
-                    hasAcceptedMentor={hasAcceptedMentor}
-                    onFollowToggle={handleFollowToggle}
-                    onMentoringRequest={handleMentoringRequest}
-                    onMentoringCancel={handleMentoringCancel}
-                  />
-                ))}
+              : sorted.map((user, i) => {
+                  const s = summaryMap.get(user.userId);
+                  return (
+                    <UserRow
+                      key={user.userId}
+                      user={user}
+                      rank={i + 1}
+                      summary={s?.data}
+                      summaryLoading={s?.isLoading ?? false}
+                      hasAcceptedMentor={hasAcceptedMentor}
+                      onFollowToggle={handleFollowToggle}
+                      onMentoringRequest={handleMentoringRequest}
+                      onMentoringCancel={handleMentoringCancel}
+                    />
+                  );
+                })}
           </tbody>
         </table>
-
-        {/* 무한 스크롤 센티넬 */}
-        <div ref={sentinelRef} className="h-1" />
-        {isFetchingNextPage && (
-          <div className="flex justify-center py-4">
-            <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
