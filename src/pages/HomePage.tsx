@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useMarketIndicesQuery } from "@/api/homeApi";
-import type {
-  MarketIndexData,
-  PortfolioData,
-  HoldingStockData,
-  TopInvestorData,
-  PopularStockData,
-} from "@/api/homeApi";
+import type { MarketIndexData } from "@/api/homeApi";
+import { useHoldingsQuery } from "@/api/accountApi";
+import type { HoldingItem } from "@/api/accountApi";
+import { useUserListInfiniteQuery } from "@/api/userListApi";
+import type { UserItem } from "@/api/userListApi";
+import { useAccountSummaryByUserQuery, useAccountSummaryQuery } from "@/api/accountSummaryApi";
+import type { AccountSummaryData } from "@/api/accountSummaryApi";
+import { useStocksQuery } from "@/api/stockApi";
+import type { StockItem } from "@/api/stockApi";
 
 // ─── 날짜 ─────────────────────────────────────────────────────────────────────
 
@@ -18,6 +20,19 @@ const TODAY = new Date().toLocaleDateString("ko-KR", {
   day: "numeric",
   weekday: "short",
 });
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+
+const AVATAR_COLORS = [
+  "#4ECDC4", "#45B7D1", "#FF6B35", "#96CEB4", "#DDA0DD",
+  "#BB8FCE", "#85C1E9", "#F0A500", "#E74C3C", "#2ECC71",
+];
+
+function getAvatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
 
 // ─── 공통 서브 컴포넌트 ────────────────────────────────────────────────────────
 
@@ -93,7 +108,13 @@ function MarketIndicesRow({ data, loading }: { data: MarketIndexData[]; loading:
 
 // ─── 포트폴리오 카드 ───────────────────────────────────────────────────────────
 
-function PortfolioCard({ data, loading }: { data: PortfolioData | null; loading: boolean }) {
+function PortfolioCard({ data, loading }: { data: AccountSummaryData | undefined; loading: boolean }) {
+  const fmt = (n: number) => {
+    const man = n / 10000;
+    return `${man % 1 === 0 ? man.toLocaleString() : man.toFixed(1)}만원`;
+  };
+  const isPositive = (data?.totalReturnAmount ?? 0) >= 0;
+
   return (
     <div
       className="rounded-2xl p-6 relative overflow-hidden"
@@ -124,23 +145,23 @@ function PortfolioCard({ data, loading }: { data: PortfolioData | null; loading:
           </div>
         ) : (
           <>
-            <p className="text-white/70 text-[13px] font-medium mb-1">총 평가금산</p>
-            <p className="text-white text-[32px] font-bold leading-tight">{data.totalValue}</p>
-            <p className="text-white/90 text-[14px] font-medium mt-1">
-              {data.totalReturn} ({data.totalReturnPercent})
+            <p className="text-white/70 text-[13px] font-medium mb-1">총 평가자산</p>
+            <p className="text-white text-[32px] font-bold leading-tight">{fmt(data.totalAsset)}</p>
+            <p className={`text-[14px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-300"}`}>
+              {isPositive ? "+" : ""}{fmt(data.totalReturnAmount)} ({isPositive ? "+" : ""}{data.totalReturnRate.toFixed(2)}%)
             </p>
             <div className="flex gap-6 mt-5">
               <div>
                 <p className="text-white/60 text-[11px]">투자원금</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">{data.principal}</p>
+                <p className="text-white text-[14px] font-semibold mt-0.5">{fmt(data.initialCash)}</p>
               </div>
               <div>
-                <p className="text-white/60 text-[11px]">매수금</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">{data.purchaseAmount}</p>
+                <p className="text-white/60 text-[11px]">예수금</p>
+                <p className="text-white text-[14px] font-semibold mt-0.5">{fmt(data.cash)}</p>
               </div>
               <div>
                 <p className="text-white/60 text-[11px]">보유종목</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">{data.holdingCount}개</p>
+                <p className="text-white text-[14px] font-semibold mt-0.5">{data.holdingsCount}개</p>
               </div>
             </div>
           </>
@@ -152,18 +173,26 @@ function PortfolioCard({ data, loading }: { data: PortfolioData | null; loading:
 
 // ─── 보유 종목 ─────────────────────────────────────────────────────────────────
 
-function HoldingsTable({ data, loading }: { data: HoldingStockData[]; loading: boolean }) {
+function HoldingsTable({ data, loading }: { data: HoldingItem[]; loading: boolean }) {
+  const navigate = useNavigate();
+  const top5 = data.slice(0, 5);
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
         <h2 className="text-[15px] font-semibold text-gray-900">보유 종목</h2>
-        <button className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity">
+        <button
+          onClick={() => navigate("/profile", { state: { tab: "portfolio" } })}
+          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+        >
           전체 <ChevronRight size={14} />
         </button>
       </div>
 
       {loading ? (
         <SectionSkeleton rows={5} />
+      ) : top5.length === 0 ? (
+        <p className="text-[13px] text-gray-400 text-center py-8">보유 종목이 없습니다.</p>
       ) : (
         <table className="w-full">
           <thead>
@@ -176,24 +205,40 @@ function HoldingsTable({ data, loading }: { data: HoldingStockData[]; loading: b
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {data.map((stock) => (
-              <tr key={stock.name} className="hover:bg-gray-50/50 transition-colors">
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <Avatar name={stock.name} color={stock.color} size={28} />
-                    <span className="text-[14px] font-medium text-gray-900">{stock.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-right text-[14px] text-gray-600">{stock.quantity}주</td>
-                <td className="px-4 py-3 text-right text-[14px] text-gray-800 font-medium">{stock.evalAmount}</td>
-                <td className="px-4 py-3 text-right">
-                  <ReturnText value={stock.evalProfit} isPositive={stock.isPositive} className="text-[14px] font-medium" />
-                </td>
-                <td className="px-5 py-3 text-right">
-                  <ReturnText value={stock.returnRate} isPositive={stock.isPositive} className="text-[14px] font-semibold" />
-                </td>
-              </tr>
-            ))}
+            {top5.map((stock) => {
+              const isPositive = stock.returnRate >= 0;
+              return (
+                <tr key={stock.tickerCode} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={28} color={getAvatarColor(stock.stockName)} />
+                      <div>
+                        <span className="text-[14px] font-medium text-gray-900">{stock.stockName}</span>
+                        <p className="text-[11px] text-gray-400">{stock.tickerCode}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right text-[14px] text-gray-600">{stock.quantity}주</td>
+                  <td className="px-4 py-3 text-right text-[14px] text-gray-800 font-medium">
+                    {stock.evaluation.toLocaleString()}원
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <ReturnText
+                      value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
+                      isPositive={isPositive}
+                      className="text-[14px] font-medium"
+                    />
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <ReturnText
+                      value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
+                      isPositive={isPositive}
+                      className="text-[14px] font-semibold"
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
@@ -203,12 +248,38 @@ function HoldingsTable({ data, loading }: { data: HoldingStockData[]; loading: b
 
 // ─── TOP 투자자 ────────────────────────────────────────────────────────────────
 
-function TopInvestors({ data, loading }: { data: TopInvestorData[]; loading: boolean }) {
+function InvestorReturnRate({ userId, me }: { userId: number; me: boolean }) {
+  const myQuery = useAccountSummaryQuery();
+  const otherQuery = useAccountSummaryByUserQuery(userId);
+  const { data, isLoading } = me ? myQuery : otherQuery;
+
+  if (isLoading) return <div className="h-3 bg-gray-100 rounded-full w-12 animate-pulse" />;
+
+  const rate = data?.totalReturnRate ?? 0;
+  const isPositive = rate > 0;
+  const isNegative = rate < 0;
+  const color = isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400";
+  const prefix = isPositive ? "+" : "";
+
+  return (
+    <span className={`text-[14px] font-semibold ${color}`}>
+      {prefix}{rate.toFixed(1)}%
+    </span>
+  );
+}
+
+function TopInvestors({ data, loading }: { data: UserItem[]; loading: boolean }) {
+  const navigate = useNavigate();
+  const top5 = data.slice(0, 5);
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
         <h2 className="text-[15px] font-semibold text-gray-900">TOP 투자자</h2>
-        <button className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity">
+        <button
+          onClick={() => navigate("/users")}
+          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+        >
           전체 <ChevronRight size={14} />
         </button>
       </div>
@@ -216,12 +287,22 @@ function TopInvestors({ data, loading }: { data: TopInvestorData[]; loading: boo
         <SectionSkeleton rows={5} />
       ) : (
         <ul className="divide-y divide-gray-50">
-          {data.map((investor) => (
-            <li key={investor.rank} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors">
-              <span className="w-5 text-[13px] font-bold text-gray-400">{investor.rank}</span>
-              <Avatar name={investor.name} color={investor.color} size={30} />
-              <span className="flex-1 text-[14px] font-medium text-gray-800 truncate">{investor.name}</span>
-              <ReturnText value={investor.returnRate} isPositive={true} className="text-[14px] font-semibold" />
+          {top5.map((investor, i) => (
+            <li key={investor.userId} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors">
+              <span className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}>
+                {i + 1}
+              </span>
+              <Avatar
+                name={investor.nickname}
+                src={investor.imageUrl || undefined}
+                size={30}
+                color={getAvatarColor(investor.nickname)}
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium text-gray-800 truncate">{investor.nickname}</p>
+                <p className="text-[11px] text-gray-400">{investor.followerCount.toLocaleString()}명 팔로워</p>
+              </div>
+              <InvestorReturnRate userId={investor.userId} me={investor.me} />
             </li>
           ))}
         </ul>
@@ -232,30 +313,53 @@ function TopInvestors({ data, loading }: { data: TopInvestorData[]; loading: boo
 
 // ─── 인기 종목 ─────────────────────────────────────────────────────────────────
 
-function PopularStocks({ data, loading }: { data: PopularStockData[]; loading: boolean }) {
+function PopularStocks({ data, loading }: { data: StockItem[]; loading: boolean }) {
+  const navigate = useNavigate();
+  const top5 = [...data].sort((a, b) => b.volume - a.volume).slice(0, 5);
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
         <h2 className="text-[15px] font-semibold text-gray-900">인기 종목</h2>
-        <button className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity">
+        <button
+          onClick={() => navigate("/invest")}
+          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+        >
           전체 <ChevronRight size={14} />
         </button>
       </div>
       {loading ? (
-        <SectionSkeleton rows={8} />
+        <SectionSkeleton rows={5} />
       ) : (
         <ul className="divide-y divide-gray-50">
-          {data.map((stock) => (
-            <li key={stock.rank} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors">
-              <span className="w-5 text-[13px] font-bold text-gray-400">{stock.rank}</span>
-              <Avatar name={stock.name} color={stock.color} size={30} />
-              <span className="flex-1 text-[14px] font-medium text-gray-800 truncate">{stock.name}</span>
-              <div className="text-right">
-                <p className="text-[14px] font-semibold text-gray-900">{stock.price}</p>
-                <ReturnText value={stock.changePercent} isPositive={stock.isPositive} className="text-[12px] font-medium" />
-              </div>
-            </li>
-          ))}
+          {top5.map((stock, i) => {
+            const isPositive = stock.changeRate > 0;
+            const isNegative = stock.changeRate < 0;
+            return (
+              <li
+                key={stock.tickerCode}
+                onClick={() => navigate(`/invest/${stock.tickerCode}`)}
+                className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer"
+              >
+                <span className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}>
+                  {i + 1}
+                </span>
+                <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={30} color={getAvatarColor(stock.stockName)} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[14px] font-medium text-gray-800 truncate">{stock.stockName}</p>
+                  <p className="text-[11px] text-gray-400">{stock.tickerCode}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[14px] font-semibold text-gray-900">
+                    {stock.currentPrice.toLocaleString()}원
+                  </p>
+                  <p className={`text-[12px] font-medium ${isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400"}`}>
+                    {isPositive ? "+" : ""}{stock.changeRate.toFixed(2)}%
+                  </p>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
@@ -266,11 +370,12 @@ function PopularStocks({ data, loading }: { data: PopularStockData[]; loading: b
 
 export default function HomePage() {
   const { data: marketIndices = [], isLoading: loadingMarket } = useMarketIndicesQuery();
+  const { data: summary, isLoading: loadingSummary } = useAccountSummaryQuery();
+  const { data: holdings = [], isLoading: loadingHoldings } = useHoldingsQuery();
+  const { data: userListData, isLoading: loadingUsers } = useUserListInfiniteQuery();
+  const { data: stocks = [], isLoading: loadingStocks } = useStocksQuery();
 
-  const [portfolio] = useState<PortfolioData | null>(null);
-  const [holdings] = useState<HoldingStockData[]>([]);
-  const [topInvestors] = useState<TopInvestorData[]>([]);
-  const [popularStocks] = useState<PopularStockData[]>([]);
+  const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
@@ -292,14 +397,14 @@ export default function HomePage() {
       <div className="flex gap-5 items-start">
         {/* 왼쪽: 포트폴리오 + 보유 종목 */}
         <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
-          <PortfolioCard data={portfolio} loading={false} />
-          <HoldingsTable data={holdings} loading={false} />
+          <PortfolioCard data={summary} loading={loadingSummary} />
+          <HoldingsTable data={holdings} loading={loadingHoldings} />
         </div>
 
         {/* 오른쪽: TOP 투자자 + 인기 종목 */}
         <div className="flex flex-col gap-4 flex-1 min-w-0">
-          <TopInvestors data={topInvestors} loading={false} />
-          <PopularStocks data={popularStocks} loading={false} />
+          <TopInvestors data={allUsers} loading={loadingUsers} />
+          <PopularStocks data={stocks} loading={loadingStocks} />
         </div>
       </div>
     </div>
