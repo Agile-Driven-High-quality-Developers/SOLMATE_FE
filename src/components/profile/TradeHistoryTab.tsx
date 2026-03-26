@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/Avatar";
 import type { TradeHistoryItem } from "@/api/tradeApi";
 
@@ -6,6 +7,7 @@ type Props = {
 };
 
 export default function TradeHistoryTab({ items }: Props) {
+  const navigate = useNavigate();
   if (items.length === 0) {
     return (
       <div className="text-center py-12 text-[14px] text-gray-400">
@@ -34,7 +36,7 @@ export default function TradeHistoryTab({ items }: Props) {
             const isPositive = (item.profitAmount ?? 0) >= 0;
 
             return (
-              <tr key={index} className="hover:bg-gray-50 transition-colors">
+              <tr key={index} className={`hover:bg-gray-50 transition-colors ${item.tickerCode ? "cursor-pointer" : ""}`} onClick={() => item.tickerCode && navigate(`/invest/${item.tickerCode}`)}>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Avatar name={item.stockName} src={item.stockLogo} size={28} />
