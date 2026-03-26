@@ -16,6 +16,7 @@ import {
 import Logo from "../ui/Logo";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
+import { useUnreadCountQuery } from "@/api/notificationApi";
 
 export type NavItemConfig = {
   id: string;
@@ -182,6 +183,7 @@ export default function SidebarNav() {
 
   const storeUser = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const { data: unreadCount } = useUnreadCountQuery();
 
   const user = storeUser
     ? { name: storeUser.nickname, returnRate: "-", avatarColor: "#0046FF" }
@@ -196,6 +198,12 @@ export default function SidebarNav() {
     }
   };
 
+  const navItems = NAV_ITEMS.map((item) =>
+    item.id === "notifications"
+      ? { ...item, badge: unreadCount?.total ?? 0 }
+      : item
+  );
+
   return (
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
       <div className="px-4 pb-2">
@@ -203,7 +211,7 @@ export default function SidebarNav() {
       </div>
       <div className="mx-4 my-3 h-px bg-gray-100" />
       <ul className="flex flex-col gap-0.5 px-2.5 list-none">
-        {NAV_ITEMS.map((item) => (
+        {navItems.map((item) => (
           <NavItem
             key={item.id}
             item={item}
