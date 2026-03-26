@@ -30,6 +30,7 @@ export const router = createBrowserRouter([
             ],
           },
           { path: "account", element: <AccountPage /> },
+          { path: "profile", element: <ProfilePage /> },
           {
             path: "trade-diary",
             children: [

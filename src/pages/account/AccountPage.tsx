@@ -1,10 +1,10 @@
-import SummaryCard from "@/components/account/SummaryCard";
 import PortfolioChart from "@/components/account/PortfolioChart";
 import HoldingList from "@/components/account/HoldingList";
 import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
 
 function fmt(n: number) {
-  if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(0)}만원`;
+  if (Math.abs(n) >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억원`;
+  if (Math.abs(n) >= 10_000) return `${(n / 10_000).toFixed(0)}만원`;
   return `${n.toLocaleString()}원`;
 }
 
@@ -24,19 +24,7 @@ export default function AccountPage() {
     profitAmount: h.returnAmount,
   }));
 
-  const portfolio = (summary?.holdingsRatio ?? []).map((h) => ({
-    stockName: h.stockName,
-    ratio: h.ratio,
-  }));
-
-  const totalAsset = summary?.totalAsset ?? 0;
-  const totalReturnAmount = summary?.totalReturnAmount ?? 0;
-  const totalReturnRate = summary?.totalReturnRate ?? 0;
-  const cash = summary?.cash ?? 0;
-  const initialCash = summary?.initialCash ?? 0;
-  const holdingsCount = summary?.holdingsCount ?? 0;
-  const totalEvaluation = summary?.totalEvaluation ?? 0;
-  const isPositive = totalReturnAmount >= 0;
+  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
 
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
@@ -47,36 +35,50 @@ export default function AccountPage() {
 
       <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-stretch">
 
-        <SummaryCard
-          label="보유 총 자산"
-          value={fmt(totalAsset)}
-          sub={`${isPositive ? "+" : ""}${fmt(totalReturnAmount)} (${isPositive ? "+" : ""}${totalReturnRate.toFixed(2)}%)`}
-          variant="blue"
-          subColor={isPositive ? "text-red-300" : "text-blue-200"}
-        />
-        <SummaryCard
-          label="보유 현금"
-          value={fmt(cash)}
-          sub={`투자원금 ${fmt(initialCash)}`}
-        />
-        <SummaryCard
-          label="보유 종목"
-          value={`${holdingsCount}개`}
-          sub={`총 평가가 ${fmt(totalEvaluation)}`}
-        />
-        <SummaryCard
-          label="수익률"
-          value={`${isPositive ? "+" : ""}${totalReturnRate.toFixed(2)}%`}
-          sub={`${isPositive ? "+" : ""}${fmt(totalReturnAmount)}`}
-          valueColor={isPositive ? "text-red-500" : "text-blue-500"}
-          subColor={isPositive ? "text-red-400" : "text-blue-400"}
-        />
-
-        <div className="row-start-2 h-130">
-          <PortfolioChart items={portfolio} />
+        {/* 보유 총 자산 */}
+        <div className="bg-[#0046FF] rounded-2xl px-6 py-5 text-white">
+          <p className="text-[13px] font-medium opacity-80 mb-2">보유 총 자산</p>
+          <p className="text-[28px] font-bold">{fmt(summary?.totalAsset ?? 0)}</p>
+          <p className={`text-[13px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-200"}`}>
+            {isPositive ? "+" : ""}{fmt(summary?.totalReturnAmount ?? 0)} ({isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%)
+          </p>
         </div>
 
-        <div className="col-span-3 row-start-2 h-130">
+        {/* 보유 현금 */}
+        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5">
+          <p className="text-[13px] text-gray-400 font-medium mb-2">보유 현금</p>
+          <p className="text-[22px] font-bold text-gray-900">{fmt(summary?.cash ?? 0)}</p>
+          <p className="text-[12px] text-gray-400 mt-1">투자원금 {fmt(summary?.initialCash ?? 0)}</p>
+        </div>
+
+        {/* 보유 종목 */}
+        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5">
+          <p className="text-[13px] text-gray-400 font-medium mb-2">보유 종목</p>
+          <p className="text-[22px] font-bold text-gray-900">{summary?.holdingsCount ?? 0}개</p>
+          <p className="text-[12px] text-gray-400 mt-1">총 평가금액 {fmt(summary?.totalEvaluation ?? 0)}</p>
+        </div>
+
+        {/* 수익률 */}
+        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5">
+          <p className="text-[13px] text-gray-400 font-medium mb-2">수익률</p>
+          <p className={`text-[22px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+            {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
+          </p>
+          <p className={`text-[12px] mt-1 font-medium ${isPositive ? "text-red-400" : "text-blue-400"}`}>
+            {isPositive ? "+" : ""}{fmt(summary?.totalReturnAmount ?? 0)}
+          </p>
+        </div>
+
+        {/* 종목 비중 차트 */}
+        <div className="row-start-2">
+          <PortfolioChart
+            items={summary?.holdingsRatio ?? []}
+            totalEvaluation={summary?.totalEvaluation ?? 0}
+          />
+        </div>
+
+        {/* 보유 종목 테이블 */}
+        <div className="col-span-3 row-start-2">
           <HoldingList items={holdings} />
         </div>
       </div>

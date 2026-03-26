@@ -20,16 +20,21 @@ const COLORS = [
   "#84CC16",
 ];
 
-const TOP_N = 5;
+const TOP_N = 4;
+
+function fmt(n: number) {
+  if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(0)}만원`;
+  return `${n.toLocaleString()}원`;
+}
 
 function toDisplayItems(items: PortfolioItem[]) {
-  if (items.length <= TOP_N) return items;
+  if (items.length <= TOP_N + 1) return items;
   const top = items.slice(0, TOP_N);
   const etcRatio = items.slice(TOP_N).reduce((s, i) => s + i.ratio, 0);
   return [...top, { stockName: "기타", ratio: etcRatio }];
 }
 
-export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
+export default function PortfolioChart({ items, compact = false, totalEvaluation = 0 }: { items: PortfolioItem[]; compact?: boolean; totalEvaluation?: number }) {
   const displayed = toDisplayItems(items);
   const [hovered, setHovered] = useState<PortfolioItem | null>(null);
 
@@ -64,37 +69,37 @@ export default function PortfolioChart({ items }: { items: PortfolioItem[] }) {
   const total = items.reduce((s, i) => s + i.ratio, 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 h-full">
-      <h2 className="text-[16px] font-bold text-gray-900 mb-5">종목 비중</h2>
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative w-56 h-56">
+    <div className={`bg-white rounded-2xl border border-gray-100 h-full ${compact ? "p-3" : "p-6"}`}>
+      <h2 className={`font-bold text-gray-900 ${compact ? "text-[13px] mb-3" : "text-[16px] mb-5"}`}>종목 비중</h2>
+      <div className="flex flex-col items-center gap-4">
+        <div className={`relative ${compact ? "w-36 h-36" : "w-56 h-56"}`}>
           <Doughnut data={chartData} options={options as never} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {hovered ? (
               <>
-                <p className="text-[11px] text-gray-400">{hovered.stockName}</p>
-                <p className="text-[14px] font-bold text-gray-900">{hovered.ratio}%</p>
+                <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400`}>{hovered.stockName}</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900`}>{hovered.ratio}%</p>
               </>
             ) : (
               <>
-                <p className="text-[11px] text-gray-400">총 자산</p>
-                <p className="text-[14px] font-bold text-gray-900">{total}%</p>
+                <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400`}>총 평가금액</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900`}>{fmt(totalEvaluation)}</p>
               </>
             )}
           </div>
         </div>
 
-        <div className="w-full flex flex-col gap-2.5">
+        <div className="w-full flex flex-col gap-1.5">
           {displayed.map((item, idx) => (
             <div key={item.stockName} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  className={`${compact ? "w-2 h-2" : "w-2.5 h-2.5"} rounded-full shrink-0`}
                   style={{ backgroundColor: COLORS[idx % COLORS.length] }}
                 />
-                <span className="text-[13px] text-gray-700">{item.stockName}</span>
+                <span className={`${compact ? "text-[11px]" : "text-[13px]"} text-gray-700`}>{item.stockName}</span>
               </div>
-              <span className="text-[13px] font-medium text-gray-500">{item.ratio}%</span>
+              <span className={`${compact ? "text-[11px]" : "text-[13px]"} font-medium text-gray-500`}>{item.ratio}%</span>
             </div>
           ))}
         </div>

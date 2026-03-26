@@ -5,6 +5,7 @@ import type { ApiResponse } from "./authApi";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type TradeHistoryItem = {
+  tickerCode: string;
   stockName: string;
   stockLogo: string;
   tradeType: "BUY" | "SELL";

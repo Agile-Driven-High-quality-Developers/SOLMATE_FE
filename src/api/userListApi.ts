@@ -1,5 +1,5 @@
 import { fetchClient } from "@/lib/fetchClient";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "./authApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -99,6 +99,36 @@ export function useUserListCacheUpdate() {
   }
 
   return { toggleFollow, setMentoringStatus };
+}
+
+// ─── Follow List Types ────────────────────────────────────────────────────────
+
+export type FollowUser = {
+  userId: number;
+  nickname: string;
+  imageUrl: string;
+};
+
+// ─── Follow List Hooks ────────────────────────────────────────────────────────
+
+export function useFollowersQuery() {
+  return useQuery({
+    queryKey: ["follows", "followers"],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<FollowUser[]>>("/api/follows/followers")
+        .then((res) => res.data),
+  });
+}
+
+export function useFollowingQuery() {
+  return useQuery({
+    queryKey: ["follows", "following"],
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<FollowUser[]>>("/api/follows/following")
+        .then((res) => res.data),
+  });
 }
 
 // ─── React Query Hook ─────────────────────────────────────────────────────────

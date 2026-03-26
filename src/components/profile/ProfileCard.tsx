@@ -108,7 +108,7 @@ export default function ProfileCard({
           <LogOut size={14} />
           로그아웃
         </Button>
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-2 text-red-500 hover:bg-red-50!" onClick={onDeleteClick}>
+        <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
           <Trash2 size={14} />
           회원탈퇴
         </Button>
