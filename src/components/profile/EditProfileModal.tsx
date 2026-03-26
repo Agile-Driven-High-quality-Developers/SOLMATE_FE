@@ -30,17 +30,19 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   };
 
   const handleCheckNickname = async () => {
-    if (!nicknameValue.trim() || nicknameValue === nickname) {
-      setNicknameChecked(true);
-      return;
-    }
+    if (!nicknameValue.trim()) return;
     setChecking(true);
     try {
-      await fetchClient.get<ApiResponse<void>>("/api/auth/nickname/check", { nickname: nicknameValue });
+      await fetchClient.get<ApiResponse<void>>("/api/users/nickname/check", { nickname: nicknameValue });
       setNicknameChecked(true);
       setNicknameMsg({ text: "사용 가능한 닉네임이에요.", ok: true });
-    } catch {
-      setNicknameMsg({ text: "이미 사용 중인 닉네임이에요.", ok: false });
+    } catch (err: unknown) {
+      const msg = (err as Error)?.message ?? "";
+      if (msg.includes("400")) {
+        setNicknameMsg({ text: "현재 사용 중인 닉네임이에요.", ok: false });
+      } else {
+        setNicknameMsg({ text: "이미 다른 사람이 사용 중인 닉네임이에요.", ok: false });
+      }
     } finally {
       setChecking(false);
     }
@@ -78,10 +80,10 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
     }
   };
 
+  const nicknameUnchanged = nicknameValue === nickname;
   const canSave =
     nicknameValue.trim() &&
-    (nicknameValue === nickname || nicknameChecked) &&
-    nicknameMsg?.ok !== false;
+    (nicknameUnchanged || (nicknameChecked && nicknameMsg?.ok !== false));
 
   const displayImage = imagePreview ?? profileImageUrl ?? undefined;
 
