@@ -208,7 +208,7 @@ function HoldingsTable({ data, loading }: { data: HoldingItem[]; loading: boolea
             {top5.map((stock) => {
               const isPositive = stock.returnRate >= 0;
               return (
-                <tr key={stock.tickerCode} className="hover:bg-gray-50/50 transition-colors">
+                <tr key={stock.tickerCode} onClick={() => navigate(`/invest/${stock.tickerCode}`)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2.5">
                       <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={28} color={getAvatarColor(stock.stockName)} />
