@@ -4,6 +4,7 @@ import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { fetchClient } from "@/lib/fetchClient";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "@/api/authApi";
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function EditProfileModal({ nickname, profileImageUrl, onClose, onSave }: Props) {
+  const queryClient = useQueryClient();
   const [nicknameValue, setNicknameValue] = useState(nickname);
   const [nicknameChecked, setNicknameChecked] = useState(false);
   const [nicknameMsg, setNicknameMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -61,19 +63,22 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
       const token = useAuthStore.getState().accessToken;
       const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
       const formData = new FormData();
-      formData.append("nickname", nicknameValue);
-      if (imageFile) formData.append("profileImage", imageFile);
+      if (nicknameValue !== nickname) formData.append("nickname", nicknameValue);
+      if (imageFile) formData.append("image", imageFile);
 
-      await fetch(`${BASE_URL}/api/users/profile`, {
+      const res = await fetch(`${BASE_URL}/api/users/profile`, {
         method: "PATCH",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         credentials: "include",
         body: formData,
       });
 
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
       onSave(nicknameValue);
       onClose();
-    } catch {
+    } catch (e) {
+      console.error("프로필 저장 실패:", e);
       setNicknameMsg({ text: "저장에 실패했어요. 다시 시도해주세요.", ok: false });
     } finally {
       setSaving(false);

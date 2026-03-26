@@ -17,6 +17,15 @@ export type MentorInfo = {
   following: boolean;
 };
 
+export type MenteeItem = {
+  userId: number;
+  nickname: string;
+  imageUrl: string;
+  followerCount: number;
+  totalReturnRate: number;
+  totalReturnAmount: number;
+};
+
 export type MentorHoldingItem = {
   tickerCode: string;
   stockName: string;
@@ -32,6 +41,7 @@ export type MentorHoldingItem = {
 
 export const mentorQueryKeys = {
   mentor: ["mentor"] as const,
+  mentees: ["mentees"] as const,
   holdings: (userId: number) => ["mentor", userId, "holdings"] as const,
   diaries: (userId: number) => ["mentor", userId, "diaries"] as const,
   history: (userId: number) => ["mentor", userId, "history"] as const,
@@ -83,6 +93,17 @@ export function useMentorDiariesQuery(userId: number) {
         .then((res) => res.data),
     staleTime: 30_000,
     enabled: !!userId,
+  });
+}
+
+export function useMyMenteesQuery() {
+  return useQuery({
+    queryKey: mentorQueryKeys.mentees,
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<MenteeItem[]>>("/api/mentor-requests/mentees")
+        .then((res) => res.data),
+    staleTime: 30_000,
   });
 }
 
