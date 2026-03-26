@@ -6,11 +6,24 @@ import { authApi } from "@/api/authApi";
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { useTradeHistoryQuery } from "@/api/tradeApi";
 import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
+import { useFollowersQuery, useFollowingQuery } from "@/api/userListApi";
 import ProfileCard from "@/components/profile/ProfileCard";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
+import FollowList from "@/components/profile/FollowList";
+
+const MOCK_FOLLOWERS = [
+  { userId: 1, nickname: "투자왕김철수", imageUrl: "" },
+  { userId: 2, nickname: "주식고수박영희", imageUrl: "" },
+  { userId: 3, nickname: "강남불패이민준", imageUrl: "" },
+];
+
+const MOCK_FOLLOWING = [
+  { userId: 4, nickname: "워렌버핏팬", imageUrl: "" },
+  { userId: 5, nickname: "테슬라홀더", imageUrl: "" },
+];
 
 const TABS = [
   { id: "diary", label: "매매일지" },
@@ -26,10 +39,13 @@ export default function ProfilePage() {
   const user = useUser();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [activeTab, setActiveTab] = useState<TabId>("diary");
+  const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
   const { data: diaries = [] } = useMyDiariesQuery();
   const { data: tradeHistories = [] } = useTradeHistoryQuery();
   const { data: summary } = useAccountSummaryQuery();
   const { data: holdingsRaw = [] } = useHoldingsQuery();
+  const { data: followers = MOCK_FOLLOWERS } = useFollowersQuery();
+  const { data: following = MOCK_FOLLOWING } = useFollowingQuery();
 
   const holdings = holdingsRaw.map((h) => ({
     tickerCode: h.tickerCode,
@@ -63,19 +79,25 @@ export default function ProfilePage() {
 
       <div className="flex gap-5 flex-1 min-h-0">
         {/* 왼쪽: 프로필 카드 */}
-        <div className="w-64 shrink-0 overflow-y-auto h-full">
+        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
           <ProfileCard
             nickname={user.nickname}
-            followers={0}
-            following={0}
-            totalReturnRate={0}
-            totalReturn={0}
+            followers={followers.length}
+            following={following.length}
+            totalReturnRate={summary?.totalReturnRate ?? 0}
+            totalReturn={summary?.totalReturnAmount ?? 0}
             onEditClick={() => {}}
             onLogoutClick={handleLogout}
             onDeleteClick={() => {}}
-            onFollowersClick={() => {}}
-            onFollowingClick={() => {}}
+            onFollowersClick={() => setFollowModal(followModal === "followers" ? null : "followers")}
+            onFollowingClick={() => setFollowModal(followModal === "following" ? null : "following")}
           />
+          {followModal && (
+            <FollowList
+              type={followModal}
+              items={followModal === "followers" ? followers : following}
+            />
+          )}
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
