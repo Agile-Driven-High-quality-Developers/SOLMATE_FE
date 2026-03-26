@@ -22,6 +22,11 @@ const COLORS = [
 
 const TOP_N = 4;
 
+function fmt(n: number) {
+  if (Math.abs(n) >= 10000) return `${(n / 10000).toFixed(0)}만원`;
+  return `${n.toLocaleString()}원`;
+}
+
 function toDisplayItems(items: PortfolioItem[]) {
   if (items.length <= TOP_N + 1) return items;
   const top = items.slice(0, TOP_N);
@@ -29,7 +34,7 @@ function toDisplayItems(items: PortfolioItem[]) {
   return [...top, { stockName: "기타", ratio: etcRatio }];
 }
 
-export default function PortfolioChart({ items, compact = false }: { items: PortfolioItem[]; compact?: boolean }) {
+export default function PortfolioChart({ items, compact = false, totalEvaluation = 0 }: { items: PortfolioItem[]; compact?: boolean; totalEvaluation?: number }) {
   const displayed = toDisplayItems(items);
   const [hovered, setHovered] = useState<PortfolioItem | null>(null);
 
@@ -77,8 +82,8 @@ export default function PortfolioChart({ items, compact = false }: { items: Port
               </>
             ) : (
               <>
-                <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400`}>총 자산</p>
-                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900`}>{total}%</p>
+                <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400`}>총 평가금액</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900`}>{fmt(totalEvaluation)}</p>
               </>
             )}
           </div>

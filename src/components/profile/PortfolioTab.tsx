@@ -48,7 +48,7 @@ export default function PortfolioTab({
       </div>
 
       <div className="grid grid-cols-[1fr_2fr] gap-3 flex-1 min-h-0">
-        <PortfolioChart items={portfolio} compact />
+        <PortfolioChart items={portfolio} compact totalEvaluation={totalEvaluation} />
         <HoldingList items={holdings} showAvgPrice={false} compact />
       </div>
     </div>
