@@ -89,8 +89,8 @@ export default function ProfilePage() {
             onEditClick={() => {}}
             onLogoutClick={handleLogout}
             onDeleteClick={() => {}}
-            onFollowersClick={() => setFollowModal(followModal === "followers" ? null : "followers")}
-            onFollowingClick={() => setFollowModal(followModal === "following" ? null : "following")}
+            onFollowersClick={() => setFollowModal("followers")}
+            onFollowingClick={() => setFollowModal("following")}
           />
           {followModal && (
             <FollowList
