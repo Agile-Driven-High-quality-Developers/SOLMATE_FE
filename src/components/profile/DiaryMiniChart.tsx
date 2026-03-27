@@ -305,7 +305,7 @@ export default function DiaryMiniChart({
                 onClick={() => setActivePeriod(label)}
                 className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
                   activePeriod === label
-                    ? "text-white bg-[#22C55E]"
+                    ? "text-white bg-[#0046FF]"
                     : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                 }`}
               >
@@ -321,7 +321,7 @@ export default function DiaryMiniChart({
                   disabled={disabled}
                   className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
                     activePeriod === label
-                      ? "text-white bg-[#22C55E]"
+                      ? "text-white bg-[#0046FF]"
                       : disabled
                       ? "text-gray-200 cursor-not-allowed"
                       : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
