@@ -13,30 +13,33 @@ const SLIDES: Slide[] = [
   {
     emoji: "👋",
     badge: "환영해요",
-    title: "솔메이트에 오신 걸\n환영해요!",
-    description: "실제 돈 없이 주식 투자를 경험할 수 있는\n모의투자 플랫폼이에요.",
-    highlight: "1,000만원의 가상 자금으로 지금 바로 시작할 수 있어요",
-  },
-  {
-    emoji: "📈",
-    badge: "주식",
-    title: "주식이 뭔가요?",
-    description: "회사의 일부를 소유하는 증서예요.\n회사가 성장하면 주식 가격도 함께 올라가요.",
-    highlight: "주식을 사는 걸 '매수', 파는 걸 '매도'라고 해요",
+    title: "Solmate에 오신 걸\n환영해요!",
+    description:
+      "가상 1,000만원으로 실전 같은 주식 투자를\n경험할 수 있는 모의투자 플랫폼이에요.",
+    highlight: "실제 코스피200 시세 그대로, 리스크 없이 시작",
   },
   {
     emoji: "💰",
-    badge: "시세 · 수익률",
-    title: "시세와 수익률이\n뭔가요?",
+    badge: "내 자산",
+    title: "예수금·평가자산을\n한눈에 확인해요",
     description:
-      "시세는 지금 실시간으로 거래되는 가격이에요.\n수익률은 내가 산 가격 대비 얼마나 올랐는지예요.",
-    highlight: "예) 10,000원에 샀는데 11,000원이면 수익률 +10% 📈",
+      "홈에서 총 평가자산과 예수금을 볼 수 있어요.\n예수금은 아직 투자하지 않은 내 현금이에요.",
+    highlight: "평가자산 = 예수금 + 보유 종목 평가금액",
   },
   {
-    emoji: "🚀",
-    badge: "시작!",
-    title: "준비 완료!\n이제 시작해볼까요?",
-    description: "투자 탭에서 마음에 드는 주식을 골라\n나만의 포트폴리오를 만들어봐요.",
+    emoji: "📊",
+    badge: "매수 · 매도",
+    title: "종목을 골라\n매수·매도 해봐요",
+    description:
+      "모의투자 탭에서 종목을 검색하고\n매수(사기)·매도(팔기)를 직접 해볼 수 있어요.",
+    highlight: "등락률 빨강 ▲ = 오름 / 파랑 ▼ = 내림 (한국 증시)",
+  },
+  {
+    emoji: "🏆",
+    badge: "랭킹 · 멘토",
+    title: "TOP 투자자와\n함께 성장해요",
+    description:
+      "수익률 상위 투자자의 포트폴리오를 보고 배우거나,\n멘토를 찾아 조언을 구할 수 있어요.",
   },
 ];
 
@@ -99,7 +102,9 @@ export default function OnboardingOverlay() {
         {/* 하이라이트 박스 */}
         {slide.highlight && (
           <div className="w-full mt-6 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
-            <p className="text-sm text-[#0046FF] font-medium">{slide.highlight}</p>
+            <p className="text-sm text-[#0046FF] font-medium">
+              {slide.highlight}
+            </p>
           </div>
         )}
       </div>
@@ -134,7 +139,7 @@ export default function OnboardingOverlay() {
             className="flex-1 py-3 rounded-[10px] bg-[#0046FF] text-white text-sm font-medium hover:bg-[#0038CC] transition-colors"
             onClick={() => (isFinal ? markAsSeen() : transition(step + 1))}
           >
-            {isFinal ? "투자 시작하기" : "다음"}
+            {isFinal ? "앱 기능 둘러보기 →" : "다음"}
           </button>
         </div>
       </div>
