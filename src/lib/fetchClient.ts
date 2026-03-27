@@ -49,7 +49,13 @@ async function request<T>(
     }
   }
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => null);
+    const err = new Error(`HTTP ${res.status}`) as Error & { status: number; data: unknown };
+    err.status = res.status;
+    err.data = errorData;
+    throw err;
+  }
   return res.json() as Promise<T>;
 }
 

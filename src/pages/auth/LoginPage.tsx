@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Logo from "@/components/ui/Logo";
@@ -45,6 +45,7 @@ function GoogleIcon() {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const [form, setForm] = useState<LoginForm>({
@@ -55,7 +56,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState((location.state as { errorMsg?: string })?.errorMsg ?? "");
 
   const setField = <K extends keyof LoginForm>(key: K, value: LoginForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
