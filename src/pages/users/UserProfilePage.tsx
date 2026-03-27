@@ -13,6 +13,8 @@ import {
   useMentorHoldingsQuery,
   useMentorDiariesQuery,
   useMentorTradeHistoryQuery,
+  useMyMenteesQuery,
+  useMyMentorQuery,
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 import { followUser, unfollowUser } from "@/api/userListApi";
@@ -42,6 +44,8 @@ export default function UserProfilePage() {
   const { data: holdingsRaw = [] } = useMentorHoldingsQuery(id);
   const { data: diaries = [] } = useMentorDiariesQuery(id);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(id);
+  const { data: myMentor } = useMyMentorQuery();
+  const { data: myMentees } = useMyMenteesQuery();
 
   const holdings = holdingsRaw.map((h) => ({
     tickerCode: h.tickerCode,
@@ -54,6 +58,9 @@ export default function UserProfilePage() {
     profitRate: h.returnRate,
     profitAmount: h.returnAmount,
   }));
+
+  const isMentor = myMentor?.hasMentor && myMentor.userId === id;
+  const isMentee = myMentees?.mentees.some((m) => m.userId === id);
 
   const handleFollow = async () => {
     if (!profile) return;
@@ -119,6 +126,7 @@ export default function UserProfilePage() {
             totalReturn={summary?.totalReturnAmount ?? 0}
             onFollowersClick={() => setFollowModal("followers")}
             onFollowingClick={() => setFollowModal("following")}
+            badge={isMentor ? "멘토" : isMentee ? "멘티" : undefined}
           />
           {followModal && (
             <FollowList type={followModal} userId={id} />
