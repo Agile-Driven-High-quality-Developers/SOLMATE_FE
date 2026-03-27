@@ -11,11 +11,19 @@ type Props = {
   following: number;
   totalReturnRate: number;
   totalReturn: number;
-  onEditClick: () => void;
-  onLogoutClick: () => void;
-  onDeleteClick: () => void;
   onFollowersClick: () => void;
   onFollowingClick: () => void;
+
+  // 내 프로필
+  isOwnProfile?: boolean;
+  onEditClick?: () => void;
+  onLogoutClick?: () => void;
+  onDeleteClick?: () => void;
+
+  // 타인 프로필
+  isFollowing?: boolean;
+  onFollowClick?: () => void;
+  badge?: "멘토" | "멘티";
 };
 
 function fmtAmount(n: number) {
@@ -32,11 +40,15 @@ export default function ProfileCard({
   following,
   totalReturnRate,
   totalReturn,
+  onFollowersClick,
+  onFollowingClick,
+  isOwnProfile = true,
   onEditClick,
   onLogoutClick,
   onDeleteClick,
-  onFollowersClick,
-  onFollowingClick,
+  isFollowing,
+  onFollowClick,
+  badge,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
@@ -47,7 +59,15 @@ export default function ProfileCard({
         <div className="mb-3">
           <Avatar name={nickname} src={profileImageUrl ?? undefined} size={80} />
         </div>
-        <h2 className="text-[17px] font-bold text-gray-900">{nickname}</h2>
+        <div className="flex items-center gap-2 mt-1">
+          <h2 className="text-[17px] font-bold text-gray-900">{nickname}</h2>
+          {badge === "멘토" && (
+            <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">멘토</span>
+          )}
+          {badge === "멘티" && (
+            <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">멘티</span>
+          )}
+        </div>
         {email && (
           <p className="text-[13px] text-gray-400 mt-0.5">{email}</p>
         )}
@@ -76,42 +96,44 @@ export default function ProfileCard({
       <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mb-4">
         <div className="text-center">
           <p className="text-[12px] text-gray-400 mb-1">수익률</p>
-          <p
-            className={`text-[13px] font-bold ${
-              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
-            }`}
-          >
-            {isPositive ? "+" : ""}
-            {totalReturnRate.toFixed(1)}%
+          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+            {isPositive ? "+" : ""}{totalReturnRate.toFixed(1)}%
           </p>
         </div>
         <div className="text-center">
           <p className="text-[12px] text-gray-400 mb-1">총 수익</p>
-          <p
-            className={`text-[13px] font-bold ${
-              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
-            }`}
-          >
-            {isPositive ? "+" : ""}
-            {fmtAmount(totalReturn)}원
+          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+            {isPositive ? "+" : ""}{fmtAmount(totalReturn)}원
           </p>
         </div>
       </div>
 
       {/* 액션 버튼 */}
       <div className="space-y-2 pt-4 border-t border-gray-100">
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
-          <Settings size={14} />
-          프로필 편집
-        </Button>
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
-          <LogOut size={14} />
-          로그아웃
-        </Button>
-        <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
-          <Trash2 size={14} />
-          회원탈퇴
-        </Button>
+        {isOwnProfile ? (
+          <>
+            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
+              <Settings size={14} />
+              프로필 편집
+            </Button>
+            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
+              <LogOut size={14} />
+              로그아웃
+            </Button>
+            <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
+              <Trash2 size={14} />
+              회원탈퇴
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant={isFollowing ? "invalid" : "primary"}
+            className="w-full"
+            onClick={onFollowClick}
+          >
+            {isFollowing ? "팔로잉" : "팔로우"}
+          </Button>
+        )}
       </div>
     </div>
   );

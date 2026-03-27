@@ -1,3 +1,14 @@
+const AVATAR_COLORS = [
+  "#4ECDC4", "#45B7D1", "#FF6B35", "#96CEB4", "#DDA0DD",
+  "#BB8FCE", "#85C1E9", "#F0A500", "#E74C3C", "#2ECC71",
+];
+
+function getAvatarColor(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 type AvatarProps = {
   name: string;
   color?: string;
@@ -25,13 +36,14 @@ function getInitials(name: string): string {
 
 export default function Avatar({
   name,
-  color = "#0046FF",
+  color,
   size = 40,
   src,
   className = "",
   onClick,
 }: AvatarProps) {
   const initials = getInitials(name);
+  const bgColor = color ?? getAvatarColor(name);
 
   // 이미지 아바타
   if (src) {
@@ -55,7 +67,7 @@ export default function Avatar({
     <div
       className="rounded-full flex items-center justify-center shrink-0 select-none object-cover"
       style={{
-        background: color,
+        background: bgColor,
         color: "#ffffff",
         width: `${size}px`,
         height: `${size}px`,
