@@ -8,6 +8,7 @@ import MenteeTradeDiaryTab from "@/components/profile/MenteeTradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
 import {
+  useMyMenteesQuery,
   useUserProfileQuery,
   useMentorHoldingsQuery,
   useMentorDiariesQuery,
@@ -146,10 +147,6 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
   );
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const MOCK_MENTEE_IDS = [1, 5, 6];
-
 // ─── Mentee List Item ─────────────────────────────────────────────────────────
 
 function MenteeListItem({
@@ -186,37 +183,55 @@ function MenteeListItem({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function MyMenteePage() {
-  const [selectedId, setSelectedId] = useState<number>(MOCK_MENTEE_IDS[0]);
+  const { data: menteesData, isLoading } = useMyMenteesQuery();
+  const mentees = menteesData?.mentees ?? [];
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  const activeMenteeId = selectedId ?? mentees[0]?.userId ?? null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-screen">
+        <Loader2 size={32} className="animate-spin text-[#0046FF]" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
       {/* 헤더 */}
       <div className="flex items-baseline gap-2 shrink-0">
         <h1 className="text-[22px] font-bold text-gray-900">나의 멘티</h1>
-        <span className="text-[13px] text-gray-400">총 {MOCK_MENTEE_IDS.length}명의 멘티</span>
+        {mentees.length > 0 && <span className="text-[13px] text-gray-400">총 {mentees.length}명의 멘티</span>}
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
-        {/* 멘티 목록 (좌측) */}
-        <div className="w-[180px] shrink-0 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 shrink-0">
-            <p className="text-[12px] font-semibold text-gray-400">멘티 목록</p>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2">
-            {MOCK_MENTEE_IDS.map((id) => (
-              <MenteeListItem
-                key={id}
-                userId={id}
-                selected={id === selectedId}
-                onClick={() => setSelectedId(id)}
-              />
-            ))}
-          </div>
+      {!menteesData?.hasMentee || mentees.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400">
+          아직 멘티가 없습니다.
         </div>
+      ) : (
+        <div className="flex gap-4 flex-1 min-h-0">
+          {/* 멘티 목록 (좌측) */}
+          <div className="w-[180px] shrink-0 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100 shrink-0">
+              <p className="text-[12px] font-semibold text-gray-400">멘티 목록</p>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {mentees.map((mentee) => (
+                <MenteeListItem
+                  key={mentee.userId}
+                  userId={mentee.userId}
+                  selected={mentee.userId === activeMenteeId}
+                  onClick={() => setSelectedId(mentee.userId)}
+                />
+              ))}
+            </div>
+          </div>
 
-        {/* 멘티 상세 (우측) */}
-        <MenteeDetail key={selectedId} menteeId={selectedId} />
-      </div>
+          {/* 멘티 상세 (우측) */}
+          {activeMenteeId && <MenteeDetail key={activeMenteeId} menteeId={activeMenteeId} />}
+        </div>
+      )}
     </div>
   );
 }
