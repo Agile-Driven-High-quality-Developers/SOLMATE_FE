@@ -164,8 +164,13 @@ export default function SignUpPage() {
       await authApi.signup({ email, nickname: nickname.trim(), password });
       showToast("회원가입이 완료되었습니다!");
       navigate("/login");
-    } catch {
-      showToast("회원가입에 실패했습니다. 다시 시도해 주세요.");
+    } catch (err: unknown) {
+      const data = (err as { data?: { code?: string; message?: string } })?.data;
+      if ((data?.code === "USER_409_2" || data?.code === "USER_409") && data.message) {
+        showToast(data.message);
+      } else {
+        showToast("회원가입에 실패했습니다. 다시 시도해 주세요.");
+      }
     } finally {
       setIsSubmitting(false);
     }
