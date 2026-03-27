@@ -1,6 +1,39 @@
 import { useState } from "react";
 import { X, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const TRADE_ORDER_TOUR: TourStep[] = [
+  {
+    target: "trade-order-available",
+    title: "💰 주문 가능금액",
+    description: "현재 내 예수금(투자에 쓸 수 있는 현금)이에요. 이 금액 안에서만 매수할 수 있어요.",
+    placement: "bottom",
+  },
+  {
+    target: "trade-order-type",
+    title: "📌 시장가 vs 지정가",
+    description: "주문 방식을 선택해요.",
+    items: [
+      "시장가 — 지금 바로 현재 가격으로 체결돼요",
+      "지정가 — 내가 원하는 가격을 직접 입력해요. 그 가격이 될 때 체결돼요",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "trade-order-quantity",
+    title: "🔢 수량 입력",
+    description: "몇 주를 살지 입력해요. 아래 최대 수량을 넘을 수 없어요.",
+    placement: "bottom",
+  },
+  {
+    target: "trade-order-diary",
+    title: "✍️ 매매일지 (필수)",
+    description: "이 주식을 사는 이유를 꼭 기록해야 주문할 수 있어요. 나중에 내 투자 패턴을 분석하는 데 도움이 돼요.",
+    placement: "top",
+  },
+];
 
 type OrderType = "MARKET" | "LIMIT";
 
@@ -74,7 +107,7 @@ export default function TradeOrderModal({
         </div>
 
         {/* 주문 가능금액 */}
-        <div className={`rounded-xl px-3 py-2 mb-3 ${accent.bgLight}`}>
+        <div className={`rounded-xl px-3 py-2 mb-3 ${accent.bgLight}`} data-tour="trade-order-available">
           <div className="flex justify-between items-center">
             <span className="text-[12px] font-semibold text-gray-500">주문 가능금액</span>
             <span className={`text-[12px] font-bold ${accent.text}`}>
@@ -84,7 +117,7 @@ export default function TradeOrderModal({
         </div>
 
         {/* 시장가 / 지정가 */}
-        <div className="flex bg-gray-100 rounded-xl p-1 mb-3">
+        <div className="flex bg-gray-100 rounded-xl p-1 mb-3" data-tour="trade-order-type">
           {(["MARKET", "LIMIT"] as OrderType[]).map((t) => (
             <button
               key={t}
@@ -119,7 +152,7 @@ export default function TradeOrderModal({
         </div>
 
         {/* 수량 */}
-        <div className="mb-3">
+        <div className="mb-3" data-tour="trade-order-quantity">
           <label className="text-[12px] font-semibold text-gray-500 mb-1 block">
             수량 (주)
           </label>
@@ -147,7 +180,7 @@ export default function TradeOrderModal({
         </div>
 
         {/* 매매일지 */}
-        <div className="mb-3">
+        <div className="mb-3" data-tour="trade-order-diary">
           <div className="flex items-center justify-between mb-1">
             <label className="text-[13px] font-semibold text-gray-700">
               매매일지 <span className="text-red-400">*</span>
@@ -171,6 +204,8 @@ export default function TradeOrderModal({
             </p>
           )}
         </div>
+
+        <SpotlightTour tourKey="trade-order" steps={TRADE_ORDER_TOUR} />
 
         {/* 버튼 */}
         <div className="flex gap-2">

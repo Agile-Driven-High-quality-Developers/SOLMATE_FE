@@ -1,5 +1,64 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const STOCK_DETAIL_TOUR: TourStep[] = [
+  {
+    target: "stock-chart",
+    title: "📊 주가 차트",
+    description: "주가가 시간에 따라 어떻게 변했는지 보여줘요.",
+    items: [
+      "빨간 캔들 — 어제보다 오른 날",
+      "파란 캔들 — 어제보다 내린 날",
+      "오른쪽으로 갈수록 최근 데이터예요",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "stock-info",
+    title: "📋 오늘의 주가 정보",
+    description: "오늘 하루 동안의 주요 가격이에요.",
+    items: [
+      "시가 — 오늘 장이 열릴 때 첫 거래 가격",
+      "고가 — 오늘 중 가장 높았던 가격",
+      "저가 — 오늘 중 가장 낮았던 가격",
+      "전일종가 — 어제 마감 가격",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "stock-holding",
+    title: "💳 보유현황 & 매수·매도",
+    description: "내 주식 현황과 주문 버튼이에요.",
+    items: [
+      "매수 — 주식 사기 (예수금이 줄어요)",
+      "매도 — 주식 팔기 (예수금이 늘어요)",
+      "예수금 범위 안에서만 매수할 수 있어요",
+    ],
+    placement: "left",
+  },
+  {
+    target: "stock-orderbook",
+    title: "📚 호가창",
+    description: "사려는 사람과 팔려는 사람의 희망 가격이에요.",
+    items: [
+      {
+        label: "매도호가",
+        labelColor: "#EF4444",
+        text: "— 팔고 싶은 사람들의 희망 가격 (빨간색)",
+      },
+      {
+        label: "매수호가",
+        labelColor: "#3B82F6",
+        text: "— 사고 싶은 사람들의 희망 가격 (파란색)",
+      },
+      "옆 숫자(잔량) — 그 가격에 대기 중인 주문 수량이에요. 숫자가 클수록 그 가격에 사람이 많아요",
+      "호가와 내 주문가격이 맞을 때 주문이 체결돼요",
+    ],
+    placement: "left",
+  },
+];
 import { Loader2 } from "lucide-react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
@@ -13,7 +72,11 @@ import {
   stockQueryKeys,
 } from "@/api/stockApi";
 import { useBuyOrderMutation, useSellOrderMutation } from "@/api/tradeApi";
-import type { StockQuote, StockItemMessage, OrderBookData } from "@/api/stockApi";
+import type {
+  StockQuote,
+  StockItemMessage,
+  OrderBookData,
+} from "@/api/stockApi";
 
 import { useStockStore } from "@/store/stockStore";
 import StockDetailHeader from "@/components/stocks/StockDetailHeader";
@@ -157,79 +220,95 @@ export default function StockDetailPage() {
 
   return (
     <>
-    <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
-      <StockDetailHeader stock={headerStock} />
+      <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+        <StockDetailHeader stock={headerStock} />
 
-      <div className="flex gap-5 items-start">
-        {/* 왼쪽 */}
-        <div className="flex flex-col gap-5 flex-1 min-w-0">
-          <StockChart stockCode={stockCode} />
+        <div className="flex gap-5 items-start">
+          {/* 왼쪽 */}
+          <div className="flex flex-col gap-5 flex-1 min-w-0">
+            <div data-tour="stock-chart">
+              <StockChart stockCode={stockCode} />
+            </div>
 
-          <StockInfoGrid quote={quote} />
+            <div data-tour="stock-info">
+              <StockInfoGrid quote={quote} />
+            </div>
 
-          <TradeHistory
-            tickerCode={stockCode}
-            orders={tradeHistory?.orders ?? []}
-          />
-        </div>
+            <TradeHistory
+              tickerCode={stockCode}
+              orders={tradeHistory?.orders ?? []}
+            />
+          </div>
 
-        {/* 오른쪽 */}
-        <div className="w-60 shrink-0 flex flex-col gap-4">
-          <HoldingStatus
-            holding={holding}
-            cash={cash}
-            onBuy={() => setOrderSide("buy")}
-            onSell={() => setOrderSide("sell")}
-          />
-          {orderBook && <OrderBook orderBook={orderBook} />}
+          {/* 오른쪽 */}
+          <div className="w-60 shrink-0 flex flex-col gap-4">
+            <div data-tour="stock-holding">
+              <HoldingStatus
+                holding={holding}
+                cash={cash}
+                onBuy={() => setOrderSide("buy")}
+                onSell={() => setOrderSide("sell")}
+              />
+            </div>
+            {orderBook && (
+              <div data-tour="stock-orderbook">
+                <OrderBook orderBook={orderBook} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
 
-    {orderSide && (
-      <TradeOrderModal
-        side={orderSide}
-        stockName={quote.stockName}
-        currentPrice={quote.currentPrice}
-        cash={cash ?? 0}
-        holdingQuantity={holding?.holdingQuantity ?? 0}
-        onClose={() => setOrderSide(null)}
-        onConfirm={(params) => {
-          setPendingOrder({ ...params, side: orderSide! });
-          setOrderSide(null);
-        }}
-      />
-    )}
+      {orderSide && (
+        <TradeOrderModal
+          side={orderSide}
+          stockName={quote.stockName}
+          currentPrice={quote.currentPrice}
+          cash={cash ?? 0}
+          holdingQuantity={holding?.holdingQuantity ?? 0}
+          onClose={() => setOrderSide(null)}
+          onConfirm={(params) => {
+            setPendingOrder({ ...params, side: orderSide! });
+            setOrderSide(null);
+          }}
+        />
+      )}
 
-    {pendingOrder && (
-      <TradeConfirmModal
-        side={pendingOrder.side}
-        stockName={quote?.stockName ?? ""}
-        orderType={pendingOrder.orderType}
-        price={pendingOrder.price}
-        quantity={pendingOrder.quantity}
-        totalAmount={pendingOrder.price * pendingOrder.quantity}
-        onClose={() => setPendingOrder(null)}
-        onConfirm={() => {
-          if (!pendingOrder) return;
-          const body = {
-            ticker: stockCode,
-            orderType: pendingOrder.orderType,
-            price: pendingOrder.price,
-            quantity: pendingOrder.quantity,
-            diary: pendingOrder.diary,
-          };
-          const mutation = pendingOrder.side === "buy" ? buyMutation : sellMutation;
-          mutation.mutate(body, {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: stockQueryKeys.holding(stockCode) });
-              queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
-              setPendingOrder(null);
-            },
-          });
-        }}
-      />
-    )}
+      {pendingOrder && (
+        <TradeConfirmModal
+          side={pendingOrder.side}
+          stockName={quote?.stockName ?? ""}
+          orderType={pendingOrder.orderType}
+          price={pendingOrder.price}
+          quantity={pendingOrder.quantity}
+          totalAmount={pendingOrder.price * pendingOrder.quantity}
+          onClose={() => setPendingOrder(null)}
+          onConfirm={() => {
+            if (!pendingOrder) return;
+            const body = {
+              ticker: stockCode,
+              orderType: pendingOrder.orderType,
+              price: pendingOrder.price,
+              quantity: pendingOrder.quantity,
+              diary: pendingOrder.diary,
+            };
+            const mutation =
+              pendingOrder.side === "buy" ? buyMutation : sellMutation;
+            mutation.mutate(body, {
+              onSuccess: () => {
+                queryClient.invalidateQueries({
+                  queryKey: stockQueryKeys.holding(stockCode),
+                });
+                queryClient.invalidateQueries({
+                  queryKey: stockQueryKeys.cash,
+                });
+                setPendingOrder(null);
+              },
+            });
+          }}
+        />
+      )}
+      <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} />
     </>
   );
 }
