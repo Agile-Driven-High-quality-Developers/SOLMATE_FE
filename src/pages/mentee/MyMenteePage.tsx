@@ -147,13 +147,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
         />
         <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
           {activeTab === "diary" && (
-            <MenteeTradeDiaryTab
-              items={diaries}
-              onFeedback={async (diaryId, content) => {
-                // TODO: 피드백 API 연동
-                console.log("피드백 등록:", diaryId, content);
-              }}
-            />
+            <MenteeTradeDiaryTab items={diaries} />
           )}
           {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
           {activeTab === "portfolio" && (
