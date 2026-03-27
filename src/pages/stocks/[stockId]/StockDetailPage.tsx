@@ -78,7 +78,6 @@ import type {
   OrderBookData,
 } from "@/api/stockApi";
 
-import { useStockStore } from "@/store/stockStore";
 import StockDetailHeader from "@/components/stocks/StockDetailHeader";
 import StockInfoGrid from "@/components/stocks/StockInfoGrid";
 import TradeHistory from "@/components/stocks/TradeHistory";
@@ -101,8 +100,6 @@ export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const selectedStock = useStockStore((s) => s.selectedStock);
-
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
 
@@ -206,7 +203,7 @@ export default function StockDetailPage() {
     tickerCode: quote.stockCode,
     stockName: quote.stockName,
     stockLogo: quote.stockLogo,
-    sectorType: selectedStock?.sectorType ?? "",
+    sectorType: quote.sectorType,
     currentPrice: quote.currentPrice,
     change: quote.changePrice,
     changeRate: quote.changeRate,
