@@ -11,11 +11,18 @@ type Props = {
   following: number;
   totalReturnRate: number;
   totalReturn: number;
-  onEditClick: () => void;
-  onLogoutClick: () => void;
-  onDeleteClick: () => void;
   onFollowersClick: () => void;
   onFollowingClick: () => void;
+
+  // 내 프로필
+  isOwnProfile?: boolean;
+  onEditClick?: () => void;
+  onLogoutClick?: () => void;
+  onDeleteClick?: () => void;
+
+  // 타인 프로필
+  isFollowing?: boolean;
+  onFollowClick?: () => void;
 };
 
 function fmtAmount(n: number) {
@@ -32,11 +39,14 @@ export default function ProfileCard({
   following,
   totalReturnRate,
   totalReturn,
+  onFollowersClick,
+  onFollowingClick,
+  isOwnProfile = true,
   onEditClick,
   onLogoutClick,
   onDeleteClick,
-  onFollowersClick,
-  onFollowingClick,
+  isFollowing,
+  onFollowClick,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
@@ -76,42 +86,44 @@ export default function ProfileCard({
       <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mb-4">
         <div className="text-center">
           <p className="text-[12px] text-gray-400 mb-1">수익률</p>
-          <p
-            className={`text-[13px] font-bold ${
-              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
-            }`}
-          >
-            {isPositive ? "+" : ""}
-            {totalReturnRate.toFixed(1)}%
+          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+            {isPositive ? "+" : ""}{totalReturnRate.toFixed(1)}%
           </p>
         </div>
         <div className="text-center">
           <p className="text-[12px] text-gray-400 mb-1">총 수익</p>
-          <p
-            className={`text-[13px] font-bold ${
-              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
-            }`}
-          >
-            {isPositive ? "+" : ""}
-            {fmtAmount(totalReturn)}원
+          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+            {isPositive ? "+" : ""}{fmtAmount(totalReturn)}원
           </p>
         </div>
       </div>
 
       {/* 액션 버튼 */}
       <div className="space-y-2 pt-4 border-t border-gray-100">
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
-          <Settings size={14} />
-          프로필 편집
-        </Button>
-        <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
-          <LogOut size={14} />
-          로그아웃
-        </Button>
-        <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
-          <Trash2 size={14} />
-          회원탈퇴
-        </Button>
+        {isOwnProfile ? (
+          <>
+            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
+              <Settings size={14} />
+              프로필 편집
+            </Button>
+            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
+              <LogOut size={14} />
+              로그아웃
+            </Button>
+            <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
+              <Trash2 size={14} />
+              회원탈퇴
+            </Button>
+          </>
+        ) : (
+          <Button
+            variant={isFollowing ? "invalid" : "primary"}
+            className="w-full"
+            onClick={onFollowClick}
+          >
+            {isFollowing ? "팔로잉" : "팔로우"}
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Users, TrendingUp, Loader2, ChevronLeft } from "lucide-react";
-import Avatar from "@/components/ui/Avatar";
-import Button from "@/components/ui/Button";
+import { Loader2, ChevronLeft } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
+import ProfileCard from "@/components/profile/ProfileCard";
+import FollowList from "@/components/profile/FollowList";
 import {
   useUserProfileQuery,
   useMentorHoldingsQuery,
@@ -14,6 +15,7 @@ import {
   useMentorTradeHistoryQuery,
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
+import { followUser, unfollowUser } from "@/api/userListApi";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -25,18 +27,14 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-function fmtAmount(n: number) {
-  if (Math.abs(n) >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억`;
-  if (Math.abs(n) >= 10_000) return `${(n / 10_000).toFixed(0)}만원`;
-  return `${n.toLocaleString()}원`;
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabId>("diary");
+  const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
 
   const id = Number(userId);
   const { data: profile, isLoading } = useUserProfileQuery(id);
@@ -56,6 +54,23 @@ export default function UserProfilePage() {
     profitRate: h.returnRate,
     profitAmount: h.returnAmount,
   }));
+
+  const handleFollow = async () => {
+    if (!profile) return;
+    try {
+      if (profile.following) {
+        await unfollowUser(id);
+      } else {
+        await followUser(id);
+      }
+      queryClient.invalidateQueries({ queryKey: ["users", id] });
+      queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", id, "followers"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", "following"] });
+    } catch (e) {
+      // 실패 시 무시
+    }
+  };
 
   if (isLoading) {
     return (
@@ -79,8 +94,6 @@ export default function UserProfilePage() {
     );
   }
 
-  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
-
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
       {/* 헤더 */}
@@ -91,66 +104,49 @@ export default function UserProfilePage() {
         <h1 className="text-[22px] font-bold text-gray-900">{profile.nickname}</h1>
       </div>
 
-      {/* 프로필 카드 */}
-      <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar name={profile.nickname} src={profile.imageUrl || undefined} size={52} />
-            <div className="flex flex-col gap-1">
-              <span className="text-[16px] font-bold text-gray-900">{profile.nickname}</span>
-              <div className="flex items-center gap-4 text-[13px] text-gray-500">
-                <div className="flex items-center gap-1">
-                  <Users size={12} className="text-gray-400" />
-                  <span>팔로워</span>
-                  <span className="font-semibold text-gray-700 ml-0.5">{profile.followerCount.toLocaleString()}명</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <TrendingUp size={12} className="text-gray-400" />
-                  <span>총 수익률</span>
-                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(1)}%
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span>총 수익</span>
-                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{fmtAmount(summary?.totalReturnAmount ?? 0)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {profile.following ? (
-              <Button variant="invalid" className="px-4 py-2 text-[13px]">팔로잉</Button>
-            ) : (
-              <Button variant="primary" className="px-4 py-2 text-[13px]">팔로우</Button>
+      <div className="flex gap-5 flex-1 min-h-0">
+        {/* 왼쪽: 프로필 카드 + 팔로워/팔로잉 목록 */}
+        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
+          <ProfileCard
+            isOwnProfile={false}
+            isFollowing={profile.following}
+            onFollowClick={handleFollow}
+            nickname={profile.nickname}
+            profileImageUrl={profile.imageUrl}
+            followers={profile.followerCount}
+            following={profile.followingCount}
+            totalReturnRate={summary?.totalReturnRate ?? 0}
+            totalReturn={summary?.totalReturnAmount ?? 0}
+            onFollowersClick={() => setFollowModal("followers")}
+            onFollowingClick={() => setFollowModal("following")}
+          />
+          {followModal && (
+            <FollowList type={followModal} userId={id} />
+          )}
+        </div>
+
+        {/* 오른쪽: 탭 + 콘텐츠 */}
+        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+          <UnderlineTabBar
+            tabs={[...TABS]}
+            activeId={activeTab}
+            onChange={(id) => setActiveTab(id as TabId)}
+          />
+          <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
+            {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
+            {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
+            {activeTab === "portfolio" && (
+              <PortfolioTab
+                totalEvaluation={summary?.totalEvaluation ?? 0}
+                totalReturnRate={summary?.totalReturnRate ?? 0}
+                totalReturnAmount={summary?.totalReturnAmount ?? 0}
+                portfolio={summary?.holdingsRatio ?? []}
+                holdings={holdings}
+                compact={false}
+                showAvgPrice={false}
+              />
             )}
           </div>
-        </div>
-      </div>
-
-      {/* 탭 + 콘텐츠 */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
-        <UnderlineTabBar
-          tabs={[...TABS]}
-          activeId={activeTab}
-          onChange={(id) => setActiveTab(id as TabId)}
-        />
-        <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
-          {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
-          {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
-          {activeTab === "portfolio" && (
-            <PortfolioTab
-              totalEvaluation={summary?.totalEvaluation ?? 0}
-              totalReturnRate={summary?.totalReturnRate ?? 0}
-              totalReturnAmount={summary?.totalReturnAmount ?? 0}
-              portfolio={summary?.holdingsRatio ?? []}
-              holdings={holdings}
-              compact={false}
-              showAvgPrice={false}
-            />
-          )}
         </div>
       </div>
     </div>

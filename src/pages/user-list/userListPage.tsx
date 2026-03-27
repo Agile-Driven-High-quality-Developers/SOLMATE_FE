@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import {
@@ -278,6 +278,7 @@ export default function UserListPage() {
 
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
+  const queryClient = useQueryClient();
 
   const allUsers = data?.users ?? [];
   const hasAcceptedMentor = data?.hasAcceptedMentor ?? false;
@@ -307,6 +308,9 @@ export default function UserListPage() {
       } else {
         await followUser(user.userId);
       }
+      queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", user.userId, "followers"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", "following"] });
     } catch {
       toggleFollow(user.userId, user.following);
     }
