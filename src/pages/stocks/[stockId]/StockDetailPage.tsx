@@ -182,7 +182,7 @@ export default function StockDetailPage() {
 
     return () => {
       document.title = "SOLMATE";
-      setFavicon("/vite.svg");
+      setFavicon("/solmate_logo.png");
     };
   }, [quote]);
 
