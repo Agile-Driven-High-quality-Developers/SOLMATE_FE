@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { createChart, CandlestickSeries, type UTCTimestamp } from "lightweight-charts";
 import { useCandleQuery, type PeriodType } from "@/api/stockApi";
 
@@ -27,6 +28,12 @@ const INITIAL_LIMIT: Record<PeriodType, number> = {
 
 const LOAD_MORE_STEP = 365;
 const MAX_LIMIT = 365 * 20;
+
+// 탭 변경 시 거래 캔들 기준 양쪽에 보여줄 캔들 수
+const HALF_WINDOW: Record<PeriodType, number> = {
+  "1": 60, "5": 36, "30": 12, "60": 6,
+  day: 30, week: 26, month: 12, year: 5,
+};
 
 const UP_COLOR = "#F04452";
 const DOWN_COLOR = "#3B7DEB";
@@ -67,13 +74,28 @@ export default function DiaryMiniChart({
   tradeType,
   filledPrice: _filledPrice,
 }: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
 
-  // 기본 기간: 오늘=5분, 최근=일봉, 오래됨=일봉
-  const defaultPeriod: PeriodType = elapsed === 0 ? "5" : "day";
+  // 비분봉 기간은 거래일이 데이터 범위에 포함되도록 최소 limit 보장
+  const getLimit = (p: PeriodType) => {
+    if (MINUTE_PERIODS.has(p)) return INITIAL_LIMIT[p];
+    return Math.max(INITIAL_LIMIT[p], elapsed + 60);
+  };
 
-  const [period, setPeriod] = useState<PeriodType>(defaultPeriod);
-  const [limit, setLimit] = useState(INITIAL_LIMIT[defaultPeriod]);
+  // URL에 저장된 기간 복원 (새로고침 시 유지), 없으면 기본값
+  const getFallbackPeriod = (): PeriodType => {
+    const saved = searchParams.get("chartPeriod") as PeriodType | null;
+    if (saved && PERIODS.some((p) => p.value === saved)) {
+      // 분봉은 오늘 거래일 때만 허용
+      if (MINUTE_PERIODS.has(saved) && elapsed > 30) return "day";
+      return saved;
+    }
+    return elapsed === 0 ? "5" : "day";
+  };
+
+  const [period, setPeriod] = useState<PeriodType>(getFallbackPeriod);
+  const [limit, setLimit] = useState(() => getLimit(getFallbackPeriod()));
   const [markerX, setMarkerX] = useState<number | null>(null);
 
   const isMinute = MINUTE_PERIODS.has(period);
@@ -98,15 +120,16 @@ export default function DiaryMiniChart({
 
   const handlePeriodChange = (p: PeriodType) => {
     setPeriod(p);
-    setLimit(INITIAL_LIMIT[p]);
-    initialScrollDoneRef.current = false; // 기간 변경 시 다시 거래 시점으로 이동
+    setLimit(getLimit(p));
+    initialScrollDoneRef.current = false;
     setMarkerX(null);
-    seriesRef.current?.setData([]); // 이전 기간 stale 데이터가 새 isMinute로 잘못 렌더링되는 것 방지
+    seriesRef.current?.setData([]);
+    setSearchParams((prev) => { prev.set("chartPeriod", p); return prev; }, { replace: true });
   };
 
   const isBuy = tradeType === "BUY";
   const markerColor = "#22C55E";
-  const minuteEnabled = elapsed === 0;
+  const minuteEnabled = elapsed <= 30;
 
   // 차트 마운트
   useEffect(() => {
@@ -198,10 +221,27 @@ export default function DiaryMiniChart({
       }))
     );
 
-    // 거래 시각과 가장 가까운 실제 캔들 시간을 사용 (timeToCoordinate는 실제 바 기준)
-    const nearest = sorted.reduce((prev, curr) =>
-      Math.abs(curr.time - tradeEpoch) < Math.abs(prev.time - tradeEpoch) ? curr : prev
-    , sorted[0]);
+    // 거래 시각과 가장 가까운 실제 캔들 인덱스 탐색
+    let nearestIdx = 0;
+    if (isMinute) {
+      // 분봉: epoch 기준 가장 가까운 캔들
+      sorted.forEach((c, i) => {
+        if (Math.abs(c.time - tradeEpoch) < Math.abs(sorted[nearestIdx].time - tradeEpoch)) {
+          nearestIdx = i;
+        }
+      });
+    } else {
+      // 일봉 이상: 거래일과 가장 가까운 날짜의 캔들 (주봉=월요일, 월봉=1일 등 정확히 안 맞을 수 있음)
+      const tradeDateMs = new Date(tradeDate).getTime();
+      sorted.forEach((c, i) => {
+        const cMs = new Date(toChartTime(c.time, false) as string).getTime();
+        const nearestMs = new Date(toChartTime(sorted[nearestIdx].time, false) as string).getTime();
+        if (Math.abs(cMs - tradeDateMs) < Math.abs(nearestMs - tradeDateMs)) {
+          nearestIdx = i;
+        }
+      });
+    }
+    const nearest = sorted[nearestIdx];
     const tct = nearest ? toChartTime(nearest.time, isMinute) : toChartTime(tradeEpoch, isMinute);
     tradeChartTimeRef.current = tct;
 
@@ -209,31 +249,15 @@ export default function DiaryMiniChart({
       // 좌측 스크롤로 추가 데이터 로드 완료 → 뷰 유지, 플래그 리셋만
       loadingMoreRef.current = false;
     } else {
-      if (!initialScrollDoneRef.current) {
-        initialScrollDoneRef.current = true;
-        // 거래 시점 중심으로 visible range 설정
-        if (isMinute) {
-          // 분봉: ±3시간 윈도우
-          const epochAdj = (tradeEpoch + KST_OFFSET) as UTCTimestamp;
-          chartRef.current.timeScale().setVisibleRange({
-            from: (epochAdj - 3 * 3600) as UTCTimestamp,
-            to: (epochAdj + 3 * 3600) as UTCTimestamp,
-          });
-          // setVisibleRange가 subscription을 동기 호출해 loadingMoreRef를 true로
-          // 세팅했을 수 있으므로 여기서 리셋하지 않음 (다음 effect 실행 시 리셋됨)
-        } else {
-          // 일봉 이상: 거래일 전후 30일 윈도우
-          chartRef.current.timeScale().setVisibleRange({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            from: toBusinessDay(addDays(tradeDate, -30)) as any,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            to: toBusinessDay(addDays(tradeDate, 30)) as any,
-          });
-        }
-      } else {
-        chartRef.current.timeScale().fitContent();
-        loadingMoreRef.current = false;
-      }
+      initialScrollDoneRef.current = true;
+      // 거래 캔들을 차트 가운데로
+      const half = HALF_WINDOW[period];
+      chartRef.current.timeScale().setVisibleLogicalRange({
+        from: nearestIdx - half,
+        to: nearestIdx + half,
+      });
+      // setVisibleLogicalRange가 구독 콜백을 동기 실행해 loadingMoreRef를 true로
+      // 세팅했을 수 있으므로 여기서 리셋하지 않음 (다음 effect 실행 시 리셋됨)
     }
 
     // 마커 x 좌표 계산 (fitContent/setVisibleRange 후 반영)
@@ -246,7 +270,7 @@ export default function DiaryMiniChart({
         : chartRef.current.timeScale().timeToCoordinate(toBusinessDay(tct as string) as any);
       setMarkerX(x ?? null);
     }, 200);
-  }, [candles, isMinute, tradeDate, tradeEpoch]);
+  }, [candles, isMinute, period, tradeDate, tradeEpoch]);
 
   if (!tickerCode) return null;
 
