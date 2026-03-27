@@ -583,9 +583,6 @@ export default function HomePage() {
           <h1 className="text-[22px] font-bold text-gray-900">홈</h1>
           <p className="text-[13px] text-gray-400 mt-0.5">{TODAY}</p>
         </div>
-        <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-          <Bell size={20} className="text-gray-500" />
-        </button>
       </div>
 
       {/* 시장 지수 */}

@@ -14,6 +14,7 @@ import {
   UserCircle,
   LogOut,
   Receipt,
+  BookMarked,
 } from "lucide-react";
 import Logo from "../ui/Logo";
 import Avatar from "../ui/Avatar";
@@ -55,6 +56,7 @@ const NAV_ITEMS: NavItemConfig[] = [
   { id: "mentor", label: "나의 멘토", icon: GraduationCap, href: "/mentor" },
   { id: "mentee", label: "나의 멘티", icon: UserCheck, href: "/mentee" },
   { id: "profile", label: "프로필", icon: UserCircle, href: "/profile" },
+  { id: "guide", label: "가이드", icon: BookMarked, href: "/guide" },
   {
     id: "shinhan",
     label: "실전투자 바로가기",
