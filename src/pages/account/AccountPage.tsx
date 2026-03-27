@@ -95,9 +95,9 @@ export default function AccountPage() {
           </p>
         </div>
 
-        {/* 보유 현금 */}
+        {/* 주문 가능 금액 */}
         <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-cash">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">보유 현금</p>
+          <p className="text-[13px] text-gray-400 font-medium mb-2">주문 가능 금액</p>
           <p className="text-[22px] font-bold text-gray-900">{fmt(summary?.cash ?? 0)}</p>
           <p className="text-[12px] text-gray-400 mt-1">투자원금 {fmt(summary?.initialCash ?? 0)}</p>
         </div>
