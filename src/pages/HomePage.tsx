@@ -38,6 +38,18 @@ const HOME_TOUR: TourStep[] = [
       "지금 가장 많이 거래되고 있는 주식이에요. 클릭하면 해당 종목의 차트와 매수·매도 화면으로 바로 이동해요.",
     placement: "top",
   },
+  {
+    target: "nav-guide",
+    title: "📖 가이드 탭을 확인해보세요",
+    description: "주식 용어, 투자 전략, SOLMate 사용법이 모두 정리되어 있어요. 투자가 처음이라면 꼭 읽어보세요!",
+    items: [
+      "서비스 소개 — SOLMate 핵심 기능 한눈에",
+      "사용 가이드 — 5단계로 따라하는 시작법",
+      "주식투자 가이드 — 투자 전략과 원칙",
+      "주식 용어 사전 — PER, 호가, 거래량 등",
+    ],
+    placement: "right",
+  },
 ];
 import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
