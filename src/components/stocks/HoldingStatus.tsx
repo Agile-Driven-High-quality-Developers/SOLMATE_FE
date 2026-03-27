@@ -60,7 +60,7 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
       </div>
 
       <div className="border-t border-gray-100 pt-3">
-        <p className="text-[13px] text-gray-400 mb-1">보유 현금</p>
+        <p className="text-[13px] text-gray-400 mb-1">주문 가능 금액</p>
         <p className="text-[18px] font-bold text-gray-900">
           {cash != null ? `${cash.toLocaleString()}원` : "-"}
         </p>

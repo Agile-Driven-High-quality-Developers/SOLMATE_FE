@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+import solmateLogo from "/solmate_logo.png";
 
 export default function Logo({
   appName,
@@ -9,8 +9,8 @@ export default function Logo({
 }) {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="w-9 h-9 rounded-[10px] bg-[#0046FF] flex items-center justify-center shrink-0">
-        <TrendingUp className="w-4.5 h-4.5 text-white" />
+      <div className="w-9 h-9 rounded-md shrink-0">
+        <img src={solmateLogo} alt="SOLMATE logo" className="w-full h-full object-contain rounded-md" />
       </div>
       <div className="min-w-0">
         <p className="text-[18px] font-bold text-gray-900 leading-tight truncate">
