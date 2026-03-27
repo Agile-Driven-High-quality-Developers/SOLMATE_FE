@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useUser } from "@/store/authStore";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
@@ -53,11 +54,14 @@ export default function ProfilePage() {
     profitAmount: h.returnAmount,
   }));
 
+  const queryClient = useQueryClient();
+
   const handleLogout = async () => {
     try {
       await authApi.logout();
     } finally {
       clearAuth();
+      queryClient.clear();
       navigate("/login");
     }
   };
@@ -69,9 +73,9 @@ export default function ProfilePage() {
       {modal === "edit" && (
         <EditProfileModal
           nickname={myProfile?.nickname ?? user.nickname}
-          profileImageUrl={myProfile?.imageUrl}
+          profileImageUrl={user.imageUrl ?? myProfile?.imageUrl}
           onClose={() => setModal(null)}
-          onSave={(newNickname) => useAuthStore.getState().setAuth(useAuthStore.getState().accessToken!, { nickname: newNickname })}
+          onSave={(newNickname) => useAuthStore.getState().updateUserProfile({ nickname: newNickname })}
         />
       )}
       {modal === "logout" && (
@@ -93,7 +97,7 @@ export default function ProfilePage() {
         <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
           <ProfileCard
             nickname={myProfile?.nickname ?? user.nickname}
-            profileImageUrl={myProfile?.imageUrl}
+            profileImageUrl={user.imageUrl ?? myProfile?.imageUrl}
             followers={myProfile?.followerCount ?? 0}
             following={myProfile?.followingCount ?? 0}
             totalReturnRate={summary?.totalReturnRate ?? 0}

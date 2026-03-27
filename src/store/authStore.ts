@@ -4,6 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface AuthUser {
   nickname: string;
+  imageUrl?: string;
 }
 
 interface AuthState {
@@ -15,6 +16,7 @@ interface AuthState {
 interface AuthActions {
   setAuth: (accessToken: string, user: AuthUser) => void;
   setAccessToken: (accessToken: string) => void;
+  updateUserProfile: (profile: Partial<AuthUser>) => void;
   clearAuth: () => void;
 }
 
@@ -30,6 +32,11 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       setAuth: (accessToken, user) => set({ accessToken, user }),
 
       setAccessToken: (accessToken) => set({ accessToken }),
+
+      updateUserProfile: (profile) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...profile } : state.user,
+        })),
 
       clearAuth: () => set({ accessToken: null, user: null }),
     }),

@@ -7,7 +7,8 @@ import { useHoldingsQuery } from "@/api/accountApi";
 import type { HoldingItem } from "@/api/accountApi";
 import { useUserListInfiniteQuery } from "@/api/userListApi";
 import type { UserItem } from "@/api/userListApi";
-import { useAccountSummaryByUserQuery, useAccountSummaryQuery } from "@/api/accountSummaryApi";
+import { useQueries } from "@tanstack/react-query";
+import { useAccountSummaryQuery, fetchAccountSummary, fetchAccountSummaryByUser } from "@/api/accountSummaryApi";
 import type { AccountSummaryData } from "@/api/accountSummaryApi";
 import { useStocksQuery } from "@/api/stockApi";
 import type { StockItem } from "@/api/stockApi";
@@ -175,72 +176,73 @@ function PortfolioCard({ data, loading }: { data: AccountSummaryData | undefined
 
 function HoldingsTable({ data, loading }: { data: HoldingItem[]; loading: boolean }) {
   const navigate = useNavigate();
-  const top5 = data.slice(0, 5);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
+    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 shrink-0">
         <h2 className="text-[15px] font-semibold text-gray-900">보유 종목</h2>
         <button
-          onClick={() => navigate("/profile", { state: { tab: "portfolio" } })}
+          onClick={() => navigate("/account")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
         >
-          전체 <ChevronRight size={14} />
+          내 계좌 <ChevronRight size={14} />
         </button>
       </div>
 
       {loading ? (
         <SectionSkeleton rows={5} />
-      ) : top5.length === 0 ? (
+      ) : data.length === 0 ? (
         <p className="text-[13px] text-gray-400 text-center py-8">보유 종목이 없습니다.</p>
       ) : (
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 font-medium">종목</th>
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">보유량</th>
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">평가금액</th>
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">평가손익</th>
-              <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 font-medium">수익률</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {top5.map((stock) => {
-              const isPositive = stock.returnRate >= 0;
-              return (
-                <tr key={stock.tickerCode} onClick={() => navigate(`/invest/${stock.tickerCode}`)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={28} color={getAvatarColor(stock.stockName)} />
-                      <div>
-                        <span className="text-[14px] font-medium text-gray-900">{stock.stockName}</span>
-                        <p className="text-[11px] text-gray-400">{stock.tickerCode}</p>
+        <div className="overflow-y-auto flex-1 min-h-0 scrollbar-hide">
+          <table className="w-full">
+            <thead className="sticky top-0 bg-white z-10">
+              <tr className="bg-gray-50">
+                <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 font-medium">종목</th>
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">보유량</th>
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">평가금액</th>
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">평가손익</th>
+                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 font-medium">수익률</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.map((stock) => {
+                const isPositive = stock.returnRate >= 0;
+                return (
+                  <tr key={stock.tickerCode} onClick={() => navigate(`/invest/${stock.tickerCode}`)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={stock.stockName} src={stock.stockLogo || undefined} size={28} color={getAvatarColor(stock.stockName)} />
+                        <div>
+                          <span className="text-[14px] font-medium text-gray-900">{stock.stockName}</span>
+                          <p className="text-[11px] text-gray-400">{stock.tickerCode}</p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right text-[14px] text-gray-600">{stock.quantity}주</td>
-                  <td className="px-4 py-3 text-right text-[14px] text-gray-800 font-medium">
-                    {stock.evaluation.toLocaleString()}원
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <ReturnText
-                      value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
-                      isPositive={isPositive}
-                      className="text-[14px] font-medium"
-                    />
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <ReturnText
-                      value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
-                      isPositive={isPositive}
-                      className="text-[14px] font-semibold"
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                    <td className="px-4 py-3 text-right text-[14px] text-gray-600">{stock.quantity}주</td>
+                    <td className="px-4 py-3 text-right text-[14px] text-gray-800 font-medium">
+                      {stock.evaluation.toLocaleString()}원
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <ReturnText
+                        value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
+                        isPositive={isPositive}
+                        className="text-[14px] font-medium"
+                      />
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <ReturnText
+                        value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
+                        isPositive={isPositive}
+                        className="text-[14px] font-semibold"
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
@@ -248,29 +250,41 @@ function HoldingsTable({ data, loading }: { data: HoldingItem[]; loading: boolea
 
 // ─── TOP 투자자 ────────────────────────────────────────────────────────────────
 
-function InvestorReturnRate({ userId, me }: { userId: number; me: boolean }) {
-  const myQuery = useAccountSummaryQuery();
-  const otherQuery = useAccountSummaryByUserQuery(userId);
-  const { data, isLoading } = me ? myQuery : otherQuery;
+function InvestorReturnRate({ rate }: { rate: number | undefined }) {
+  if (rate === undefined) return <div className="h-3 bg-gray-100 rounded-full w-12 animate-pulse" />;
 
-  if (isLoading) return <div className="h-3 bg-gray-100 rounded-full w-12 animate-pulse" />;
-
-  const rate = data?.totalReturnRate ?? 0;
   const isPositive = rate > 0;
   const isNegative = rate < 0;
   const color = isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400";
-  const prefix = isPositive ? "+" : "";
 
   return (
     <span className={`text-[14px] font-semibold ${color}`}>
-      {prefix}{rate.toFixed(1)}%
+      {isPositive ? "+" : ""}{rate.toFixed(1)}%
     </span>
   );
 }
 
 function TopInvestors({ data, loading }: { data: UserItem[]; loading: boolean }) {
   const navigate = useNavigate();
-  const top5 = data.slice(0, 5);
+
+  // userListPage와 동일하게 수익률로 정렬 (캐시 공유로 추가 API 호출 없음)
+  const summaryQueries = useQueries({
+    queries: data.map((u) => ({
+      queryKey: u.me ? ["account-summary"] : ["account-summary", u.userId],
+      queryFn: u.me ? fetchAccountSummary : () => fetchAccountSummaryByUser(u.userId),
+      staleTime: 60_000,
+    })),
+  });
+
+  const summaryMap = new Map<number, number>();
+  data.forEach((u, i) => {
+    const rate = summaryQueries[i]?.data?.totalReturnRate;
+    if (rate !== undefined) summaryMap.set(u.userId, rate);
+  });
+
+  const top5 = [...data]
+    .sort((a, b) => (summaryMap.get(b.userId) ?? -Infinity) - (summaryMap.get(a.userId) ?? -Infinity))
+    .slice(0, 5);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100">
@@ -302,7 +316,7 @@ function TopInvestors({ data, loading }: { data: UserItem[]; loading: boolean })
                 <p className="text-[14px] font-medium text-gray-800 truncate">{investor.nickname}</p>
                 <p className="text-[11px] text-gray-400">{investor.followerCount.toLocaleString()}명 팔로워</p>
               </div>
-              <InvestorReturnRate userId={investor.userId} me={investor.me} />
+              <InvestorReturnRate rate={summaryMap.get(investor.userId)} />
             </li>
           ))}
         </ul>
@@ -394,7 +408,7 @@ export default function HomePage() {
       <MarketIndicesRow data={marketIndices} loading={loadingMarket} />
 
       {/* 메인 콘텐츠 */}
-      <div className="flex gap-5 items-start">
+      <div className="flex gap-5 items-stretch">
         {/* 왼쪽: 포트폴리오 + 보유 종목 */}
         <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
           <PortfolioCard data={summary} loading={loadingSummary} />
