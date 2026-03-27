@@ -101,10 +101,11 @@ export default function DiaryMiniChart({
     setLimit(INITIAL_LIMIT[p]);
     initialScrollDoneRef.current = false; // 기간 변경 시 다시 거래 시점으로 이동
     setMarkerX(null);
+    seriesRef.current?.setData([]); // 이전 기간 stale 데이터가 새 isMinute로 잘못 렌더링되는 것 방지
   };
 
   const isBuy = tradeType === "BUY";
-  const markerColor = isBuy ? "#22C55E" : "#3B7DEB";
+  const markerColor = "#22C55E";
   const minuteEnabled = elapsed <= 30;
 
   // 차트 마운트
@@ -204,7 +205,10 @@ export default function DiaryMiniChart({
     const tct = nearest ? toChartTime(nearest.time, isMinute) : toChartTime(tradeEpoch, isMinute);
     tradeChartTimeRef.current = tct;
 
-    if (!loadingMoreRef.current) {
+    if (loadingMoreRef.current) {
+      // 좌측 스크롤로 추가 데이터 로드 완료 → 뷰 유지, 플래그 리셋만
+      loadingMoreRef.current = false;
+    } else {
       if (!initialScrollDoneRef.current) {
         initialScrollDoneRef.current = true;
         // 거래 시점 중심으로 visible range 설정
@@ -215,6 +219,8 @@ export default function DiaryMiniChart({
             from: (epochAdj - 3 * 3600) as UTCTimestamp,
             to: (epochAdj + 3 * 3600) as UTCTimestamp,
           });
+          // setVisibleRange가 subscription을 동기 호출해 loadingMoreRef를 true로
+          // 세팅했을 수 있으므로 여기서 리셋하지 않음 (다음 effect 실행 시 리셋됨)
         } else {
           // 일봉 이상: 거래일 전후 30일 윈도우
           chartRef.current.timeScale().setVisibleRange({
@@ -226,9 +232,9 @@ export default function DiaryMiniChart({
         }
       } else {
         chartRef.current.timeScale().fitContent();
+        loadingMoreRef.current = false;
       }
     }
-    loadingMoreRef.current = false;
 
     // 마커 x 좌표 계산 (fitContent/setVisibleRange 후 반영)
     setTimeout(() => {
