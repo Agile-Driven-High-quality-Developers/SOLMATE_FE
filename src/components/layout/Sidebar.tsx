@@ -61,7 +61,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     id: "shinhan",
     label: "실전투자 바로가기",
     icon: Receipt,
-    href: "https://www.shinhansec.com/siw/customer-center/channel/channel_homeTrading-a/contents.do",
+    href: "https://www.shinhansec.com/siw/customer-center/channel/channel_webTrading/contents.do",
   },
 ];
 
@@ -83,7 +83,13 @@ function NavItem({
     <li>
       <button
         onClick={onClick}
-        data-tour={["invest", "account", "trade", "users", "mentor", "profile"].includes(item.id) ? `nav-${item.id}` : undefined}
+        data-tour={
+          ["invest", "account", "trade", "users", "mentor", "profile"].includes(
+            item.id,
+          )
+            ? `nav-${item.id}`
+            : undefined
+        }
         className={[
           "relative w-full flex items-center gap-2.5 px-3 py-2.25 rounded-[10px]",
           "text-left transition-colors duration-150 group cursor-pointer",
@@ -150,7 +156,11 @@ function UserProfile({
           <p
             className={[
               "text-[13px] font-medium mt-px",
-              isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400",
+              isPositive
+                ? "text-red-500"
+                : isNegative
+                  ? "text-blue-500"
+                  : "text-gray-400",
             ].join(" ")}
           >
             {user.returnRate}
@@ -195,7 +205,10 @@ export default function SidebarNav() {
   // myProfile이 도착하면 sessionStorage에 동기화 → 다음 새로고침 시 깜빡임 방지
   useEffect(() => {
     if (myProfile) {
-      updateUserProfile({ nickname: myProfile.nickname, imageUrl: myProfile.imageUrl });
+      updateUserProfile({
+        nickname: myProfile.nickname,
+        imageUrl: myProfile.imageUrl,
+      });
     }
   }, [myProfile, updateUserProfile]);
 
@@ -225,13 +238,16 @@ export default function SidebarNav() {
   const navItems = NAV_ITEMS.map((item) =>
     item.id === "notifications"
       ? { ...item, badge: unreadCount?.total ?? 0 }
-      : item
+      : item,
   );
 
   return (
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
       <div className="px-4 pb-2">
-        <button onClick={() => navigate("/")} className="w-full text-left cursor-pointer">
+        <button
+          onClick={() => navigate("/")}
+          className="w-full text-left cursor-pointer"
+        >
           <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
         </button>
       </div>
