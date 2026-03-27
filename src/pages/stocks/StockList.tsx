@@ -276,17 +276,8 @@ export default function StockList() {
       </div>
 
       {/* 종목 테이블 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-        <table className="w-full table-fixed">
-          <colgroup>
-            <col className="w-[60px]" />
-            <col className="w-[220px]" />
-            <col className="w-[250px]" />
-            <col className="w-[150px]" />
-            <col className="w-[150px]" />
-            <col className="w-[150px]" />
-            <col />
-          </colgroup>
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto">
+        <table className="w-full min-w-175">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
               <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">

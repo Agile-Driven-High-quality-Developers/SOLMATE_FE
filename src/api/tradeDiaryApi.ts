@@ -17,6 +17,7 @@ export type MyDiariesItem = {
 export type DiaryComment = {
   commentId: number;
   nickname: string;
+  imageUrl?: string;
   isMentor: boolean;
   content: string;
 };
@@ -64,6 +65,22 @@ export function useDiaryDetailQuery(diaryId: string) {
         .then((res) => res.data),
     staleTime: 30_000,
     enabled: !!diaryId,
+  });
+}
+
+export function useModifyDiaryMutation(diaryId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      fetchClient.patch(`/api/diaries/${diaryId}`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.myDiaries,
+      });
+    },
   });
 }
 
