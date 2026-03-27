@@ -34,6 +34,7 @@ const TRADE_ORDER_TOUR: TourStep[] = [
     placement: "top",
   },
 ];
+import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 type OrderType = "MARKET" | "LIMIT";
 
@@ -42,6 +43,7 @@ export type OrderSide = "buy" | "sell";
 type Props = {
   side: OrderSide;
   stockName: string;
+  tickerCode: string;
   currentPrice: number;
   cash: number;
   holdingQuantity: number;
@@ -57,12 +59,14 @@ type Props = {
 export default function TradeOrderModal({
   side,
   stockName,
+  tickerCode,
   currentPrice,
   cash,
   holdingQuantity,
   onClose,
   onConfirm,
 }: Props) {
+  const today = new Date().toISOString().slice(0, 10);
   const isBuy = side === "buy";
   const accent = {
     text: isBuy ? "text-red-500" : "text-[#0046FF]",
@@ -88,7 +92,7 @@ export default function TradeOrderModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl p-4 w-full max-w-sm z-10 shadow-2xl">
+      <div className="relative bg-white rounded-2xl p-4 w-full max-w-lg z-10 shadow-2xl">
 
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-3">
@@ -179,6 +183,18 @@ export default function TradeOrderModal({
           </div>
         </div>
 
+        {/* 차트 */}
+        <div className="mb-3">
+          <DiaryMiniChart
+            tickerCode={tickerCode}
+            tradeDate={today}
+            tradeDateTime={new Date().toISOString()}
+            tradeType={isBuy ? "BUY" : "SELL"}
+            filledPrice={currentPrice}
+            chartHeight={100}
+          />
+        </div>
+
         {/* 매매일지 */}
         <div className="mb-3" data-tour="trade-order-diary">
           <div className="flex items-center justify-between mb-1">
@@ -194,7 +210,7 @@ export default function TradeOrderModal({
             value={diary}
             onChange={(e) => e.target.value.length <= 500 && setDiary(e.target.value)}
             placeholder="이 종목을 매수/매도한 이유, 전략, 목표가 등을 기록하세요."
-            rows={3}
+            rows={5}
             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] outline-none focus:border-[#0046FF] transition-colors resize-none leading-relaxed"
           />
           {!diary.trim() && qty > 0 && (

@@ -270,6 +270,21 @@ export default function StockDetailPage() {
           }}
         />
       )}
+    {orderSide && (
+      <TradeOrderModal
+        side={orderSide}
+        stockName={quote.stockName}
+        tickerCode={stockCode}
+        currentPrice={quote.currentPrice}
+        cash={cash ?? 0}
+        holdingQuantity={holding?.holdingQuantity ?? 0}
+        onClose={() => setOrderSide(null)}
+        onConfirm={(params) => {
+          setPendingOrder({ ...params, side: orderSide! });
+          setOrderSide(null);
+        }}
+      />
+    )}
 
       {pendingOrder && (
         <TradeConfirmModal
