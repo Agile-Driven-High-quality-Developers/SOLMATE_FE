@@ -11,13 +11,30 @@ import {
 import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
 import Sidebar from "./Sidebar";
 import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
-import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import { useOnboardingStore } from "@/store/onboardingStore";
+import { useAuthStore } from "@/store/authStore";
+
+function parseJwtSub(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return String(payload.sub ?? payload.userId ?? payload.id ?? "");
+  } catch {
+    return null;
+  }
+}
 
 export default function Layout() {
   const queryClient = useQueryClient();
+  const accessToken = useAuthStore((s) => s.accessToken);
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
-  const hasSeenSpotlight = useOnboardingStore((s) => s.hasSeenSpotlight);
+  const init = useOnboardingStore((s) => s.init);
+
+  // JWT sub(userId)를 키로 유저별 온보딩 상태 불러오기
+  useEffect(() => {
+    if (!accessToken) return;
+    const userId = parseJwtSub(accessToken);
+    if (userId) init(userId);
+  }, [accessToken]);
 
   useEffect(() => {
     const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
@@ -28,12 +45,16 @@ export default function Layout() {
         client.subscribe("/topic/market/indicators", (message) => {
           const msg: MarketIndicatorMessage = JSON.parse(message.body);
           const updated = parseMarketIndicatorMessage(msg);
+          const prev = queryClient.getQueryData<MarketIndexData[]>(
+            homeQueryKeys.marketIndices,
+          );
+          // 캐시가 비어있으면 건드리지 않음 — 초기 REST 요청이 알아서 채움
+          if (!prev || prev.length === 0) return;
           queryClient.setQueryData<MarketIndexData[]>(
             homeQueryKeys.marketIndices,
-            (prev = []) =>
-              prev.map((item) =>
-                item.label === updated.label ? updated : item,
-              ),
+            prev.map((item) =>
+              item.label === updated.label ? updated : item,
+            ),
           );
         });
       },
@@ -51,7 +72,6 @@ export default function Layout() {
         <Outlet />
       </main>
       {!hasSeenOnboarding && <OnboardingOverlay />}
-      {hasSeenOnboarding && !hasSeenSpotlight && <SpotlightTour />}
       {import.meta.env.DEV && (
         <button
           className="fixed bottom-4 right-4 z-[999] bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg opacity-60 hover:opacity-100 transition-opacity"

@@ -158,6 +158,6 @@ export function useMarketIndicesQuery() {
           console.error("[market] error:", err);
           throw err;
         }),
-    staleTime: 10_000,
+    staleTime: 60_000,
   });
 }
