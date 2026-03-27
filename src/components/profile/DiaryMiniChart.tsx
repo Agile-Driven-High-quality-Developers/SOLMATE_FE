@@ -19,6 +19,13 @@ function toBusinessDay(dateStr: string) {
   return { year, month, day };
 }
 
+// dateStr + days (양수/음수 모두 가능)
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 const PERIODS = [
   { label: "1W", days: 7 },
   { label: "1M", days: 30 },
@@ -45,24 +52,27 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
   const targetDateRef = useRef<string>("");
   const inRangeRef = useRef(false);
 
-  // 거래일로부터 경과 일수에 따라 기본 기간 자동 선택
-  const defaultPeriod = (() => {
-    const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
-    if (elapsed <= 7) return "1W";
-    if (elapsed <= 30) return "1M";
-    if (elapsed <= 90) return "3M";
-    if (elapsed <= 180) return "6M";
-    return "1Y";
-  })() as PeriodLabel;
+  // 거래일로부터 경과 일수
+  const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
+
+  // elapsed > days * 2 이면 비활성 (1Y는 항상 활성)
+  const isPeriodDisabled = (days: number, label: string) =>
+    label !== "1Y" && elapsed > days * 2;
+
+  // 기본값: 활성화된 버튼 중 가장 작은 기간
+  const defaultPeriod = (
+    PERIODS.find(({ days, label }) => !isPeriodDisabled(days, label))?.label ?? "1Y"
+  ) as PeriodLabel;
 
   const [activePeriod, setActivePeriod] = useState<PeriodLabel>(defaultPeriod);
   const [markerX, setMarkerX] = useState<number | null>(null);
 
-  const { data: candles } = useCandleQuery(tickerCode, "day", 365);
+  // 거래 전 최대 1년 + 거래 후 1년까지 필요한 데이터 요청
+  const fetchDays = Math.max(365, elapsed + 365 + 30);
+  const { data: candles } = useCandleQuery(tickerCode, "day", fetchDays);
   const isBuy = tradeType === "BUY";
   const markerColor = isBuy ? "#F04452" : "#3B7DEB";
 
-  // 차트 마운트 — 범위 변경 구독으로 x 좌표 갱신
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -91,10 +101,12 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
         fixRightEdge: false,
         fixLeftEdge: true,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tickMarkFormatter: (time: any) => {
+        tickMarkFormatter: (time: any, tickMarkType: number) => {
           const s = typeof time === "string" ? time : toDateString(time);
-          const [, m, d] = s.split("-");
-          return `${m}/${d}`;
+          const [y, m, d] = s.split("-");
+          if (tickMarkType === 0) return y;           // 연도
+          if (tickMarkType === 1) return `${parseInt(m)}월`; // 월 경계
+          return `${parseInt(m)}/${parseInt(d)}`;     // 일
         },
       },
       crosshair: {
@@ -135,17 +147,23 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
   useEffect(() => {
     if (!candles || !seriesRef.current || !chartRef.current) return;
 
-    const periodDays = PERIODS.find((p) => p.label === activePeriod)?.days ?? 90;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - periodDays);
-    const cutoffStr = cutoff.toISOString().slice(0, 10);
+    const periodDays = PERIODS.find((p) => p.label === activePeriod)?.days ?? 30;
+
+    // 왼쪽 끝: 거래일 - 선택 기간
+    const leftCutoffStr = addDays(tradeDate, -periodDays);
+    // 오른쪽 끝: 거래일 + 1년 (오늘을 넘지 않도록)
+    const today = new Date().toISOString().slice(0, 10);
+    const rightCutoffStr = addDays(tradeDate, 365) < today ? addDays(tradeDate, 365) : today;
 
     const timeMap = new Map<string, (typeof candles)[0]>();
     for (const c of [...candles].sort((a, b) => a.time - b.time)) {
       timeMap.set(toDateString(c.time), c);
     }
     const allSorted = [...timeMap.values()].sort((a, b) => a.time - b.time);
-    const filtered = allSorted.filter((c) => toDateString(c.time) >= cutoffStr);
+    const filtered = allSorted.filter((c) => {
+      const d = toDateString(c.time);
+      return d >= leftCutoffStr && d <= rightCutoffStr;
+    });
 
     seriesRef.current.setData(
       filtered.map((c) => ({
@@ -157,7 +175,7 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
       })),
     );
 
-    if (tradeDate < cutoffStr || filtered.length === 0) {
+    if (filtered.length === 0) {
       inRangeRef.current = false;
       targetDateRef.current = "";
       setMarkerX(null);
@@ -194,18 +212,16 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
     <div className="rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFF] mt-1">
       <div className="flex items-center justify-end gap-0.5 px-3 pt-2">
         {PERIODS.map(({ label, days }) => {
-          const cutoff = new Date();
-          cutoff.setDate(cutoff.getDate() - days);
-          const isDisabled = tradeDate < cutoff.toISOString().slice(0, 10);
+          const disabled = isPeriodDisabled(days, label);
           return (
             <button
               key={label}
-              onClick={() => !isDisabled && setActivePeriod(label)}
-              disabled={isDisabled}
+              onClick={() => !disabled && setActivePeriod(label)}
+              disabled={disabled}
               className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
                 activePeriod === label
                   ? "text-white bg-[#22C55E]"
-                  : isDisabled
+                  : disabled
                   ? "text-gray-200 cursor-not-allowed"
                   : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               }`}
