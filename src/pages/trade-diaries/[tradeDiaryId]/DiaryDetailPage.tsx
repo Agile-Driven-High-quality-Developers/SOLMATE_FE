@@ -175,6 +175,7 @@ export default function DiaryDetailPage() {
               <DiaryMiniChart
                 tickerCode={diary.tickerCode}
                 tradeDate={diary.createdAt.slice(0, 10)}
+                tradeDateTime={diary.createdAt}
                 tradeType={diary.tradeType}
                 filledPrice={diary.filledPrice}
               />

@@ -188,6 +188,7 @@ export default function TradeOrderModal({
           <DiaryMiniChart
             tickerCode={tickerCode}
             tradeDate={today}
+            tradeDateTime={new Date().toISOString()}
             tradeType={isBuy ? "BUY" : "SELL"}
             filledPrice={currentPrice}
           />

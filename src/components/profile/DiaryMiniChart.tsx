@@ -1,5 +1,6 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import { createChart, CandlestickSeries } from "lightweight-charts";
+import type { UTCTimestamp } from "lightweight-charts";
 import { useCandleQuery } from "@/api/stockApi";
 
 const KST_OFFSET = 9 * 3600;
@@ -13,20 +14,24 @@ function toDateString(epochSec: number): string {
   return `${y}-${m}-${day}`;
 }
 
-// "2026-03-27" → { year: 2026, month: 3, day: 27 }
 function toBusinessDay(dateStr: string) {
   const [year, month, day] = dateStr.split("-").map(Number);
   return { year, month, day };
 }
 
-// dateStr + days (양수/음수 모두 가능)
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr);
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
 
-const PERIODS = [
+function epochToKstHHMM(epochSec: number): string {
+  const adjusted = epochSec + KST_OFFSET;
+  const d = new Date(adjusted * 1000);
+  return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
+}
+
+const DAILY_PERIODS = [
   { label: "1W", days: 7 },
   { label: "1M", days: 30 },
   { label: "3M", days: 90 },
@@ -34,47 +39,77 @@ const PERIODS = [
   { label: "1Y", days: 365 },
 ] as const;
 
-type PeriodLabel = (typeof PERIODS)[number]["label"];
+const MINUTE_PERIODS = [
+  { label: "30분", halfMins: 15 },
+  { label: "1H", halfMins: 30 },
+  { label: "3H", halfMins: 90 },
+  { label: "전체", halfMins: null as null },
+] as const;
+
+type DailyPeriodLabel = (typeof DAILY_PERIODS)[number]["label"];
+type MinutePeriodLabel = (typeof MINUTE_PERIODS)[number]["label"];
 
 interface Props {
   tickerCode: string;
-  tradeDate: string;
+  tradeDate: string;       // "YYYY-MM-DD"
+  tradeDateTime?: string;  // ISO string (체결 시각, 분봉 마킹용)
   tradeType: string;
   filledPrice?: number;
 }
 
-export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, filledPrice }: Props) {
+export default function DiaryMiniChart({
+  tickerCode,
+  tradeDate,
+  tradeDateTime,
+  tradeType,
+  filledPrice: _filledPrice,
+}: Props) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const isToday = tradeDate === todayStr;
+  const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
+
+  // 일봉 기간 버튼 비활성화 기준
+  const isDailyPeriodDisabled = (days: number, label: string) =>
+    label !== "1Y" && elapsed > days * 2;
+
+  const defaultDailyPeriod = (
+    DAILY_PERIODS.find(({ days, label }) => !isDailyPeriodDisabled(days, label))?.label ?? "1Y"
+  ) as DailyPeriodLabel;
+
+  const [activePeriod, setActivePeriod] = useState<string>(
+    isToday ? "전체" : defaultDailyPeriod
+  );
+  const [markerX, setMarkerX] = useState<number | null>(null);
+
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const chartRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const seriesRef = useRef<any>(null);
-  const targetDateRef = useRef<string>("");
+  // 분봉: epoch(number), 일봉: dateStr(string)
+  const targetRef = useRef<number | string>("");
   const inRangeRef = useRef(false);
+  const isTodayRef = useRef(isToday);
 
-  // 거래일로부터 경과 일수
-  const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
+  // 체결 시각 → UTC epoch (분봉 마킹)
+  const tradeEpoch = useMemo(
+    () => (tradeDateTime ? new Date(tradeDateTime).getTime() / 1000 : Date.now() / 1000),
+    [tradeDateTime]
+  );
 
-  // elapsed > days * 2 이면 비활성 (1Y는 항상 활성)
-  const isPeriodDisabled = (days: number, label: string) =>
-    label !== "1Y" && elapsed > days * 2;
-
-  // 기본값: 활성화된 버튼 중 가장 작은 기간
-  const defaultPeriod = (
-    PERIODS.find(({ days, label }) => !isPeriodDisabled(days, label))?.label ?? "1Y"
-  ) as PeriodLabel;
-
-  const [activePeriod, setActivePeriod] = useState<PeriodLabel>(defaultPeriod);
-  const [markerX, setMarkerX] = useState<number | null>(null);
-
-  // 거래 전 최대 1년 + 거래 후 1년까지 필요한 데이터 요청
+  // 데이터 쿼리 (오늘=분봉, 과거=일봉)
   const fetchDays = Math.max(365, elapsed + 365 + 30);
-  const { data: candles } = useCandleQuery(tickerCode, "day", fetchDays);
+  const { data: dailyCandles } = useCandleQuery(!isToday ? tickerCode : "", "day", fetchDays);
+  const { data: minuteCandles } = useCandleQuery(isToday ? tickerCode : "", "5");
+  const candles = isToday ? minuteCandles : dailyCandles;
+
   const isBuy = tradeType === "BUY";
   const markerColor = isBuy ? "#F04452" : "#3B7DEB";
 
+  // 차트 마운트
   useEffect(() => {
     if (!containerRef.current) return;
+    const todayMode = isTodayRef.current;
 
     const chart = createChart(containerRef.current, {
       autoSize: true,
@@ -101,13 +136,15 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
         fixRightEdge: false,
         fixLeftEdge: true,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        tickMarkFormatter: (time: any, tickMarkType: number) => {
-          const s = typeof time === "string" ? time : toDateString(time);
-          const [y, m, d] = s.split("-");
-          if (tickMarkType === 0) return y;           // 연도
-          if (tickMarkType === 1) return `${parseInt(m)}월`; // 월 경계
-          return `${parseInt(m)}/${parseInt(d)}`;     // 일
-        },
+        tickMarkFormatter: todayMode
+          ? (time: any) => epochToKstHHMM(typeof time === "number" ? time : Number(time))
+          : (time: any, tickMarkType: number) => {
+              const s = typeof time === "string" ? time : toDateString(time);
+              const [y, m, d] = s.split("-");
+              if (tickMarkType === 0) return y;
+              if (tickMarkType === 1) return `${parseInt(m)}월`;
+              return `${parseInt(m)}/${parseInt(d)}`;
+            },
       },
       crosshair: {
         vertLine: { color: "#D1D5DB", width: 1, style: 2, labelBackgroundColor: "#1F2937" },
@@ -126,11 +163,14 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
       wickDownColor: "#3B7DEB",
     });
 
-    // fitContent 이후 범위가 확정되면 x 좌표 계산
     chart.timeScale().subscribeVisibleTimeRangeChange(() => {
-      if (!inRangeRef.current || !targetDateRef.current) return;
+      if (!inRangeRef.current || !targetRef.current) return;
+      const target = targetRef.current;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const x = chart.timeScale().timeToCoordinate(toBusinessDay(targetDateRef.current) as any);
+      const x = isTodayRef.current
+        ? chart.timeScale().timeToCoordinate(target as number)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : chart.timeScale().timeToCoordinate(toBusinessDay(target as string) as any);
       setMarkerX(x ?? null);
     });
 
@@ -144,98 +184,158 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
     };
   }, []);
 
+  // 데이터 세팅
   useEffect(() => {
     if (!candles || !seriesRef.current || !chartRef.current) return;
 
-    const periodDays = PERIODS.find((p) => p.label === activePeriod)?.days ?? 30;
+    if (isToday) {
+      // ── 분봉 모드 ────────────────────────────────────────────
+      const sorted = [...candles].sort((a, b) => a.time - b.time);
+      const halfMins = MINUTE_PERIODS.find((p) => p.label === activePeriod)?.halfMins ?? null;
 
-    // 왼쪽 끝: 거래일 - 선택 기간
-    const leftCutoffStr = addDays(tradeDate, -periodDays);
-    // 오른쪽 끝: 거래일 + 1년 (오늘을 넘지 않도록)
-    const today = new Date().toISOString().slice(0, 10);
-    const rightCutoffStr = addDays(tradeDate, 365) < today ? addDays(tradeDate, 365) : today;
+      // 오늘 날짜 캔들만 사용 (API가 여러 날 데이터를 반환할 수 있음)
+      const todayCandles = sorted.filter((c) => toDateString(c.time) === tradeDate);
+      const filtered =
+        halfMins == null
+          ? todayCandles
+          : todayCandles.filter((c) => Math.abs(c.time - tradeEpoch) <= halfMins * 60);
 
-    const timeMap = new Map<string, (typeof candles)[0]>();
-    for (const c of [...candles].sort((a, b) => a.time - b.time)) {
-      timeMap.set(toDateString(c.time), c);
-    }
-    const allSorted = [...timeMap.values()].sort((a, b) => a.time - b.time);
-    const filtered = allSorted.filter((c) => {
-      const d = toDateString(c.time);
-      return d >= leftCutoffStr && d <= rightCutoffStr;
-    });
+      if (filtered.length === 0) {
+        inRangeRef.current = false;
+        targetRef.current = "";
+        setMarkerX(null);
+        seriesRef.current.setData([]);
+        return;
+      }
 
-    seriesRef.current.setData(
-      filtered.map((c) => ({
-        time: toDateString(c.time),
-        open: c.open,
-        high: c.high,
-        low: c.low,
-        close: c.close,
-      })),
-    );
+      seriesRef.current.setData(
+        filtered.map((c) => ({
+          time: c.time as UTCTimestamp,
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close,
+        }))
+      );
 
-    if (filtered.length === 0) {
-      inRangeRef.current = false;
-      targetDateRef.current = "";
-      setMarkerX(null);
-    } else {
-      // 거래일이 장 없는 날이면 직전 거래일로 fallback
-      const targetDate = timeMap.has(tradeDate)
-        ? tradeDate
-        : (() => {
-            const before = allSorted.filter((c) => toDateString(c.time) <= tradeDate);
-            return before.length
-              ? toDateString(before[before.length - 1].time)
-              : toDateString(filtered[0].time);
-          })();
-
+      // 체결 시각 직전 봉
+      const nearest = [...sorted].reverse().find((c) => c.time <= tradeEpoch);
       inRangeRef.current = true;
-      targetDateRef.current = targetDate;
+      targetRef.current = nearest ? nearest.time : filtered[0].time;
+
+      chartRef.current.timeScale().fitContent();
+
+      setTimeout(() => {
+        if (!inRangeRef.current || !targetRef.current || !chartRef.current) return;
+        const x = chartRef.current.timeScale().timeToCoordinate(targetRef.current as number);
+        if (x != null) setMarkerX(x);
+      }, 200);
+    } else {
+      // ── 일봉 모드 ────────────────────────────────────────────
+      const periodDays = DAILY_PERIODS.find((p) => p.label === activePeriod)?.days ?? 30;
+      const leftCutoffStr = addDays(tradeDate, -periodDays);
+      const today = new Date().toISOString().slice(0, 10);
+      const rightCutoffStr = addDays(tradeDate, 365) < today ? addDays(tradeDate, 365) : today;
+
+      const timeMap = new Map<string, (typeof candles)[0]>();
+      for (const c of [...candles].sort((a, b) => a.time - b.time)) {
+        timeMap.set(toDateString(c.time), c);
+      }
+      const allSorted = [...timeMap.values()].sort((a, b) => a.time - b.time);
+      const filtered = allSorted.filter((c) => {
+        const d = toDateString(c.time);
+        return d >= leftCutoffStr && d <= rightCutoffStr;
+      });
+
+      seriesRef.current.setData(
+        filtered.map((c) => ({
+          time: toDateString(c.time),
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close,
+        }))
+      );
+
+      if (filtered.length === 0) {
+        inRangeRef.current = false;
+        targetRef.current = "";
+        setMarkerX(null);
+      } else {
+        inRangeRef.current = true;
+        targetRef.current =
+          tradeDate >= leftCutoffStr
+            ? tradeDate
+            : (() => {
+                const before = allSorted.filter((c) => toDateString(c.time) <= tradeDate);
+                return before.length
+                  ? toDateString(before[before.length - 1].time)
+                  : toDateString(filtered[0].time);
+              })();
+      }
+
+      chartRef.current.timeScale().setVisibleRange({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        from: toBusinessDay(leftCutoffStr) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        to: toBusinessDay(rightCutoffStr) as any,
+      });
+
+      setTimeout(() => {
+        if (!inRangeRef.current || !targetRef.current || !chartRef.current) return;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const x = chartRef.current
+          .timeScale()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .timeToCoordinate(toBusinessDay(targetRef.current as string) as any);
+        if (x != null) setMarkerX(x);
+      }, 200);
     }
-
-    // fitContent → subscribeVisibleTimeRangeChange 콜백 발동 → x 계산
-    chartRef.current.timeScale().fitContent();
-
-    // 구독 콜백이 안 뜨는 경우 폴백
-    setTimeout(() => {
-      if (!inRangeRef.current || !targetDateRef.current || !chartRef.current) return;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const x = chartRef.current.timeScale().timeToCoordinate(toBusinessDay(targetDateRef.current) as any);
-      if (x != null) setMarkerX(x);
-    }, 200);
-  }, [candles, activePeriod, tradeDate]);
+  }, [candles, activePeriod, tradeDate, tradeEpoch, isToday]);
 
   if (!tickerCode) return null;
 
   return (
     <div className="rounded-xl overflow-hidden border border-gray-100 bg-[#FAFBFF] mt-1">
       <div className="flex items-center justify-end gap-0.5 px-3 pt-2">
-        {PERIODS.map(({ label, days }) => {
-          const disabled = isPeriodDisabled(days, label);
-          return (
-            <button
-              key={label}
-              onClick={() => !disabled && setActivePeriod(label)}
-              disabled={disabled}
-              className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
-                activePeriod === label
-                  ? "text-white bg-[#22C55E]"
-                  : disabled
-                  ? "text-gray-200 cursor-not-allowed"
-                  : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {label}
-            </button>
-          );
-        })}
+        {isToday
+          ? MINUTE_PERIODS.map(({ label }) => (
+              <button
+                key={label}
+                onClick={() => setActivePeriod(label)}
+                className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
+                  activePeriod === label
+                    ? "text-white bg-[#22C55E]"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {label}
+              </button>
+            ))
+          : DAILY_PERIODS.map(({ label, days }) => {
+              const disabled = isDailyPeriodDisabled(days, label);
+              return (
+                <button
+                  key={label}
+                  onClick={() => !disabled && setActivePeriod(label)}
+                  disabled={disabled}
+                  className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
+                    activePeriod === label
+                      ? "text-white bg-[#22C55E]"
+                      : disabled
+                      ? "text-gray-200 cursor-not-allowed"
+                      : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
       </div>
 
       <div className="relative h-[150px]">
         <div ref={containerRef} className="h-full" />
 
-        {/* 수직선 */}
         {markerX != null && (
           <div
             className="absolute top-0 bottom-0 w-px pointer-events-none"
@@ -243,7 +343,6 @@ export default function DiaryMiniChart({ tickerCode, tradeDate, tradeType, fille
           />
         )}
 
-        {/* 화살표 — 직접 배치 */}
         {markerX != null && isBuy && (
           <div
             className="absolute pointer-events-none"
