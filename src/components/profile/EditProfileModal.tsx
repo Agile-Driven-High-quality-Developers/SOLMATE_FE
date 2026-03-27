@@ -22,6 +22,7 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   const [checking, setChecking] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -53,6 +54,12 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setImageError("이미지는 2MB 이하만 업로드할 수 있어요.");
+      e.target.value = "";
+      return;
+    }
+    setImageError(null);
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
   };
@@ -88,6 +95,7 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   const nicknameUnchanged = nicknameValue === nickname;
   const canSave =
     nicknameValue.trim() &&
+    !imageError &&
     (nicknameUnchanged || (nicknameChecked && nicknameMsg?.ok !== false));
 
   const displayImage = imagePreview ?? profileImageUrl ?? undefined;
@@ -129,12 +137,9 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
                 <Camera size={11} className="text-white" />
               </div>
             </button>
-            <button
-              onClick={() => fileRef.current?.click()}
-              className="text-[12px] text-[#0046FF] font-medium hover:underline"
-            >
-              사진 변경
-            </button>
+            <p></p>
+            <p className="text-[11px] text-gray-400">최대 2MB JPG, JPEG, PNG만 가능합니다.</p>
+            {imageError && <p className="text-[11px] text-red-500">{imageError}</p>}
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
           </div>
 
