@@ -13,6 +13,7 @@ import Avatar from "@/components/ui/Avatar";
 import { useUser, useAuthStore } from "@/store/authStore";
 import Badge from "@/components/ui/Badge";
 import { useUserListQuery } from "@/api/userListApi";
+import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 function formatProfitRate(rate: number) {
   const sign = rate >= 0 ? "+" : "";
@@ -168,6 +169,16 @@ export default function DiaryDetailPage() {
                 </div>
               ))}
             </div>
+
+            {/* 차트 */}
+            {diary.tickerCode && (
+              <DiaryMiniChart
+                tickerCode={diary.tickerCode}
+                tradeDate={diary.createdAt.slice(0, 10)}
+                tradeType={diary.tradeType}
+                filledPrice={diary.filledPrice}
+              />
+            )}
 
             {/* 매매 일지 */}
             <div>

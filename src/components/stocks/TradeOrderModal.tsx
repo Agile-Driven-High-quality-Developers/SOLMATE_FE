@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, AlertCircle } from "lucide-react";
 import Button from "@/components/ui/Button";
+import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 type OrderType = "MARKET" | "LIMIT";
 
@@ -9,6 +10,7 @@ export type OrderSide = "buy" | "sell";
 type Props = {
   side: OrderSide;
   stockName: string;
+  tickerCode: string;
   currentPrice: number;
   cash: number;
   holdingQuantity: number;
@@ -24,12 +26,14 @@ type Props = {
 export default function TradeOrderModal({
   side,
   stockName,
+  tickerCode,
   currentPrice,
   cash,
   holdingQuantity,
   onClose,
   onConfirm,
 }: Props) {
+  const today = new Date().toISOString().slice(0, 10);
   const isBuy = side === "buy";
   const accent = {
     text: isBuy ? "text-red-500" : "text-[#0046FF]",
@@ -144,6 +148,16 @@ export default function TradeOrderModal({
               {qty > 0 ? totalAmount.toLocaleString() : "-"}원
             </span>
           </div>
+        </div>
+
+        {/* 차트 */}
+        <div className="mb-3">
+          <DiaryMiniChart
+            tickerCode={tickerCode}
+            tradeDate={today}
+            tradeType={isBuy ? "BUY" : "SELL"}
+            filledPrice={currentPrice}
+          />
         </div>
 
         {/* 매매일지 */}

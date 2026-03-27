@@ -190,6 +190,7 @@ export default function StockDetailPage() {
       <TradeOrderModal
         side={orderSide}
         stockName={quote.stockName}
+        tickerCode={stockCode}
         currentPrice={quote.currentPrice}
         cash={cash ?? 0}
         holdingQuantity={holding?.holdingQuantity ?? 0}

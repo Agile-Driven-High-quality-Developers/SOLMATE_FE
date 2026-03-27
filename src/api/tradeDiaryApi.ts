@@ -6,6 +6,7 @@ export type MyDiariesItem = {
   diaryId: string;
   tradeType: string;
   stockName: string;
+  tickerCode: string;
   filledPrice: number;
   quantity: number;
   profit: number;
