@@ -223,13 +223,7 @@ export default function MyMentorPage() {
         />
         <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
           {activeTab === "diary" && (
-            <MentorTradeDiaryTab
-              items={diaries}
-              onAskQuestion={async (diaryId, content) => {
-                // TODO: 질문 API 연동
-                console.log("질문 등록:", diaryId, content);
-              }}
-            />
+            <MentorTradeDiaryTab items={diaries} />
           )}
           {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
           {activeTab === "portfolio" && (

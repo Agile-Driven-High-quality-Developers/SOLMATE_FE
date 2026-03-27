@@ -33,6 +33,7 @@ export type StockQuote = {
   stockCode: string;
   stockName: string;
   stockLogo: string;
+  sectorType: string;
   currentPrice: number;
   changePrice: number; // 전일 대비
   changeRate: number; // 등락률 (%)
@@ -287,7 +288,7 @@ export function useCancelOrderMutation(tickerCode: string) {
   return useMutation({
     mutationFn: (orderId: number) =>
       fetchClient.patch<ApiResponse<void>>(
-        `/api/v1/orders/${orderId}/cancel`,
+        `/api/orders/${orderId}/cancel`,
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({
