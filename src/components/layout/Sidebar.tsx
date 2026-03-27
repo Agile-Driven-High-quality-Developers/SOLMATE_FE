@@ -76,7 +76,7 @@ function NavItem({
     <li>
       <button
         onClick={onClick}
-        data-tour={item.id === "invest" ? "nav-invest" : undefined}
+        data-tour={["invest", "account", "trade", "users", "mentor", "profile"].includes(item.id) ? `nav-${item.id}` : undefined}
         className={[
           "relative w-full flex items-center gap-2.5 px-3 py-2.25 rounded-[10px]",
           "text-left transition-colors duration-150 group cursor-pointer",
