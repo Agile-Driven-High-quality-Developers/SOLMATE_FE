@@ -26,7 +26,7 @@ export default function OAuthCallbackPage() {
       .googleCallback(code)
       .then((res) => {
         console.log("[OAuth] 응답:", res);
-        setAuth(res.data.accessToken, { nickname: res.data.nickname });
+        setAuth(res.data.accessToken, { nickname: res.data.nickname, provider: "GOOGLE" });
         navigate("/", { replace: true });
       })
       .catch((err) => {
