@@ -1,5 +1,47 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const INVEST_TOUR: TourStep[] = [
+  {
+    target: "invest-market",
+    title: "📈 코스피 · 코스닥이 뭔가요?",
+    description: "주식 시장 전체의 흐름을 숫자 하나로 나타낸 지수예요.",
+    items: [
+      "코스피(KOSPI) — 삼성·현대 같은 대형 우량 기업 지수",
+      "코스닥(KOSDAQ) — 네이버·카카오 같은 중소·기술 기업 지수",
+      "지수가 오르면 시장 전체 분위기가 좋은 날이에요!",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "stock-columns",
+    title: "🔢 각 숫자가 무슨 뜻이에요?",
+    description: "종목 리스트에서 보이는 숫자들이에요.",
+    items: [
+      "현재가 — 지금 이 순간 거래되는 가격",
+      "등락률 — 어제보다 얼마나 올랐는지 (%)",
+      "거래량 — 오늘 사고판 주식 수",
+      "시가총액 — 회사 주식을 전부 사면 드는 돈 (회사 규모)",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "stock-search",
+    title: "🔍 원하는 종목 찾기",
+    description:
+      "회사 이름으로 검색하거나 거래량·등락률 순으로 정렬해서 마음에 드는 종목을 찾아봐요.",
+    placement: "bottom",
+  },
+  {
+    target: "stock-table",
+    title: "📋 종목을 클릭해봐요!",
+    description:
+      "현재가·등락률이 실시간으로 바뀌어요. 종목을 클릭하면 차트 보기와 매수·매도 화면으로 이동해요!",
+    placement: "bottom",
+  },
+];
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useStockStore } from "@/store/stockStore";
@@ -224,10 +266,12 @@ export default function StockList() {
       </div>
 
       {/* 시장 지수 */}
-      <MarketPanel data={marketIndices} loading={loadingMarket} />
+      <div data-tour="invest-market">
+        <MarketPanel data={marketIndices} loading={loadingMarket} />
+      </div>
 
       {/* 검색 + 정렬 */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3" data-tour="stock-search">
         <div className="relative flex-1 max-w-xs">
           <Search
             size={15}
@@ -275,10 +319,12 @@ export default function StockList() {
         ))}
       </div>
 
+      <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
+
       {/* 종목 테이블 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto" data-tour="stock-table">
         <table className="w-full min-w-175">
-          <thead>
+          <thead data-tour="stock-columns">
             <tr className="bg-gray-50 border-b border-gray-100">
               <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
                 순위
