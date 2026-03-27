@@ -84,7 +84,7 @@ function NavItem({
       <button
         onClick={onClick}
         data-tour={
-          ["invest", "account", "trade", "users", "mentor", "profile"].includes(
+          ["invest", "account", "trade", "users", "mentor", "profile", "guide"].includes(
             item.id,
           )
             ? `nav-${item.id}`
