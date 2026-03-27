@@ -1,5 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const USERS_TOUR: TourStep[] = [
+  {
+    target: "users-podium",
+    title: "🥇 수익률 TOP 3",
+    description: "지금 가장 수익을 많이 낸 투자자 3명이에요.",
+    items: [
+      "클릭하면 그 사람의 포트폴리오를 볼 수 있어요",
+      "어떤 주식을 얼마나 보유하고 있는지 확인 가능해요",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "users-follow",
+    title: "➕ 팔로우",
+    description: "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
+    placement: "left",
+  },
+  {
+    target: "users-mentor",
+    title: "🎓 멘토신청",
+    description: "멘토로 등록하면 그 사람의 매매일지와 포트폴리오를 공유받을 수 있어요. 1명만 멘토로 설정할 수 있어요.",
+    placement: "left",
+  },
+];
 import { Search } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
@@ -205,6 +232,7 @@ function UserRow({
   onFollowToggle,
   onMentoringRequest,
   onMentoringCancel,
+  isFirstNonMe,
 }: {
   user: UserItem;
   rank: number;
@@ -214,6 +242,7 @@ function UserRow({
   onFollowToggle: (user: UserItem) => void;
   onMentoringRequest: (user: UserItem) => void;
   onMentoringCancel: (user: UserItem) => void;
+  isFirstNonMe?: boolean;
 }) {
   const navigate = useNavigate();
   return (
@@ -252,12 +281,12 @@ function UserRow({
       <ReturnCells summary={summary} isLoading={summaryLoading} />
 
       {/* 팔로우 */}
-      <td className="px-4 py-3.5 text-center">
+      <td className="px-4 py-3.5 text-center" data-tour={isFirstNonMe ? "users-follow" : undefined}>
         <FollowButton user={user} onToggle={onFollowToggle} />
       </td>
 
       {/* 멘토 */}
-      <td className="px-4 py-3.5 text-center">
+      <td className="px-4 py-3.5 text-center" data-tour={isFirstNonMe ? "users-mentor" : undefined}>
         <MentoringButton
           user={user}
           hasAcceptedMentor={hasAcceptedMentor}
@@ -360,7 +389,9 @@ export default function UserListPage() {
       </div>
 
       {/* 포디움 */}
-      {!isLoading && top3.length >= 3 && <Podium users={top3} />}
+      <div data-tour="users-podium">
+        {!isLoading && top3.length >= 3 && <Podium users={top3} />}
+      </div>
 
       {/* 탭 */}
       <div className="flex gap-2">
@@ -379,6 +410,8 @@ export default function UserListPage() {
           </button>
         ))}
       </div>
+
+      <SpotlightTour tourKey="users" steps={USERS_TOUR} />
 
       {/* 랭킹 테이블 */}
       <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden min-h-0">
@@ -441,22 +474,26 @@ export default function UserListPage() {
                     <td className="px-5 py-4"><div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" /></td>
                   </tr>
                 ))
-              : sorted.map((user, i) => {
-                  const s = summaryMap.get(user.userId);
-                  return (
-                    <UserRow
-                      key={user.userId}
-                      user={user}
-                      rank={i + 1}
-                      summary={s?.data}
-                      summaryLoading={s?.isLoading ?? false}
-                      hasAcceptedMentor={hasAcceptedMentor}
-                      onFollowToggle={handleFollowToggle}
-                      onMentoringRequest={handleMentoringRequest}
-                      onMentoringCancel={handleMentoringCancel}
-                    />
-                  );
-                })}
+              : (() => {
+                  const firstNonMeIdx = sorted.findIndex((u) => !u.me);
+                  return sorted.map((user, i) => {
+                    const s = summaryMap.get(user.userId);
+                    return (
+                      <UserRow
+                        key={user.userId}
+                        user={user}
+                        rank={i + 1}
+                        summary={s?.data}
+                        summaryLoading={s?.isLoading ?? false}
+                        hasAcceptedMentor={hasAcceptedMentor}
+                        onFollowToggle={handleFollowToggle}
+                        onMentoringRequest={handleMentoringRequest}
+                        onMentoringCancel={handleMentoringCancel}
+                        isFirstNonMe={i === firstNonMeIdx}
+                      />
+                    );
+                  });
+                })()}
           </tbody>
         </table>
         </div>

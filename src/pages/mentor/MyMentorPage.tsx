@@ -1,6 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, TrendingUp, Loader2, X } from "lucide-react";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const MENTOR_TOUR: TourStep[] = [
+  {
+    target: "mentor-card",
+    title: "🎓 나의 멘토",
+    description: "멘토로 등록한 투자자의 정보예요.",
+    items: [
+      "멘토의 수익률·수익을 한눈에 볼 수 있어요",
+      "프로필 보기로 더 자세한 정보를 확인해요",
+      "멘토 취소 시 언제든 다시 신청할 수 있어요",
+    ],
+    placement: "bottom",
+  },
+  {
+    target: "mentor-tabs",
+    title: "📖 멘토의 투자 기록",
+    description: "멘토가 어떻게 투자하는지 직접 확인할 수 있어요.",
+    items: [
+      "매매일지 — 멘토가 거래할 때 남긴 메모",
+      "매매내역 — 멘토의 모든 거래 기록",
+      "포트폴리오 — 멘토가 보유한 종목 현황",
+    ],
+    placement: "bottom",
+  },
+];
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
@@ -114,7 +141,7 @@ export default function MyMentorPage() {
       </div>
 
       {/* 멘토 카드 */}
-      <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4 shrink-0">
+      <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4 shrink-0" data-tour="mentor-card">
         <div className="flex items-center gap-4">
           {/* 아바타 + 닉네임 + 통계 */}
           <div className="flex items-center gap-3 flex-1">
@@ -161,7 +188,7 @@ export default function MyMentorPage() {
       </div>
 
       {/* 탭 + 콘텐츠 */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col" data-tour="mentor-tabs">
         <UnderlineTabBar
           tabs={[...TABS]}
           activeId={activeTab}
@@ -191,6 +218,7 @@ export default function MyMentorPage() {
           )}
         </div>
       </div>
+      <SpotlightTour tourKey="mentor" steps={MENTOR_TOUR} />
     </div>
   );
 }

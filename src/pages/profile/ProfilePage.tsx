@@ -1,5 +1,31 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const PROFILE_TOUR: TourStep[] = [
+  {
+    target: "profile-card",
+    title: "👤 내 프로필",
+    description: "나의 투자 활동 기록이 쌓이는 공간이에요.",
+    items: [
+      "팔로워·팔로잉 — 서로 구독한 투자자 수",
+      "수익률 — 지금까지의 내 총 투자 성과",
+    ],
+    placement: "right",
+  },
+  {
+    target: "profile-tabs",
+    title: "📂 내 기록 보기",
+    description: "투자 관련 기록을 탭별로 확인할 수 있어요.",
+    items: [
+      "매매일지 — 거래할 때 남긴 메모 모음",
+      "매매내역 — 지금까지의 모든 거래 기록",
+      "포트폴리오 — 보유 종목 비중 파이 차트",
+    ],
+    placement: "left",
+  },
+];
 import { useUser } from "@/store/authStore";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
@@ -90,7 +116,7 @@ export default function ProfilePage() {
 
       <div className="flex gap-5 flex-1 min-h-0">
         {/* 왼쪽: 프로필 카드 */}
-        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
+        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col" data-tour="profile-card">
           <ProfileCard
             nickname={myProfile?.nickname ?? user.nickname}
             profileImageUrl={myProfile?.imageUrl}
@@ -110,7 +136,7 @@ export default function ProfilePage() {
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col" data-tour="profile-tabs">
           {/* 탭 바 */}
           <UnderlineTabBar
             tabs={[...TABS]}
@@ -134,6 +160,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <SpotlightTour tourKey="profile" steps={PROFILE_TOUR} />
     </div>
   );
 }

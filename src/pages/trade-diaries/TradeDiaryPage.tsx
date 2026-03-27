@@ -3,6 +3,17 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const DIARY_TOUR: TourStep[] = [
+  {
+    target: "diary-list",
+    title: "✍️ 나만의 투자 기록",
+    description: "매수·매도할 때 남긴 메모가 여기에 쌓여요. 왜 그 주식을 샀는지 기록해두면 나중에 내 투자 패턴을 볼 수 있어요.",
+    placement: "bottom",
+  },
+];
 import Badge from "@/components/ui/Badge";
 
 function MyDiariesRow({
@@ -113,8 +124,10 @@ export default function TradeDiaryPage() {
         </div>
       </div>
 
+      <SpotlightTour tourKey="diary" steps={DIARY_TOUR} />
+
       {/* 매매일지 리스트 (스크롤) */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      <div className="flex-1 overflow-y-auto px-6 pb-6" data-tour="diary-list">
         <div className="bg-white rounded-2xl border border-gray-100 overflow-y-scroll h-full">
           {filtered.length > 0 ? (
             filtered.map((item) => (

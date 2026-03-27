@@ -1,4 +1,39 @@
 import { useNavigate } from "react-router-dom";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const HOME_TOUR: TourStep[] = [
+  {
+    target: "market-indices",
+    title: "📈 오늘 주식시장은?",
+    description: "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강(▲)이면 오름, 파랑(▼)이면 내림이에요.",
+    placement: "bottom",
+  },
+  {
+    target: "portfolio",
+    title: "💰 내 자산 현황",
+    description: "가상 1,000만원으로 시작한 내 돈이 얼마가 됐는지 보여줘요. 예수금은 아직 투자 안 한 현금이에요.",
+    placement: "bottom",
+  },
+  {
+    target: "holdings",
+    title: "📦 내가 산 주식들",
+    description: "지금 가지고 있는 주식 목록이에요. 각 종목이 얼마나 올랐는지(수익률) 바로 확인할 수 있어요.",
+    placement: "top",
+  },
+  {
+    target: "top-investors",
+    title: "🏆 TOP 투자자",
+    description: "수익을 가장 많이 낸 투자자 순위예요. 클릭하면 그 사람이 어떤 주식을 샀는지 볼 수 있어요!",
+    placement: "top",
+  },
+  {
+    target: "popular-stocks",
+    title: "🔥 인기 종목",
+    description: "지금 가장 많이 거래되고 있는 주식이에요. 클릭하면 해당 종목의 차트와 매수·매도 화면으로 바로 이동해요.",
+    placement: "top",
+  },
+];
 import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useMarketIndicesQuery } from "@/api/homeApi";
@@ -537,21 +572,24 @@ export default function HomePage() {
         {/* 왼쪽: 포트폴리오 + 보유 종목 */}
         <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
           <div data-tour="portfolio">
-            <PortfolioCard data={portfolio} loading={false} />
+            <PortfolioCard data={summary} loading={loadingSummary} />
           </div>
           <div data-tour="holdings">
-            <HoldingsTable data={holdings} loading={false} />
+            <HoldingsTable data={holdings} loading={loadingHoldings} />
           </div>
-          <PortfolioCard data={summary} loading={loadingSummary} />
-          <HoldingsTable data={holdings} loading={loadingHoldings} />
         </div>
 
         {/* 오른쪽: TOP 투자자 + 인기 종목 */}
         <div className="flex flex-col gap-4 flex-1 min-w-0">
-          <TopInvestors data={allUsers} loading={loadingUsers} />
-          <PopularStocks data={stocks} loading={loadingStocks} />
+          <div data-tour="top-investors">
+            <TopInvestors data={allUsers} loading={loadingUsers} />
+          </div>
+          <div data-tour="popular-stocks">
+            <PopularStocks data={stocks} loading={loadingStocks} />
+          </div>
         </div>
       </div>
+      <SpotlightTour tourKey="home" steps={HOME_TOUR} />
     </div>
   );
 }

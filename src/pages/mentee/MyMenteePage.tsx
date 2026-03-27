@@ -1,6 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, TrendingUp, Loader2 } from "lucide-react";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const MENTEE_TOUR: TourStep[] = [
+  {
+    target: "mentee-list",
+    title: "👥 나의 멘티 목록",
+    description: "나에게 멘토 신청을 한 투자자들이에요.",
+    items: [
+      "클릭하면 그 멘티의 투자 기록을 볼 수 있어요",
+      "멘티의 수익률도 한눈에 확인할 수 있어요",
+    ],
+    placement: "right",
+  },
+  {
+    target: "mentee-detail",
+    title: "📋 멘티의 투자 기록",
+    description: "선택한 멘티가 어떻게 투자하고 있는지 확인할 수 있어요.",
+    items: [
+      "매매일지 — 멘티가 남긴 메모에 피드백을 줄 수 있어요",
+      "매매내역 — 멘티의 거래 기록",
+      "포트폴리오 — 멘티가 보유한 종목 현황",
+    ],
+    placement: "left",
+  },
+];
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
@@ -198,7 +224,7 @@ export default function MyMenteePage() {
 
       <div className="flex gap-4 flex-1 min-h-0">
         {/* 멘티 목록 (좌측) */}
-        <div className="w-[180px] shrink-0 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden">
+        <div className="w-[180px] shrink-0 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden" data-tour="mentee-list">
           <div className="px-4 py-3 border-b border-gray-100 shrink-0">
             <p className="text-[12px] font-semibold text-gray-400">멘티 목록</p>
           </div>
@@ -215,8 +241,11 @@ export default function MyMenteePage() {
         </div>
 
         {/* 멘티 상세 (우측) */}
-        <MenteeDetail key={selectedId} menteeId={selectedId} />
+        <div className="flex-1 min-h-0 flex flex-col" data-tour="mentee-detail">
+          <MenteeDetail key={selectedId} menteeId={selectedId} />
+        </div>
       </div>
+      <SpotlightTour tourKey="mentee" steps={MENTEE_TOUR} />
     </div>
   );
 }

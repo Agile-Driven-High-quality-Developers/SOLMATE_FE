@@ -1,6 +1,23 @@
 import PortfolioChart from "@/components/account/PortfolioChart";
 import HoldingList from "@/components/account/HoldingList";
 import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
+import SpotlightTour from "@/components/onboarding/SpotlightTour";
+import type { TourStep } from "@/components/onboarding/SpotlightTour";
+
+const ACCOUNT_TOUR: TourStep[] = [
+  {
+    target: "account-summary",
+    title: "💳 내 계좌 한눈에",
+    description: "내 투자 현황을 나타내는 4가지 지표예요.",
+    items: [
+      "총 자산 — 예수금 + 보유 주식 평가금액",
+      "보유 현금 — 아직 투자하지 않은 내 돈 (예수금)",
+      "보유 종목 — 현재 가지고 있는 주식 수",
+      "수익률 — 원금 대비 얼마나 벌었는지 (%)",
+    ],
+    placement: "bottom",
+  },
+];
 
 function fmt(n: number) {
   if (Math.abs(n) >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억원`;
@@ -33,7 +50,7 @@ export default function AccountPage() {
         <p className="text-[13px] text-gray-400 mt-0.5">나의 투자 현황을 한눈에 확인하세요</p>
       </div>
 
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-stretch">
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-stretch" data-tour="account-summary">
 
         {/* 보유 총 자산 */}
         <div className="bg-[#0046FF] rounded-2xl px-6 py-5 text-white">
@@ -82,6 +99,7 @@ export default function AccountPage() {
           <HoldingList items={holdings} />
         </div>
       </div>
+      <SpotlightTour tourKey="account" steps={ACCOUNT_TOUR} />
     </div>
   );
 }
