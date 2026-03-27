@@ -30,13 +30,15 @@ const INVEST_TOUR: TourStep[] = [
   {
     target: "stock-search",
     title: "🔍 원하는 종목 찾기",
-    description: "회사 이름으로 검색하거나 거래량·등락률 순으로 정렬해서 마음에 드는 종목을 찾아봐요.",
+    description:
+      "회사 이름으로 검색하거나 거래량·등락률 순으로 정렬해서 마음에 드는 종목을 찾아봐요.",
     placement: "bottom",
   },
   {
     target: "stock-table",
     title: "📋 종목을 클릭해봐요!",
-    description: "현재가·등락률이 실시간으로 바뀌어요. 종목을 클릭하면 차트 보기와 매수·매도 화면으로 이동해요!",
+    description:
+      "현재가·등락률이 실시간으로 바뀌어요. 종목을 클릭하면 차트 보기와 매수·매도 화면으로 이동해요!",
     placement: "bottom",
   },
 ];
@@ -320,17 +322,8 @@ export default function StockList() {
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
 
       {/* 종목 테이블 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden" data-tour="stock-table">
-        <table className="w-full table-fixed">
-          <colgroup>
-            <col className="w-[60px]" />
-            <col className="w-[220px]" />
-            <col className="w-[250px]" />
-            <col className="w-[150px]" />
-            <col className="w-[150px]" />
-            <col className="w-[150px]" />
-            <col />
-          </colgroup>
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto" data-tour="stock-table">
+        <table className="w-full min-w-175">
           <thead data-tour="stock-columns">
             <tr className="bg-gray-50 border-b border-gray-100">
               <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">

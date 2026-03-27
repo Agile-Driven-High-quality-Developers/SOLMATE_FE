@@ -66,7 +66,9 @@ export function useUserListCacheUpdate() {
     updateCache((old) => ({
       ...old,
       users: old.users.map((u) =>
-        u.userId === userId ? { ...u, following: newFollowing } : u,
+        u.userId === userId
+          ? { ...u, following: newFollowing, followerCount: u.followerCount + (newFollowing ? 1 : -1) }
+          : u,
       ),
     }));
   }
@@ -96,6 +98,7 @@ export type MyProfile = {
   imageUrl: string;
   followerCount: number;
   followingCount: number;
+  provider: "EMAIL" | "GOOGLE";
 };
 
 export function useMyProfileQuery() {
@@ -152,6 +155,38 @@ export function useFollowingInfiniteQuery() {
     initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage) =>
       lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
+  });
+}
+
+export function useUserFollowersInfiniteQuery(userId: number) {
+  return useInfiniteQuery({
+    queryKey: ["follows", userId, "followers"],
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/${userId}/followers${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
+    enabled: !!userId,
+  });
+}
+
+export function useUserFollowingInfiniteQuery(userId: number) {
+  return useInfiniteQuery({
+    queryKey: ["follows", userId, "following"],
+    queryFn: ({ pageParam }) => {
+      const params = pageParam !== undefined ? `?cursor=${pageParam}` : "";
+      return fetchClient
+        .get<ApiResponse<FollowListData>>(`/api/users/${userId}/following${params}`)
+        .then((res) => res.data);
+    },
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNext ? (lastPage.nextCursor ?? undefined) : undefined,
+    enabled: !!userId,
   });
 }
 

@@ -3,22 +3,30 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, Pencil } from "lucide-react";
 import {
   useDiaryDetailQuery,
+  useModifyDiaryMutation,
   usePostCommentMutation,
   useModifyCommentMutation,
   useDeleteCommentMutation,
 } from "@/api/tradeDiaryApi";
 import Button from "@/components/ui/Button";
-import { useUser } from "@/store/authStore";
+import Avatar from "@/components/ui/Avatar";
+import { useUser, useAuthStore } from "@/store/authStore";
 import Badge from "@/components/ui/Badge";
+import { useUserListQuery } from "@/api/userListApi";
 
 function formatProfitRate(rate: number) {
   const sign = rate >= 0 ? "+" : "";
   return `${sign}${rate.toFixed(2)}%`;
 }
 
-function formatDate(createdAt: string) {
+function formatDateTime(createdAt: string) {
   const date = new Date(createdAt);
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${y}.${m}.${d} ${hh}:${mm}`;
 }
 
 function formatPrice(price: number) {
@@ -42,11 +50,19 @@ export default function DiaryDetailPage() {
   const [commentInput, setCommentInput] = useState("");
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editInput, setEditInput] = useState("");
+  const [isEditingDiary, setIsEditingDiary] = useState(false);
+  const [diaryEditContent, setDiaryEditContent] = useState("");
   const user = useUser();
+  const storeUser = useAuthStore((s) => s.user);
   const diaryId = tradeDiaryId ?? "";
   const { mutate: postComment, isPending } = usePostCommentMutation(diaryId);
   const { mutate: modifyComment } = useModifyCommentMutation(diaryId);
   const { mutate: deleteComment } = useDeleteCommentMutation(diaryId);
+  const { mutate: modifyDiary, isPending: isSavingDiary } = useModifyDiaryMutation(diaryId);
+  const { data: userListData } = useUserListQuery();
+  const imageUrlMap = new Map(
+    (userListData?.users ?? []).map((u) => [u.nickname, u.imageUrl])
+  );
 
   const isProfit = (diary?.profit ?? 0) >= 0;
   const profitColor = isProfit ? "text-[#FF4444]" : "text-[#0046FF]";
@@ -70,9 +86,6 @@ export default function DiaryDetailPage() {
             매매일지 상세
           </span>
         </div>
-        <button className="text-gray-400 hover:text-gray-700">
-          <Pencil size={16} />
-        </button>
       </div>
 
       {/* 메인 카드 */}
@@ -104,20 +117,31 @@ export default function DiaryDetailPage() {
                   {diary.tickerCode}
                 </span>
               </div>
-              {diary?.tradeType === "SELL" && (
-                <div className="text-right">
+              <div className="flex items-center gap-3">
+                {diary?.tradeType === "SELL" && (
                   <p className={`text-[16px] font-bold ${profitColor}`}>
                     {isProfit ? "+" : ""}
                     {diary.profit.toLocaleString()} 원
                   </p>
-                </div>
-              )}
+                )}
+                {!isEditingDiary && (
+                  <button
+                    onClick={() => {
+                      setDiaryEditContent(diary.content);
+                      setIsEditingDiary(true);
+                    }}
+                    className="text-gray-300 hover:text-[#0046FF] transition-colors cursor-pointer"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* 체결 요약 */}
             <p className="text-[13px] text-gray-400">
               {diary.quantity}주 · {formatPrice(diary.filledPrice)} ·{" "}
-              {formatDate(diary.createdAt)}
+              {formatDateTime(diary.createdAt)}
             </p>
 
             {/* 체결 상세 */}
@@ -148,9 +172,39 @@ export default function DiaryDetailPage() {
             {/* 매매 일지 */}
             <div>
               <p className="text-[14px] text-gray-400 mb-1">매매 일지</p>
-              <p className="text-[16px] text-gray-700 leading-relaxed">
-                {diary.content}
-              </p>
+              {isEditingDiary ? (
+                <div className="flex flex-col gap-2">
+                  <textarea
+                    value={diaryEditContent}
+                    onChange={(e) => setDiaryEditContent(e.target.value)}
+                    rows={5}
+                    className="w-full px-4 py-3 text-[15px] bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors resize-none"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={() => setIsEditingDiary(false)}
+                      className="px-4 py-1.5 text-[13px] font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      취소
+                    </button>
+                    <button
+                      disabled={isSavingDiary || !diaryEditContent.trim()}
+                      onClick={() =>
+                        modifyDiary(diaryEditContent, {
+                          onSuccess: () => setIsEditingDiary(false),
+                        })
+                      }
+                      className="px-4 py-1.5 text-[13px] font-semibold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    >
+                      저장
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[16px] text-gray-700 leading-relaxed">
+                  {diary.content}
+                </p>
+              )}
             </div>
           </>
         )}
@@ -166,9 +220,7 @@ export default function DiaryDetailPage() {
         <div className="flex flex-col gap-3">
           {diary?.comments?.map((comment) => (
             <div key={comment.commentId} className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-[12px] font-bold shrink-0">
-                {comment.nickname.charAt(0)}
-              </div>
+              <Avatar name={comment.nickname} src={imageUrlMap.get(comment.nickname) || comment.imageUrl || undefined} size={32} />
               <div className="flex flex-col gap-0.5 flex-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
@@ -181,7 +233,7 @@ export default function DiaryDetailPage() {
                       </span>
                     )}
                   </div>
-                  {user?.nickname === comment.nickname && (
+                  {user?.nickname === comment.nickname && editingCommentId !== comment.commentId && (
                     <div className="flex items-center gap-1">
                       <Button
                         variant="basic"
@@ -244,9 +296,7 @@ export default function DiaryDetailPage() {
 
         {/* 댓글 입력 */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-[#0046FF] flex items-center justify-center text-white text-[12px] font-bold shrink-0">
-            투
-          </div>
+          <Avatar name={user?.nickname ?? ""} src={storeUser?.imageUrl || undefined} size={32} />
           <input
             type="text"
             value={commentInput}

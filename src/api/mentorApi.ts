@@ -49,12 +49,22 @@ export const mentorQueryKeys = {
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
+export type MyMentorResponse = {
+  hasMentor: boolean;
+  userId: number;
+};
+
+export type MyMenteesResponse = {
+  hasMentee: boolean;
+  mentees: { userId: number }[];
+};
+
 export function useMyMentorQuery() {
   return useQuery({
     queryKey: mentorQueryKeys.mentor,
     queryFn: () =>
       fetchClient
-        .get<ApiResponse<MentorInfo>>("/api/mentor-requests/my")
+        .get<ApiResponse<MyMentorResponse>>("/api/users/me/mentor")
         .then((res) => res.data),
     staleTime: 30_000,
   });
@@ -101,7 +111,7 @@ export function useMyMenteesQuery() {
     queryKey: mentorQueryKeys.mentees,
     queryFn: () =>
       fetchClient
-        .get<ApiResponse<MenteeItem[]>>("/api/mentor-requests/mentees")
+        .get<ApiResponse<MyMenteesResponse>>("/api/users/me/mentees")
         .then((res) => res.data),
     staleTime: 30_000,
   });

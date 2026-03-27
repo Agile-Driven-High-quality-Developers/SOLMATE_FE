@@ -1,4 +1,6 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
 import {
   Home,
@@ -14,9 +16,12 @@ import {
   Receipt,
 } from "lucide-react";
 import Logo from "../ui/Logo";
+import Avatar from "../ui/Avatar";
 import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
 import { useUnreadCountQuery } from "@/api/notificationApi";
+import { useMyProfileQuery } from "@/api/userListApi";
+import { useAccountSummaryQuery } from "@/api/accountSummaryApi";
 
 export type NavItemConfig = {
   id: string;
@@ -35,7 +40,7 @@ export type SidebarNavProps = {
   user?: {
     name: string;
     returnRate: string;
-    avatarColor?: string;
+    imageUrl?: string;
   };
   onLogout?: () => void;
 };
@@ -129,18 +134,13 @@ function UserProfile({
   user: NonNullable<SidebarNavProps["user"]>;
   onLogout?: () => void;
 }) {
-  const initials = (user.name?.trim() || "?").slice(0, 1);
   const isPositive = user.returnRate.startsWith("+");
+  const isNegative = user.returnRate.startsWith("-");
 
   return (
     <div className="px-4 pt-3 border-t border-gray-100 mt-2">
       <div className="flex items-center gap-2.5 mb-2.5">
-        <div
-          className="w-8.5 h-8.5 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-          style={{ background: user.avatarColor ?? "#0046FF" }}
-        >
-          {initials}
-        </div>
+        <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-gray-900 truncate">
             {user.name}
@@ -148,7 +148,7 @@ function UserProfile({
           <p
             className={[
               "text-[13px] font-medium mt-px",
-              isPositive ? "text-red-500" : "text-green-600",
+              isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400",
             ].join(" ")}
           >
             {user.returnRate}
@@ -182,12 +182,32 @@ export default function SidebarNav() {
     (pathname === "/" ? "home" : undefined) ??
     "home";
 
+  const queryClient = useQueryClient();
   const storeUser = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const updateUserProfile = useAuthStore((s) => s.updateUserProfile);
   const { data: unreadCount } = useUnreadCountQuery();
+  const { data: myProfile } = useMyProfileQuery();
+  const { data: accountSummary } = useAccountSummaryQuery();
+
+  // myProfile이 도착하면 sessionStorage에 동기화 → 다음 새로고침 시 깜빡임 방지
+  useEffect(() => {
+    if (myProfile) {
+      updateUserProfile({ nickname: myProfile.nickname, imageUrl: myProfile.imageUrl });
+    }
+  }, [myProfile, updateUserProfile]);
+
+  const returnRate = accountSummary
+    ? `${accountSummary.totalReturnRate >= 0 ? "+" : ""}${accountSummary.totalReturnRate.toFixed(1)}%`
+    : "-";
 
   const user = storeUser
-    ? { name: storeUser.nickname, returnRate: "-", avatarColor: "#0046FF" }
+    ? {
+        name: storeUser.nickname,
+        returnRate,
+        // store에 캐시된 imageUrl 우선 → API 응답 도착 전에도 깜빡임 없음
+        imageUrl: storeUser.imageUrl,
+      }
     : null;
 
   const handleLogout = async () => {
@@ -195,6 +215,7 @@ export default function SidebarNav() {
       await authApi.logout();
     } finally {
       clearAuth();
+      queryClient.clear();
       navigate("/login");
     }
   };
@@ -208,7 +229,9 @@ export default function SidebarNav() {
   return (
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
       <div className="px-4 pb-2">
-        <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
+        <button onClick={() => navigate("/")} className="w-full text-left cursor-pointer">
+          <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
+        </button>
       </div>
       <div className="mx-4 my-3 h-px bg-gray-100" />
       <ul className="flex flex-col gap-0.5 px-2.5 list-none">

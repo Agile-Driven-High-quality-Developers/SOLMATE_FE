@@ -34,8 +34,10 @@ import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import MentorTradeDiaryTab from "@/components/profile/MentorTradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
-import { useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
+import { useMyMentorQuery, useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
+import { cancelMentoring } from "@/api/userListApi";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -80,10 +82,18 @@ function CancelMentorModal({ mentorNickname, onClose, onConfirm }: { mentorNickn
 
 export default function MyMentorPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabId>("portfolio");
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
-  const mentorId = 10;
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const { data: myMentor, isLoading: loadingMyMentor } = useMyMentorQuery();
+  const mentorId = myMentor?.hasMentor ? (myMentor.userId ?? 0) : 0;
   const { data: mentor, isLoading: loadingMentor } = useUserProfileQuery(mentorId);
   const { data: summary } = useAccountSummaryByUserQuery(mentorId);
   const { data: holdingsRaw = [] } = useMentorHoldingsQuery(mentorId);
@@ -102,7 +112,7 @@ export default function MyMentorPage() {
     profitAmount: h.returnAmount,
   }));
 
-  if (loadingMentor) {
+  if (loadingMyMentor || loadingMentor) {
     return (
       <div className="flex items-center justify-center h-full min-h-screen">
         <Loader2 size={32} className="animate-spin text-[#0046FF]" />
@@ -113,6 +123,11 @@ export default function MyMentorPage() {
   if (!mentor) {
     return (
       <div className="flex flex-col h-screen p-6 gap-5 bg-gray-50">
+        {toast && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
+            {toast}
+          </div>
+        )}
         <h1 className="text-[22px] font-bold text-gray-900">나의 멘토</h1>
         <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400">
           아직 멘토가 없습니다.
@@ -125,13 +140,25 @@ export default function MyMentorPage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
+          {toast}
+        </div>
+      )}
       {showCancelModal && (
         <CancelMentorModal
           mentorNickname={mentor.nickname}
           onClose={() => setShowCancelModal(false)}
-          onConfirm={() => {
-            // TODO: 멘토 취소 API 연동
-            setShowCancelModal(false);
+          onConfirm={async () => {
+            try {
+              await cancelMentoring(mentorId);
+              await queryClient.invalidateQueries({ queryKey: ["mentor"] });
+              showToast("멘토 취소가 완료되었습니다.");
+            } catch {
+              showToast("멘토 취소에 실패했습니다. 다시 시도해주세요.");
+            } finally {
+              setShowCancelModal(false);
+            }
           }}
         />
       )}

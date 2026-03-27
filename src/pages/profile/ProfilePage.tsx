@@ -2,6 +2,23 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
+import { useQueryClient } from "@tanstack/react-query";
+import { useUser } from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/api/authApi";
+import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
+import { useTradeHistoryQuery } from "@/api/tradeApi";
+import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
+import { useMyProfileQuery } from "@/api/userListApi";
+import ProfileCard from "@/components/profile/ProfileCard";
+import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
+import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
+import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
+import PortfolioTab from "@/components/profile/PortfolioTab";
+import FollowList from "@/components/profile/FollowList";
+import EditProfileModal from "@/components/profile/EditProfileModal";
+import DeleteAccountModal from "@/components/profile/DeleteAccountModal";
+import LogoutModal from "@/components/profile/LogoutModal";
 
 const PROFILE_TOUR: TourStep[] = [
   {
@@ -26,22 +43,6 @@ const PROFILE_TOUR: TourStep[] = [
     placement: "left",
   },
 ];
-import { useUser } from "@/store/authStore";
-import { useAuthStore } from "@/store/authStore";
-import { authApi } from "@/api/authApi";
-import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
-import { useTradeHistoryQuery } from "@/api/tradeApi";
-import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
-import { useMyProfileQuery } from "@/api/userListApi";
-import ProfileCard from "@/components/profile/ProfileCard";
-import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
-import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
-import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
-import PortfolioTab from "@/components/profile/PortfolioTab";
-import FollowList from "@/components/profile/FollowList";
-import EditProfileModal from "@/components/profile/EditProfileModal";
-import DeleteAccountModal from "@/components/profile/DeleteAccountModal";
-import LogoutModal from "@/components/profile/LogoutModal";
 
 const TABS = [
   { id: "diary", label: "매매일지" },
@@ -51,7 +52,6 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useUser();
@@ -59,7 +59,9 @@ export default function ProfilePage() {
   const location = useLocation();
   const initialTab = (location.state as { tab?: TabId } | null)?.tab ?? "diary";
   const [activeTab, setActiveTab] = useState<TabId>(initialTab);
-  const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
+  const [followModal, setFollowModal] = useState<
+    "followers" | "following" | null
+  >("following");
   const [modal, setModal] = useState<"edit" | "logout" | "delete" | null>(null);
   const { data: myProfile } = useMyProfileQuery();
   const { data: diaries = [] } = useMyDiariesQuery();
@@ -79,11 +81,14 @@ export default function ProfilePage() {
     profitAmount: h.returnAmount,
   }));
 
+  const queryClient = useQueryClient();
+
   const handleLogout = async () => {
     try {
       await authApi.logout();
     } finally {
       clearAuth();
+      queryClient.clear();
       navigate("/login");
     }
   };
@@ -95,9 +100,11 @@ export default function ProfilePage() {
       {modal === "edit" && (
         <EditProfileModal
           nickname={myProfile?.nickname ?? user.nickname}
-          profileImageUrl={myProfile?.imageUrl}
+          profileImageUrl={user.imageUrl ?? myProfile?.imageUrl}
           onClose={() => setModal(null)}
-          onSave={(newNickname) => useAuthStore.getState().setAuth(useAuthStore.getState().accessToken!, { nickname: newNickname })}
+          onSave={(newNickname) =>
+            useAuthStore.getState().updateUserProfile({ nickname: newNickname })
+          }
         />
       )}
       {modal === "logout" && (
@@ -106,7 +113,10 @@ export default function ProfilePage() {
       {modal === "delete" && (
         <DeleteAccountModal
           onClose={() => setModal(null)}
-          onDeleted={() => { clearAuth(); navigate("/login"); }}
+          onDeleted={() => {
+            clearAuth();
+            navigate("/login");
+          }}
         />
       )}
       {/* 헤더 */}
@@ -116,10 +126,13 @@ export default function ProfilePage() {
 
       <div className="flex gap-5 flex-1 min-h-0">
         {/* 왼쪽: 프로필 카드 */}
-        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col" data-tour="profile-card">
+        <div
+          className="w-64 shrink-0 overflow-y-auto h-full flex flex-col"
+          data-tour="profile-card"
+        >
           <ProfileCard
             nickname={myProfile?.nickname ?? user.nickname}
-            profileImageUrl={myProfile?.imageUrl}
+            profileImageUrl={user.imageUrl ?? myProfile?.imageUrl}
             followers={myProfile?.followerCount ?? 0}
             following={myProfile?.followingCount ?? 0}
             totalReturnRate={summary?.totalReturnRate ?? 0}
@@ -130,13 +143,14 @@ export default function ProfilePage() {
             onFollowersClick={() => setFollowModal("followers")}
             onFollowingClick={() => setFollowModal("following")}
           />
-          {followModal && (
-            <FollowList type={followModal} />
-          )}
+          {followModal && <FollowList type={followModal} />}
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col" data-tour="profile-tabs">
+        <div
+          className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col"
+          data-tour="profile-tabs"
+        >
           {/* 탭 바 */}
           <UnderlineTabBar
             tabs={[...TABS]}
@@ -145,9 +159,13 @@ export default function ProfilePage() {
           />
 
           {/* 탭 콘텐츠 */}
-          <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
+          <div
+            className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}
+          >
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
-            {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
+            {activeTab === "history" && (
+              <TradeHistoryTab items={tradeHistories} />
+            )}
             {activeTab === "portfolio" && (
               <PortfolioTab
                 totalEvaluation={summary?.totalEvaluation ?? 0}
