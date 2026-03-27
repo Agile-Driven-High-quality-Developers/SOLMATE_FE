@@ -73,7 +73,7 @@ export default function LoginPage() {
         email: form.email,
         password: form.password,
       });
-      setAuth(res.data.accessToken, { nickname: res.data.nickname });
+      setAuth(res.data.accessToken, { nickname: res.data.nickname, provider: "EMAIL" });
       navigate("/");
     } catch {
       setErrorMsg("이메일 또는 비밀번호가 올바르지 않습니다.");

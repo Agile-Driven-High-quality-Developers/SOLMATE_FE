@@ -5,6 +5,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export interface AuthUser {
   nickname: string;
   imageUrl?: string;
+  provider?: "EMAIL" | "GOOGLE";
 }
 
 interface AuthState {

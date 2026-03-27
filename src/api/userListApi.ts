@@ -96,6 +96,7 @@ export type MyProfile = {
   imageUrl: string;
   followerCount: number;
   followingCount: number;
+  provider: "EMAIL" | "GOOGLE";
 };
 
 export function useMyProfileQuery() {
