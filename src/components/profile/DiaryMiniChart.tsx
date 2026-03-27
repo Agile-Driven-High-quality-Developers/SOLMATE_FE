@@ -65,6 +65,7 @@ interface Props {
   tradeDateTime?: string;  // ISO string
   tradeType: string;
   filledPrice?: number;
+  chartHeight?: number;
 }
 
 export default function DiaryMiniChart({
@@ -73,6 +74,7 @@ export default function DiaryMiniChart({
   tradeDateTime,
   tradeType,
   filledPrice: _filledPrice,
+  chartHeight = 220,
 }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
@@ -302,7 +304,7 @@ export default function DiaryMiniChart({
         </div>
       </div>
 
-      <div className="relative h-[220px] overflow-hidden">
+      <div className="relative overflow-hidden" style={{ height: chartHeight }}>
         {isPending && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-b-2xl">
             <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
