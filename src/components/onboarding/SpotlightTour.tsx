@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { HelpCircle } from "lucide-react";
 import { useOnboardingStore } from "@/store/onboardingStore";
 
 // ─── 상수 ──────────────────────────────────────────────────────────────────────
@@ -110,8 +111,11 @@ export default function SpotlightTour({ tourKey, steps }: Props) {
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
   const seenTours = useOnboardingStore((s) => s.seenTours);
   const markTourSeen = useOnboardingStore((s) => s.markTourSeen);
+  const resetTour = useOnboardingStore((s) => s.resetTour);
 
   const hasSeen = !hasSeenOnboarding || (seenTours[tourKey] ?? false);
+  // 온보딩 완료 후 투어도 완료된 경우에만 재시작 버튼 표시
+  const canReplay = hasSeenOnboarding && (seenTours[tourKey] ?? false);
 
   const [stepIdx, setStepIdx] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -178,7 +182,27 @@ export default function SpotlightTour({ tourKey, steps }: Props) {
     }
   };
 
-  if (hasSeen || !rect || !step) return null;
+  const handleReplay = () => {
+    setStepIdx(0);
+    setRect(null);
+    setTooltipVisible(false);
+    resetTour(tourKey);
+  };
+
+  if (hasSeen) {
+    if (!canReplay) return null;
+    return (
+      <button
+        className="animate-float fixed top-4 right-4 z-[999] w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
+        onClick={handleReplay}
+        title="가이드 다시보기"
+      >
+        <HelpCircle size={22} />
+      </button>
+    );
+  }
+
+  if (!rect || !step) return null;
 
   const dr = getDisplayRect(rect);
   const sp = SPOT_PADDING;

@@ -27,7 +27,6 @@ export default function Layout() {
   const queryClient = useQueryClient();
   const accessToken = useAuthStore((s) => s.accessToken);
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
-  const currentUserId = useOnboardingStore((s) => s.currentUserId);
   const init = useOnboardingStore((s) => s.init);
 
   // JWT sub(userId)를 키로 유저별 온보딩 상태 불러오기
@@ -73,19 +72,6 @@ export default function Layout() {
         <Outlet />
       </main>
       {!hasSeenOnboarding && <OnboardingOverlay />}
-      {import.meta.env.DEV && (
-        <button
-          className="fixed bottom-4 right-4 z-[999] bg-gray-800 text-white text-xs px-3 py-1.5 rounded-lg opacity-60 hover:opacity-100 transition-opacity"
-          onClick={() => {
-            if (currentUserId) {
-              localStorage.removeItem(`solmate-onboarding-${currentUserId}`);
-            }
-            window.location.reload();
-          }}
-        >
-          🔄 온보딩 초기화
-        </button>
-      )}
     </div>
   );
 }

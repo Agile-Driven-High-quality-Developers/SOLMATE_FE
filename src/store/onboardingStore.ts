@@ -9,6 +9,7 @@ interface OnboardingState {
   init: (userId: string) => void;
   markAsSeen: () => void;
   markTourSeen: (key: string) => void;
+  resetTour: (key: string) => void;
 }
 
 // ─── localStorage 헬퍼 ────────────────────────────────────────────────────────
@@ -55,6 +56,13 @@ export const useOnboardingStore = create<OnboardingState>()((set, get) => ({
   markTourSeen: (key: string) => {
     const { currentUserId, hasSeenOnboarding, seenTours } = get();
     const updated = { ...seenTours, [key]: true };
+    set({ seenTours: updated });
+    if (currentUserId) saveState(currentUserId, hasSeenOnboarding, updated);
+  },
+
+  resetTour: (key: string) => {
+    const { currentUserId, hasSeenOnboarding, seenTours } = get();
+    const updated = { ...seenTours, [key]: false };
     set({ seenTours: updated });
     if (currentUserId) saveState(currentUserId, hasSeenOnboarding, updated);
   },
