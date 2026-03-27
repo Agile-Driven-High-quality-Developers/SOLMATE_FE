@@ -106,7 +106,7 @@ export default function DiaryMiniChart({
 
   const isBuy = tradeType === "BUY";
   const markerColor = "#22C55E";
-  const minuteEnabled = elapsed <= 30;
+  const minuteEnabled = elapsed === 0;
 
   // 차트 마운트
   useEffect(() => {
