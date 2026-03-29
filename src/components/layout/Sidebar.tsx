@@ -84,9 +84,15 @@ function NavItem({
       <button
         onClick={onClick}
         data-tour={
-          ["invest", "account", "trade", "users", "mentor", "profile", "guide"].includes(
-            item.id,
-          )
+          [
+            "invest",
+            "account",
+            "trade",
+            "users",
+            "mentor",
+            "profile",
+            "guide",
+          ].includes(item.id)
             ? `nav-${item.id}`
             : undefined
         }
@@ -230,6 +236,7 @@ export default function SidebarNav() {
       await authApi.logout();
     } finally {
       clearAuth();
+      localStorage.removeItem("autoLogin");
       queryClient.clear();
       navigate("/login");
     }

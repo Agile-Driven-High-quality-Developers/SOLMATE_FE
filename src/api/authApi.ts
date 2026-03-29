@@ -1,4 +1,4 @@
-import { fetchClient } from "@/lib/fetchClient";
+import { fetchClient, reissueToken } from "@/lib/fetchClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -61,6 +61,9 @@ export const authApi = {
   logout: () => fetchClient.post<ApiResponse<void>>("/api/auth/logout"),
 
   /** POST /api/auth/reissue — 토큰 재발급 */
-  reissue: () =>
-    fetchClient.post<ApiResponse<{ accessToken: string }>>("/api/auth/reissue"),
+  reissue: reissueToken,
+
+  /** GET /api/users/me — 내 정보 조회 */
+  getMe: () =>
+    fetchClient.get<ApiResponse<{ nickname: string; provider: "EMAIL" | "GOOGLE" }>>("/api/users/me"),
 };
