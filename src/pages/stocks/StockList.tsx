@@ -50,8 +50,7 @@ import { useMarketIndicesQuery } from "@/api/homeApi";
 import { fetchStocks, parseStockItemMessage } from "@/api/stockApi";
 import type { MarketIndexData } from "@/api/homeApi";
 import type { StockItem, StockItemMessage } from "@/api/stockApi";
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
+import { stompSubscribe } from "@/lib/stompClient";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -200,43 +199,37 @@ export default function StockList() {
   const [sector, setSector] = useState("전체");
   const [sort, setSort] = useState<SortType>("거래량순");
 
-  // ── 초기 fetch 후 STOMP 연결 ────────────────────────────────────────────
+  // ── 초기 fetch 후 STOMP 구독 (공유 클라이언트 재사용) ────────────────────
   useEffect(() => {
     let cancelled = false;
-    let client: Client;
+    const cleanupFns: Array<() => void> = [];
 
     fetchStocks().then((initialStocks) => {
       if (cancelled) return;
       setStocks(initialStocks);
 
-      const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
-      client = new Client({
-        webSocketFactory: () => new SockJS(wsUrl),
-        onConnect: () => {
-          console.log("[STOMP] 연결됨");
-          initialStocks.forEach(({ tickerCode }) => {
-            client.subscribe(`/topic/stocks/${tickerCode}/quote`, (message) => {
-              const msg: StockItemMessage = JSON.parse(message.body);
-              const updated = parseStockItemMessage(msg);
-              setStocks((prev) =>
-                prev.map((item) =>
-                  item.tickerCode === updated.tickerCode
-                    ? { ...item, ...updated }
-                    : item,
-                ),
-              );
-            });
-          });
-        },
-        onDisconnect: () => console.log("[STOMP] 연결 끊김"),
-        onStompError: (frame) => console.error("[STOMP] 에러:", frame),
+      initialStocks.forEach(({ tickerCode }) => {
+        const cleanup = stompSubscribe(
+          `/topic/stocks/${tickerCode}/quote`,
+          (message) => {
+            const msg: StockItemMessage = JSON.parse(message.body);
+            const updated = parseStockItemMessage(msg);
+            setStocks((prev) =>
+              prev.map((item) =>
+                item.tickerCode === updated.tickerCode
+                  ? { ...item, ...updated }
+                  : item,
+              ),
+            );
+          },
+        );
+        cleanupFns.push(cleanup);
       });
-      client.activate();
     });
 
     return () => {
       cancelled = true;
-      client?.forceDisconnect();
+      cleanupFns.forEach((fn) => fn());
     };
   }, []);
 
