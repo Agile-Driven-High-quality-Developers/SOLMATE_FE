@@ -11,6 +11,18 @@ function buildUrl(path: string, params?: Record<string, string>): string {
   return BASE_URL ? url.toString() : url.pathname + url.search;
 }
 
+export async function reissueToken(): Promise<string> {
+  const res = await fetch(buildUrl("/api/auth/reissue"), {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("reissue failed");
+  const { data } = await res.json();
+  if (!data) throw new Error("no accessToken");
+  return data as string;
+}
+
 async function request<T>(
   path: string,
   options: RequestInit & { params?: Record<string, string> } = {},
@@ -32,15 +44,8 @@ async function request<T>(
   // 401/403: 토큰 재발급 후 1회 재시도
   if ((res.status === 401 || res.status === 403) && _retry) {
     try {
-      const reissueRes = await fetch(buildUrl("/api/auth/reissue"), {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!reissueRes.ok) throw new Error();
-      const { data } = await reissueRes.json();
-      if (!data?.accessToken) throw new Error();
-      useAuthStore.getState().setAccessToken(data.accessToken);
+      const newToken = await reissueToken();
+      useAuthStore.getState().setAccessToken(newToken);
       return request<T>(path, options, false);
     } catch {
       useAuthStore.getState().clearAuth();

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Input from "../../components/ui/Input";
@@ -51,17 +51,47 @@ export default function LoginPage() {
   const [form, setForm] = useState<LoginForm>({
     email: "",
     password: "",
-    autoLogin: false,
+    autoLogin: localStorage.getItem("autoLogin") === "true",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState((location.state as { errorMsg?: string })?.errorMsg ?? "");
+  const [errorMsg, setErrorMsg] = useState(
+    (location.state as { errorMsg?: string })?.errorMsg ?? "",
+  );
 
   const setField = <K extends keyof LoginForm>(key: K, value: LoginForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
   const isFormValid = form.email.trim() !== "" && form.password !== "";
+
+  useEffect(() => {
+    // 1. 자동 로그인 설정이 되어있는지 확인
+    const isAuto = localStorage.getItem("autoLogin") === "true";
+
+    if (isAuto) {
+      authApi
+        .reissue()
+        .then(async (newToken) => {
+          try {
+            useAuthStore.getState().setAccessToken(newToken);
+            const userRes = await authApi.getMe();
+            setAuth(newToken, {
+              nickname: userRes.data.nickname,
+              provider: userRes.data.provider,
+            });
+            navigate("/");
+          } catch {
+            // getMe 실패 — autoLogin 플래그 유지
+          }
+        })
+        .catch((err) => {
+          // reissue 실패 — refresh token 만료
+          console.log("reissue 실패 ", err);
+          localStorage.removeItem("autoLogin");
+        });
+    }
+  }, [navigate, setAuth]);
 
   // POST /api/auth/login
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -74,7 +104,17 @@ export default function LoginPage() {
         email: form.email,
         password: form.password,
       });
-      setAuth(res.data.accessToken, { nickname: res.data.nickname, provider: "EMAIL" });
+
+      if (form.autoLogin) {
+        localStorage.setItem("autoLogin", "true");
+      } else {
+        localStorage.removeItem("autoLogin");
+      }
+
+      setAuth(res.data.accessToken, {
+        nickname: res.data.nickname,
+        provider: "EMAIL",
+      });
       navigate("/");
     } catch {
       setErrorMsg("이메일 또는 비밀번호가 올바르지 않습니다.");
@@ -189,7 +229,9 @@ export default function LoginPage() {
               variant={isFormValid ? "primary" : "invalid"}
               className={[
                 "w-full py-3 text-[15px] font-semibold mt-1",
-                !isFormValid || isLoading ? "cursor-not-allowed opacity-60" : "",
+                !isFormValid || isLoading
+                  ? "cursor-not-allowed opacity-60"
+                  : "",
               ].join(" ")}
             >
               {isLoading ? (
@@ -206,7 +248,9 @@ export default function LoginPage() {
           {/* 구분선 */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-gray-100" />
-            <span className="text-[12px] text-gray-300 tracking-wider">또는</span>
+            <span className="text-[12px] text-gray-300 tracking-wider">
+              또는
+            </span>
             <div className="flex-1 h-px bg-gray-100" />
           </div>
 
