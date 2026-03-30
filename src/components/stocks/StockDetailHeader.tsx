@@ -4,21 +4,17 @@ import Avatar from "@/components/ui/Avatar";
 import type { StockDetail } from "@/api/stockApi";
 
 const SECTOR_MAP: Record<string, string> = {
-  INFORMATION_TECHNOLOGY: "반도체",
-  SECONDARY_BATTERY: "2차전지",
-  HEALTHCARE: "바이오",
-  AUTOMOBILE: "자동차",
-  IT: "IT",
-  FINANCIALS: "금융",
-  STEEL_MATERIALS: "철강",
-  ENERGY_CHEMICALS: "화학",
-  TELECOM: "통신",
-  UTILITIES: "가변",
   CONSTRUCTION: "건설",
-  CONSUMER_STAPLES: "소비재",
+  CONSUMER_DISCRETIONARY: "경기소비재",
+  CONSUMER_STAPLES: "필수소비재",
+  FINANCIALS: "금융",
   INDUSTRIALS: "산업재",
+  ENERGY_CHEMICALS: "화학",
+  INFORMATION_TECHNOLOGY: "반도체",
   HEAVY_INDUSTRIES: "중공업",
+  STEEL_MATERIALS: "철강",
   COMMUNICATION_SERVICES: "통신",
+  HEALTHCARE: "바이오",
 };
 
 interface Props {
