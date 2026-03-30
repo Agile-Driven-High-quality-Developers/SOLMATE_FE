@@ -7,11 +7,17 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
 import { useStocksQuery } from "@/api/stockApi";
+import { useState } from "react";
 
 const DIARY_TOUR: TourStep[] = [
   {
     target: "diary-list",
-    title: <span className="inline-flex items-center gap-1.5"><PenLine size={15} />나만의 투자 기록</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <PenLine size={15} />
+        나만의 투자 기록
+      </span>
+    ),
     description:
       "매수·매도할 때 남긴 메모가 여기에 쌓여요. 왜 그 주식을 샀는지 기록해두면 나중에 내 투자 패턴을 볼 수 있어요.",
     placement: "bottom",
@@ -119,10 +125,7 @@ function DiaryCard({
 
 export default function TradeDiaryPage() {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get("search") ?? "";
-  const setSearch = (v: string) =>
-    setSearchParams((p) => { v ? p.set("search", v) : p.delete("search"); return p; }, { replace: true });
+  const [search, setSearch] = useState("");
   const { data: myDiaries = [], isLoading } = useMyDiariesQuery();
   const { data: stocks = [] } = useStocksQuery();
   const logoMap = new Map(stocks.map((s) => [s.stockName, s.stockLogo]));
@@ -137,7 +140,9 @@ export default function TradeDiaryPage() {
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="px-6 pt-6 pb-4 shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">매매일지</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          매매일지
+        </h1>
         <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
           나의 매매 기록을 확인하세요
         </p>

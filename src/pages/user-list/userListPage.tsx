@@ -88,44 +88,6 @@ const PODIUM_CONFIG = {
   3: { barHeight: "h-12", barBg: "bg-orange-400" },
 } as const;
 
-function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
-  const navigate = useNavigate();
-  const cfg = PODIUM_CONFIG[rank];
-  return (
-    <div
-      className="flex flex-col items-center cursor-pointer"
-      onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}
-    >
-      {rank === 1 && <span className="text-xl mb-1">👑</span>}
-      <Avatar
-        name={user.nickname}
-        src={user.imageUrl || undefined}
-        size={rank === 1 ? 56 : 44}
-        color={getAvatarColor(user.nickname)}
-      />
-      <p className="text-[13px] font-medium text-gray-800 dark:text-gray-200 mt-1.5 max-w-20 text-center truncate">
-        {user.nickname}
-      </p>
-      <div
-        className={`w-20 rounded-t-xl mt-2 flex items-center justify-center ${cfg.barHeight} ${cfg.barBg}`}
-      >
-        <span className="text-white text-[20px] font-bold">{rank}</span>
-      </div>
-    </div>
-  );
-}
-
-function Podium({ users }: { users: UserItem[] }) {
-  const [second, first, third] = [users[1], users[0], users[2]];
-  return (
-    <div className="flex items-end justify-center gap-3 py-6 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-4">
-      {second && <PodiumSlot user={second} rank={2} />}
-      {first && <PodiumSlot user={first} rank={1} />}
-      {third && <PodiumSlot user={third} rank={3} />}
-    </div>
-  );
-}
-
 // ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
 
 function FollowButton({
@@ -352,21 +314,13 @@ function UserRow({
 export default function UserListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get("tab") ?? "전체") as "전체" | "팔로잉";
-  const search = searchParams.get("search") ?? "";
   const sortBy = (searchParams.get("sort") ?? "returnRate") as SortBy;
+  const [search, setSearch] = useState("");
 
   const setTab = (v: "전체" | "팔로잉") =>
     setSearchParams(
       (p) => {
         v === "전체" ? p.delete("tab") : p.set("tab", v);
-        return p;
-      },
-      { replace: true },
-    );
-  const setSearch = (v: string) =>
-    setSearchParams(
-      (p) => {
-        v ? p.set("search", v) : p.delete("search");
         return p;
       },
       { replace: true },
