@@ -54,9 +54,9 @@ const PROFILE_TOUR: TourStep[] = [
 ];
 
 const TABS = [
+  { id: "portfolio", label: "포트폴리오" },
   { id: "diary", label: "매매일지" },
   { id: "history", label: "매매내역" },
-  { id: "portfolio", label: "포트폴리오" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -69,11 +69,11 @@ export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") ??
     (location.state as { tab?: TabId } | null)?.tab ??
-    "diary") as TabId;
+    "portfolio") as TabId;
   const setActiveTab = (v: TabId) =>
     setSearchParams(
       (p) => {
-        if (v === "diary") p.delete("tab");
+        if (v === "portfolio") p.delete("tab");
         else p.set("tab", v);
         return p;
       },

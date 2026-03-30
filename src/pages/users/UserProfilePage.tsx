@@ -23,9 +23,9 @@ import Button from "@/components/ui/Button";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TABS = [
+  { id: "portfolio", label: "포트폴리오" },
   { id: "diary", label: "매매일지" },
   { id: "history", label: "매매내역" },
-  { id: "portfolio", label: "포트폴리오" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -36,7 +36,7 @@ export default function UserProfilePage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<TabId>("diary");
+  const [activeTab, setActiveTab] = useState<TabId>("portfolio");
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
   const [showCancelModal, setShowCancelModal] = useState(false);
 
