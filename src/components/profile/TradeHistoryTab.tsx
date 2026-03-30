@@ -17,10 +17,10 @@ export default function TradeHistoryTab({ items }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100">
+    <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800">
       <table className="w-full">
-        <thead className="bg-gray-50">
-          <tr className="text-[12px] text-gray-400">
+        <thead className="bg-gray-50 dark:bg-slate-800">
+          <tr className="text-[12px] text-gray-400 dark:text-slate-500">
             <th className="text-left px-4 py-3 font-semibold">종목</th>
             <th className="text-center px-3 py-3 font-semibold">구분</th>
             <th className="text-right px-3 py-3 font-semibold">수량</th>
@@ -30,17 +30,17 @@ export default function TradeHistoryTab({ items }: Props) {
             <th className="text-right px-4 py-3 font-semibold">날짜</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-50">
+        <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
           {items.map((item, index) => {
             const isBuy = item.tradeType === "BUY";
             const isPositive = (item.profitAmount ?? 0) >= 0;
 
             return (
-              <tr key={index} className={`hover:bg-gray-50 transition-colors ${item.tickerCode ? "cursor-pointer" : ""}`} onClick={() => item.tickerCode && navigate(`/invest/${item.tickerCode}`)}>
+              <tr key={index} className={`hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${item.tickerCode ? "cursor-pointer" : ""}`} onClick={() => item.tickerCode && navigate(`/invest/${item.tickerCode}`)}>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <Avatar name={item.stockName} src={item.stockLogo} size={28} />
-                    <span className="text-[13px] font-semibold text-gray-800">
+                    <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">
                       {item.stockName}
                     </span>
                   </div>
@@ -48,13 +48,13 @@ export default function TradeHistoryTab({ items }: Props) {
                 <td className={`px-3 py-3 text-center text-[13px] font-semibold ${isBuy ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
                   {isBuy ? "매수" : "매도"}
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] text-gray-600">
+                <td className="px-3 py-3 text-right text-[13px] text-gray-600 dark:text-slate-400">
                   {item.quantity}주
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] font-medium text-gray-800">
+                <td className="px-3 py-3 text-right text-[13px] font-medium text-gray-800 dark:text-gray-200">
                   {item.price.toLocaleString()}원
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] text-gray-600">
+                <td className="px-3 py-3 text-right text-[13px] text-gray-600 dark:text-slate-400">
                   {item.amount.toLocaleString()}원
                 </td>
                 <td className="px-3 py-3 text-right">
@@ -72,10 +72,10 @@ export default function TradeHistoryTab({ items }: Props) {
                       )}
                     </div>
                   ) : (
-                    <span className="text-[12px] text-gray-300">-</span>
+                    <span className="text-[12px] text-gray-300 dark:text-slate-600">-</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-[12px] text-gray-400">
+                <td className="px-4 py-3 text-right text-[12px] text-gray-400 dark:text-slate-500">
                   {new Date(item.tradedAt).toLocaleDateString("ko-KR", {
                     month: "short",
                     day: "numeric",

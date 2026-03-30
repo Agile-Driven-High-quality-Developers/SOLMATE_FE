@@ -97,7 +97,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {modal === "edit" && (
         <EditProfileModal
           nickname={myProfile?.nickname ?? user.nickname}
@@ -122,7 +122,7 @@ export default function ProfilePage() {
       )}
       {/* 헤더 */}
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900">내 프로필</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">내 프로필</h1>
       </div>
 
       <div className="flex gap-5 flex-1 min-h-0">
@@ -149,7 +149,7 @@ export default function ProfilePage() {
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
         <div
-          className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col"
+          className="flex-1 min-w-0 min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col"
           data-tour="profile-tabs"
         >
           {/* 탭 바 */}

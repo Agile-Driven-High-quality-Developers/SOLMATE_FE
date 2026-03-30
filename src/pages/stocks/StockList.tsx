@@ -98,13 +98,13 @@ function MarketPanel({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 flex divide-x divide-gray-100 dark:divide-slate-800">
       {data.map((idx) => (
         <div key={idx.label} className="flex-1 px-6 py-5">
-          <p className="text-[13px] text-gray-400 font-medium mb-1">
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-1">
             {idx.label}
           </p>
-          <p className="text-[24px] font-bold text-gray-900">{idx.value}</p>
+          <p className="text-[24px] font-bold text-gray-900 dark:text-gray-100">{idx.value}</p>
           <div className="flex items-center gap-1 mt-0.5">
             {idx.isPositive ? (
               <TrendingUp size={12} className="text-red-500" />
@@ -140,10 +140,10 @@ function StockRow({
 }) {
   return (
     <tr
-      className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+      className="hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
       onClick={onClick}
     >
-      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 tabular-nums whitespace-nowrap">
+      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
         {index}
       </td>
       <td className="px-5 py-3.5 whitespace-nowrap">
@@ -151,7 +151,7 @@ function StockRow({
           <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[14px] font-semibold text-gray-900">
+              <span className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">
                 {stock.stockName}
               </span>
             </div>
@@ -161,10 +161,10 @@ function StockRow({
           </div>
         </div>
       </td>
-      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 whitespace-nowrap">
+      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
         {stock.currentPrice.toLocaleString()}
       </td>
       <td className="px-4 py-3.5 text-center whitespace-nowrap">
@@ -175,10 +175,10 @@ function StockRow({
           {stock.changeRate.toFixed(2)}%
         </span>
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
         {stock.volume?.toLocaleString() ?? "-"}
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 tabular-nums whitespace-nowrap">
+      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
         {stock.total?.toLocaleString() ?? "-"}
       </td>
     </tr>
@@ -248,11 +248,11 @@ export default function StockList() {
     });
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900">모의투자</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">모의투자</h1>
+        <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
           KOSPI200 종목으로 실전 같은 모의 매매를 경험하세요
         </p>
       </div>
@@ -274,7 +274,7 @@ export default function StockList() {
             placeholder="종목명 또는 코드 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-[13px] bg-white border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
+            className="w-full pl-9 pr-4 py-2 text-[13px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
           />
         </div>
         <div className="flex gap-2">
@@ -285,7 +285,7 @@ export default function StockList() {
               className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
                 sort === s
                   ? "bg-[#0046FF] text-white"
-                  : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+                  : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
               }`}
             >
               {s}
@@ -303,7 +303,7 @@ export default function StockList() {
             className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
               sector === s
                 ? "bg-[#0046FF] text-white"
-                : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+                : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
             }`}
           >
             {s}
@@ -314,34 +314,34 @@ export default function StockList() {
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
 
       {/* 종목 테이블 */}
-      <div className="bg-white rounded-2xl border border-gray-100 overflow-x-auto" data-tour="stock-table">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto" data-tour="stock-table">
         <table className="w-full min-w-175">
           <thead data-tour="stock-columns">
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+            <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+              <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 순위
               </th>
-              <th className="text-left px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-left px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 종목명
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 섹터
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 현재가
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 등락률
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 거래량
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap">
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 시가총액
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
             {filtered.length > 0 ? (
               filtered.map((stock, idx) => (
                 <StockRow

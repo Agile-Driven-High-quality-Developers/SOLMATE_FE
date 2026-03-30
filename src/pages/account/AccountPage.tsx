@@ -79,10 +79,10 @@ export default function AccountPage() {
   const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900">내 계좌</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">나의 투자 현황을 한눈에 확인하세요</p>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">내 계좌</h1>
+        <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">나의 투자 현황을 한눈에 확인하세요</p>
       </div>
 
       <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-4 items-stretch">
@@ -97,22 +97,27 @@ export default function AccountPage() {
         </div>
 
         {/* 주문 가능 금액 */}
-        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-cash">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">주문 가능 금액</p>
-          <p className="text-[22px] font-bold text-gray-900">{fmt(summary?.cash ?? 0)}</p>
-          <p className="text-[12px] text-gray-400 mt-1">투자원금 {fmt(summary?.initialCash ?? 0)}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-5" data-tour="account-cash">
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-2">주문 가능 금액</p>
+          <p className="text-[22px] font-bold text-gray-900 dark:text-gray-100">{fmt(summary?.cash ?? 0)}</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-1">투자원금 {fmt(summary?.initialCash ?? 0)}</p>
         </div>
 
         {/* 보유 종목 */}
-        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-holdings-count">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">보유 종목</p>
-          <p className="text-[22px] font-bold text-gray-900">{summary?.holdingsCount ?? 0}개</p>
-          <p className="text-[12px] text-gray-400 mt-1">총 평가금액 {fmt(summary?.totalEvaluation ?? 0)}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-5" data-tour="account-holdings-count">
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-2">보유 종목</p>
+          <p className="text-[22px] font-bold text-gray-900 dark:text-gray-100">{summary?.holdingsCount ?? 0}개</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-1">총 평가금액 {fmt(summary?.totalEvaluation ?? 0)}</p>
         </div>
 
         {/* 수익률 */}
+<<<<<<< HEAD
         <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-return">
           <p className="text-[13px] text-gray-400 font-medium mb-2">총 수익률</p>
+=======
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-5" data-tour="account-return">
+          <p className="text-[13px] text-gray-400 font-medium mb-2">수익률</p>
+>>>>>>> 3565c14 (feat: 다크모드 구현)
           <p className={`text-[22px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
             {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
           </p>

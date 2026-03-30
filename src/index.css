@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
 
 /* 1. 기본 리셋 및 폰트 설정 */
 @layer base {
@@ -21,7 +22,7 @@
     padding: 0;
     min-width: 320px;
     min-height: 100vh;
-    @apply bg-white text-slate-900; /* 다크모드 필요시 조정 */
+    @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100;
   }
 
   /* 3. 이미지 및 미디어 요소 리셋 */
