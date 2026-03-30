@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { BarChart2, ClipboardList, Wallet, BookOpen } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
 const STOCK_DETAIL_TOUR: TourStep[] = [
   {
     target: "stock-chart",
-    title: "📊 주가 차트",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <BarChart2 size={15} />
+        주가 차트
+      </span>
+    ),
     description: "주가가 시간에 따라 어떻게 변했는지 보여줘요.",
     items: [
       "빨간 캔들 — 어제보다 오른 날",
@@ -17,7 +23,12 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-info",
-    title: "📋 오늘의 주가 정보",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <ClipboardList size={15} />
+        오늘의 주가 정보
+      </span>
+    ),
     description: "오늘 하루 동안의 주요 가격이에요.",
     items: [
       "시가 — 오늘 장이 열릴 때 첫 거래 가격",
@@ -29,7 +40,12 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-holding",
-    title: "💳 보유현황 & 매수·매도",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Wallet size={15} />
+        보유현황 & 매수·매도
+      </span>
+    ),
     description: "내 주식 현황과 주문 버튼이에요.",
     items: [
       "매수 — 주식 사기 (예수금이 줄어요)",
@@ -40,21 +56,27 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-orderbook",
-    title: "📚 호가창",
-    description: "사려는 사람과 팔려는 사람의 희망 가격이에요.",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <BookOpen size={15} />
+        호가창
+      </span>
+    ),
+    description:
+      "지금 이 주식을 사거나 팔려는 사람들이 원하는 가격 목록이에요. 가격을 누르면 바로 그 가격으로 주문창이 열려요.",
     items: [
       {
-        label: "매도호가",
-        labelColor: "#EF4444",
-        text: "— 팔고 싶은 사람들의 희망 가격 (빨간색)",
+        label: "매도호가 (위쪽 · 파란 잔량)",
+        labelColor: "#3B82F6",
+        text: "— 팔겠다고 대기 중인 가격. 내가 매수할 때 이 가격에 맞춰 체결돼요",
       },
       {
-        label: "매수호가",
-        labelColor: "#3B82F6",
-        text: "— 사고 싶은 사람들의 희망 가격 (파란색)",
+        label: "매수호가 (아래쪽 · 빨간 잔량)",
+        labelColor: "#EF4444",
+        text: "— 사겠다고 대기 중인 가격. 내가 매도할 때 이 가격에 맞춰 체결돼요",
       },
-      "옆 숫자(잔량) — 그 가격에 대기 중인 주문 수량이에요. 숫자가 클수록 그 가격에 사람이 많아요",
-      "호가와 내 주문가격이 맞을 때 주문이 체결돼요",
+      "테두리 강조 행 — 현재 시세(기준가)",
+      "오른쪽 숫자(잔량) — 대기 중인 주문 수량. 막대 길이로도 한눈에 비교할 수 있어요",
     ],
     placement: "left",
   },
