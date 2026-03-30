@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/fetchClient";
 import type { ApiResponse } from "./authApi";
+import { stompSubscribe } from "@/lib/stompClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -84,6 +86,38 @@ export function useAcceptMentorMutation() {
       queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
     },
   });
+}
+
+export function useNotificationSubscription(userId: number | undefined) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const unsub = stompSubscribe(`/topic/notifications/${userId}`, (message) => {
+      const item: NotificationItem = JSON.parse(message.body);
+
+      queryClient.setQueryData<NotificationItem[]>(
+        notificationQueryKeys.list,
+        (prev) => (prev ? [item, ...prev] : [item]),
+      );
+
+      queryClient.setQueryData<NotificationCountResponse>(
+        notificationQueryKeys.unreadCount,
+        (prev) => {
+          if (!prev) return prev;
+          const categoryKey = item.category.toLowerCase() as keyof Omit<NotificationCountResponse, "total">;
+          return {
+            ...prev,
+            total: prev.total + 1,
+            [categoryKey]: prev[categoryKey] + 1,
+          };
+        },
+      );
+    });
+
+    return unsub;
+  }, [userId, queryClient]);
 }
 
 export function useRejectMentorMutation() {
