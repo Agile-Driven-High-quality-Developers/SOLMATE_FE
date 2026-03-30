@@ -86,6 +86,7 @@ export default function LoginPage() {
             useAuthStore.getState().setAccessToken(newToken);
             const userRes = await authApi.getMe();
             setAuth(newToken, {
+              userId: userRes.data.userId,
               nickname: userRes.data.nickname,
               provider: userRes.data.provider,
             });
@@ -121,6 +122,7 @@ export default function LoginPage() {
       }
 
       setAuth(res.data.accessToken, {
+        userId: res.data.userId,
         nickname: res.data.nickname,
         provider: "EMAIL",
       });

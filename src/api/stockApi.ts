@@ -131,31 +131,6 @@ export type TradeOrderResponse = {
   status: string;
 };
 
-const SIDE_LABEL: Record<string, string> = { BUY: "매수", SELL: "매도" };
-const ORDER_TYPE_LABEL: Record<string, string> = { MARKET: "시장가", LIMIT: "지정가" };
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: "대기",
-  FILLED: "체결",
-  CANCELLED: "취소",
-};
-
-export function mapTradeOrderResponseToStockTradeOrder(
-  res: TradeOrderResponse,
-): StockTradeOrder {
-  return {
-    orderId: res.orderId,
-    side: res.tradeType as "BUY" | "SELL",
-    sideLabel: SIDE_LABEL[res.tradeType] ?? res.tradeType,
-    orderType: res.orderType as "MARKET" | "LIMIT",
-    orderTypeLabel: ORDER_TYPE_LABEL[res.orderType] ?? res.orderType,
-    orderPrice: res.price,
-    quantity: res.quantity,
-    orderAmount: res.price * res.quantity,
-    status: res.status,
-    statusLabel: STATUS_LABEL[res.status] ?? res.status,
-    cancelable: res.status === "PENDING",
-  };
-}
 
 // ─── Types: 캔들 데이터 ───────────────────────────────────────────────────────
 
