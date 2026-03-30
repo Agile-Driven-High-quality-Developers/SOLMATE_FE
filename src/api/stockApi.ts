@@ -164,6 +164,7 @@ export const stockQueryKeys = {
   cash: ["holdings", "cash"] as const,
   candles: (code: string, period: string) =>
     ["stocks", code, "candles", period] as const,
+  watchlist: ["watchlist"] as const,
 };
 
 // ─── React Query Hooks ────────────────────────────────────────────────────────
@@ -280,6 +281,63 @@ export function useSellOrderMutation() {
       queryClient.invalidateQueries({ queryKey: stockQueryKeys.cash });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.summary });
       queryClient.invalidateQueries({ queryKey: accountQueryKeys.holdings });
+    },
+  });
+}
+
+export function useWatchlistQuery() {
+  return useQuery({
+    queryKey: stockQueryKeys.watchlist,
+    queryFn: () =>
+      fetchClient
+        .get<ApiResponse<string[]>>("/api/watchlist")
+        .then((res) => res.data),
+    staleTime: 30_000,
+  });
+}
+
+export function useAddWatchlistMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (tickerCode: string) =>
+      fetchClient.post<ApiResponse<void>>(`/api/watchlist/${tickerCode}`),
+    onMutate: async (tickerCode) => {
+      await queryClient.cancelQueries({ queryKey: stockQueryKeys.watchlist });
+      const prev = queryClient.getQueryData<string[]>(stockQueryKeys.watchlist);
+      queryClient.setQueryData<string[]>(stockQueryKeys.watchlist, (old = []) =>
+        old.includes(tickerCode) ? old : [...old, tickerCode],
+      );
+      return { prev };
+    },
+    onError: (_err, _tickerCode, context) => {
+      if (context?.prev !== undefined)
+        queryClient.setQueryData(stockQueryKeys.watchlist, context.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: stockQueryKeys.watchlist });
+    },
+  });
+}
+
+export function useRemoveWatchlistMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (tickerCode: string) =>
+      fetchClient.delete<ApiResponse<void>>(`/api/watchlist/${tickerCode}`),
+    onMutate: async (tickerCode) => {
+      await queryClient.cancelQueries({ queryKey: stockQueryKeys.watchlist });
+      const prev = queryClient.getQueryData<string[]>(stockQueryKeys.watchlist);
+      queryClient.setQueryData<string[]>(stockQueryKeys.watchlist, (old = []) =>
+        old.filter((c) => c !== tickerCode),
+      );
+      return { prev };
+    },
+    onError: (_err, _tickerCode, context) => {
+      if (context?.prev !== undefined)
+        queryClient.setQueryData(stockQueryKeys.watchlist, context.prev);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: stockQueryKeys.watchlist });
     },
   });
 }
