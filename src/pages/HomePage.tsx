@@ -433,6 +433,8 @@ function TopInvestors({
     })),
   });
 
+  const allSummariesLoaded = summaryQueries.every((q) => !q.isLoading);
+
   const summaryMap = new Map<number, number>();
   data.forEach((u, i) => {
     const rate = summaryQueries[i]?.data?.totalReturnRate;
@@ -458,8 +460,20 @@ function TopInvestors({
           전체 <ChevronRight size={14} />
         </button>
       </div>
-      {loading ? (
-        <SectionSkeleton rows={5} />
+      {loading || !allSummariesLoaded ? (
+        <ul className="divide-y divide-gray-50 animate-pulse">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <li key={i} className="flex items-center gap-3 px-5 py-3">
+              <div className="w-5 h-3 bg-gray-100 rounded-full" />
+              <div className="w-8 h-8 bg-gray-100 rounded-full shrink-0" />
+              <div className="flex-1 flex flex-col gap-1.5">
+                <div className="h-3 bg-gray-100 rounded-full w-24" />
+                <div className="h-2.5 bg-gray-100 rounded-full w-16" />
+              </div>
+              <div className="h-3 bg-gray-100 rounded-full w-12" />
+            </li>
+          ))}
+        </ul>
       ) : (
         <ul className="divide-y divide-gray-50">
           {top5.map((investor, i) => (
