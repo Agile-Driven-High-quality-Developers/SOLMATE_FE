@@ -342,7 +342,7 @@ export default function StockDetailPage() {
           }}
         />
       )}
-      <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} />
+      <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} hidden={!!orderSide || !!pendingOrder} />
     </>
   );
 }
