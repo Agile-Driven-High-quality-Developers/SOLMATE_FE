@@ -111,13 +111,8 @@ export default function AccountPage() {
         </div>
 
         {/* 수익률 */}
-<<<<<<< HEAD
-        <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-return">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">총 수익률</p>
-=======
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-5" data-tour="account-return">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">수익률</p>
->>>>>>> 3565c14 (feat: 다크모드 구현)
+          <p className="text-[13px] text-gray-400 font-medium mb-2">총 수익률</p>
           <p className={`text-[22px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
             {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
           </p>

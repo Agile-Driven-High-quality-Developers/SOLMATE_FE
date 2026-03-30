@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Bell } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import {
   useNotificationsQuery,
   useUnreadCountQuery,
@@ -29,7 +29,10 @@ const TABS: {
 ];
 
 export default function NotificationPage() {
-  const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") ?? "all") as TabId;
+  const setActiveTab = (v: TabId) =>
+    setSearchParams((p) => { if (v === "all") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
 
   const { data: notifications = [] } = useNotificationsQuery();
   const { data: unreadCount } = useUnreadCountQuery();

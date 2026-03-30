@@ -95,11 +95,7 @@ export default function ProfileCard({
       {/* 수익률 / 총 수익 */}
       <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 dark:border-slate-800 mb-4">
         <div className="text-center">
-<<<<<<< HEAD
-          <p className="text-[12px] text-gray-400 mb-1">총 수익률</p>
-=======
-          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">수익률</p>
->>>>>>> 3565c14 (feat: 다크모드 구현)
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">총 수익률</p>
           <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
             {isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%
           </p>

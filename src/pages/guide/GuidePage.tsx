@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   BookOpen,
   TrendingUp,
@@ -271,9 +272,27 @@ const NAV_HEIGHT = 49; // py-3.5(28px) + 텍스트(21px)
 
 // ─── 컴포넌트 ────────────────────────────────────────────────
 export default function GuidePage() {
-  const [activeSection, setActiveSection] = useState<SectionId>("intro");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeSection, setActiveSection] = useState<SectionId>(
+    (searchParams.get("section") as SectionId) ?? "intro"
+  );
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // 초기 마운트 시 URL 섹션으로 스크롤
+  useEffect(() => {
+    const section = searchParams.get("section") as SectionId | null;
+    if (!section || section === "intro") return;
+    // refs가 채워질 때까지 약간 지연
+    const timer = setTimeout(() => {
+      const el = sectionRefs.current[section];
+      const container = contentRef.current;
+      if (!el || !container) return;
+      container.scrollTo({ top: el.offsetTop - NAV_HEIGHT - 24, behavior: "smooth" });
+    }, 50);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 스크롤 감지 → 활성 섹션 업데이트
   useEffect(() => {
@@ -294,11 +313,15 @@ export default function GuidePage() {
         }
       }
       setActiveSection(current);
+      setSearchParams(
+        (p) => { if (current === "intro") p.delete("section"); else p.set("section", current); return p; },
+        { replace: true }
+      );
     };
 
     container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [setSearchParams]);
 
   const scrollTo = (id: SectionId) => {
     const el = sectionRefs.current[id];

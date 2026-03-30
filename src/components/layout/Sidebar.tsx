@@ -161,14 +161,13 @@ function UserProfile({
   return (
     <div className="px-4 pt-3 border-t border-gray-100 mt-2 dark:border-slate-800">
       <div className="flex items-center gap-2.5 mb-2.5">
-<<<<<<< HEAD
         <div
           onClick={onProfileClick}
           className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
         >
           <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
           <div className="min-w-0 flex-1">
-            <p className="text-[14px] font-semibold text-gray-900 truncate">
+            <p className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 truncate">
               {user.name}
             </p>
             <p
@@ -184,25 +183,6 @@ function UserProfile({
               {user.returnRate}
             </p>
           </div>
-=======
-        <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
-        <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold text-gray-900 truncate dark:text-gray-100">
-            {user.name}
-          </p>
-          <p
-            className={[
-              "text-[13px] font-medium mt-px",
-              isPositive
-                ? "text-red-500"
-                : isNegative
-                  ? "text-blue-500"
-                  : "text-gray-400",
-            ].join(" ")}
-          >
-            {user.returnRate}
-          </p>
->>>>>>> 3565c14 (feat: 다크모드 구현)
         </div>
         <button
           onClick={toggleTheme}
@@ -309,12 +289,8 @@ export default function SidebarNav() {
   );
 
   return (
-<<<<<<< HEAD
     <>
-    <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
-=======
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto dark:bg-slate-900 dark:border-slate-800">
->>>>>>> 3565c14 (feat: 다크모드 구현)
       <div className="px-4 pb-2">
         <button
           onClick={() => navigate("/")}

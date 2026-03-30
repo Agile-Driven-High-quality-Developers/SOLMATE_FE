@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -194,9 +194,23 @@ export default function StockList() {
     useMarketIndicesQuery();
 
   const [stocks, setStocks] = useState<StockItem[]>([]);
-  const [search, setSearch] = useState("");
-  const [sector, setSector] = useState("전체");
-  const [sort, setSort] = useState<SortType>("거래량순");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") ?? "";
+  const sectors = (searchParams.get("sector") ?? "").split(",").filter(Boolean);
+  const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
+
+  const setSearch = (v: string) =>
+    setSearchParams((p) => { if (v) p.set("search", v); else p.delete("search"); return p; }, { replace: true });
+  const toggleSector = (v: string) =>
+    setSearchParams((p) => {
+      if (v === "전체") { p.delete("sector"); return p; }
+      const cur = (p.get("sector") ?? "").split(",").filter(Boolean);
+      const next = cur.includes(v) ? cur.filter((s) => s !== v) : [...cur, v];
+      if (next.length === 0) p.delete("sector"); else p.set("sector", next.join(","));
+      return p;
+    }, { replace: true });
+  const setSort = (v: SortType) =>
+    setSearchParams((p) => { if (v === "거래량순") p.delete("sort"); else p.set("sort", v); return p; }, { replace: true });
 
   // ── 초기 fetch 후 STOMP 구독 (공유 클라이언트 재사용) ────────────────────
   useEffect(() => {
@@ -233,7 +247,7 @@ export default function StockList() {
   }, []);
 
   const filtered = stocks
-    .filter((s) => sector === "전체" || SECTOR_MAP[s.sectorType] === sector)
+    .filter((s) => sectors.length === 0 || sectors.includes(SECTOR_MAP[s.sectorType]))
     .filter(
       (s) =>
         s.stockName.toLowerCase().includes(search.toLowerCase()) ||
@@ -296,19 +310,22 @@ export default function StockList() {
 
       {/* 섹터 탭 */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {SECTORS.map((s) => (
-          <button
-            key={s}
-            onClick={() => setSector(s)}
-            className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
-              sector === s
-                ? "bg-[#0046FF] text-white"
-                : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
+        {SECTORS.map((s) => {
+          const isActive = s === "전체" ? sectors.length === 0 : sectors.includes(s);
+          return (
+            <button
+              key={s}
+              onClick={() => toggleSector(s)}
+              className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+                isActive
+                  ? "bg-[#0046FF] text-white"
+                  : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+              }`}
+            >
+              {s}
+            </button>
+          );
+        })}
       </div>
 
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
