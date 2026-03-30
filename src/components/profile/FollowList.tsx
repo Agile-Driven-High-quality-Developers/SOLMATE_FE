@@ -48,11 +48,11 @@ export default function FollowList({ type, userId }: Props) {
   }, [query]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 mt-3 flex-1 overflow-y-auto">
-      <p className="text-[13px] font-semibold text-gray-700 px-4 pt-4 pb-2">{LABEL[type]}</p>
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-3 flex-1 overflow-y-auto">
+      <p className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 px-4 pt-4 pb-2">{LABEL[type]}</p>
       {items.length === 0 && !query.isLoading ? (
         <div className="flex items-center justify-center py-10">
-          <p className="text-[12px] text-gray-400">{EMPTY_LABEL[type]}</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">{EMPTY_LABEL[type]}</p>
         </div>
       ) : (
         <div className="flex flex-col pb-2">
@@ -60,10 +60,10 @@ export default function FollowList({ type, userId }: Props) {
             <div
               key={user.userId}
               onClick={() => user.userId === me?.userId ? navigate("/profile") : navigate(`/users/${user.userId}`)}
-              className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors cursor-pointer"
+              className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <Avatar name={user.nickname} src={user.imageUrl} size={32} />
-              <span className="text-[13px] font-medium text-gray-800">{user.nickname}</span>
+              <span className="text-[13px] font-medium text-gray-800 dark:text-gray-200">{user.nickname}</span>
             </div>
           ))}
           <div ref={bottomRef} className="h-1" />

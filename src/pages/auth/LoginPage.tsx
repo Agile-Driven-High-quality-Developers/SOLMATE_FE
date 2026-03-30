@@ -65,6 +65,15 @@ export default function LoginPage() {
 
   const isFormValid = form.email.trim() !== "" && form.password !== "";
 
+  // 로그인 페이지는 항상 라이트 모드
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    document.documentElement.classList.remove("dark");
+    return () => {
+      if (isDark) document.documentElement.classList.add("dark");
+    };
+  }, []);
+
   useEffect(() => {
     // 1. 자동 로그인 설정이 되어있는지 확인
     const isAuto = localStorage.getItem("autoLogin") === "true";

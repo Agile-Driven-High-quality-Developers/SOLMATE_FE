@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
@@ -10,6 +10,15 @@ type EmailStep = "idle" | "sending" | "sent" | "verifying" | "verified";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
+
+  // 회원가입 페이지는 항상 라이트 모드
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    document.documentElement.classList.remove("dark");
+    return () => {
+      if (isDark) document.documentElement.classList.add("dark");
+    };
+  }, []);
 
   // ── 이메일 인증 ─────────────────────────────────────────────────────────────
   const [email, setEmail] = useState("");

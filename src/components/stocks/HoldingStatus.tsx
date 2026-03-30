@@ -18,9 +18,9 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
   const isPositive = (holding?.profitRate ?? 0) > 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col gap-4">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 flex flex-col gap-4">
       <div>
-        <h3 className="text-[14px] font-semibold text-gray-900 mb-3">내 보유 현황</h3>
+        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">내 보유 현황</h3>
         {holding && holding.holdingQuantity > 0 ? (
           <div className="flex flex-col gap-2">
             {[
@@ -39,14 +39,14 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
               },
             ].map(({ label, value, colored }) => (
               <div key={label} className="flex justify-between items-center">
-                <span className="text-[13px] text-gray-400">{label}</span>
+                <span className="text-[13px] text-gray-400 dark:text-slate-500">{label}</span>
                 <span
                   className={`text-[13px] font-medium ${
                     colored
                       ? isPositive
                         ? "text-red-500"
                         : "text-blue-500"
-                      : "text-gray-900"
+                      : "text-gray-900 dark:text-gray-100"
                   }`}
                 >
                   {value}
@@ -55,13 +55,13 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
             ))}
           </div>
         ) : (
-          <p className="text-[13px] text-gray-400">보유 종목 없음</p>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500">보유 종목 없음</p>
         )}
       </div>
 
-      <div className="border-t border-gray-100 pt-3">
-        <p className="text-[13px] text-gray-400 mb-1">주문 가능 금액</p>
-        <p className="text-[18px] font-bold text-gray-900">
+      <div className="border-t border-gray-100 dark:border-slate-800 pt-3">
+        <p className="text-[13px] text-gray-400 dark:text-slate-500 mb-1">주문 가능 금액</p>
+        <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
           {cash != null ? `${cash.toLocaleString()}원` : "-"}
         </p>
       </div>

@@ -89,12 +89,12 @@ export default function UserProfilePage() {
 
   if (!profile) {
     return (
-      <div className="flex flex-col h-screen p-6 gap-5 bg-gray-50">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[14px] text-gray-500 hover:text-gray-700 w-fit">
+      <div className="flex flex-col h-screen p-6 gap-5 bg-gray-50 dark:bg-slate-950">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[14px] text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 w-fit">
           <ChevronLeft size={16} />
           뒤로
         </button>
-        <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400">
+        <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400 dark:text-slate-500">
           유저를 찾을 수 없습니다.
         </div>
       </div>
@@ -102,13 +102,13 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="flex items-center gap-3 shrink-0">
-        <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button onClick={() => navigate(-1)} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
           <ChevronLeft size={22} />
         </button>
-        <h1 className="text-[22px] font-bold text-gray-900">{profile.nickname}</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">{profile.nickname}</h1>
       </div>
 
       <div className="flex gap-5 flex-1 min-h-0">
@@ -134,7 +134,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="flex-1 min-w-0 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+        <div className="flex-1 min-w-0 min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col">
           <UnderlineTabBar
             tabs={[...TABS]}
             activeId={activeTab}

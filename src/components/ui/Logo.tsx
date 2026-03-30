@@ -13,10 +13,10 @@ export default function Logo({
         <img src={solmateLogo} alt="SOLMATE logo" className="w-full h-full object-contain rounded-md" />
       </div>
       <div className="min-w-0">
-        <p className="text-[18px] font-bold text-gray-900 leading-tight truncate">
+        <p className="text-[18px] font-bold text-gray-900 leading-tight truncate dark:text-gray-100">
           {appName}
         </p>
-        <p className="text-[12px] text-gray-400 mt-px truncate">
+        <p className="text-[12px] text-gray-400 mt-px truncate dark:text-slate-500">
           {appSubtitle}
         </p>
       </div>

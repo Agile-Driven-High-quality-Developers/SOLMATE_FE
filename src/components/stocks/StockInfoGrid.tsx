@@ -27,13 +27,13 @@ export default function StockInfoGrid({ quote }: Props) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
-      <h3 className="text-[15px] font-semibold text-gray-900 mb-4">종목 정보</h3>
-      <div className="grid grid-cols-3 gap-px bg-gray-100 rounded-xl overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5">
+      <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-4">종목 정보</h3>
+      <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-slate-800 rounded-xl overflow-hidden">
         {cells.map(({ label, value, color }) => (
-          <div key={label} className="bg-white px-4 py-3">
-            <p className="text-[12px] text-gray-400 mb-1">{label}</p>
-            <p className={`text-[15px] font-semibold ${color || "text-gray-900"}`}>{value}</p>
+          <div key={label} className="bg-white dark:bg-slate-900 px-4 py-3">
+            <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">{label}</p>
+            <p className={`text-[15px] font-semibold ${color || "text-gray-900 dark:text-gray-100"}`}>{value}</p>
           </div>
         ))}
       </div>
