@@ -42,9 +42,9 @@ import { useQueryClient } from "@tanstack/react-query";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TABS = [
+  { id: "portfolio", label: "포트폴리오" },
   { id: "diary", label: "매매일지" },
   { id: "history", label: "매매내역" },
-  { id: "portfolio", label: "포트폴리오" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];

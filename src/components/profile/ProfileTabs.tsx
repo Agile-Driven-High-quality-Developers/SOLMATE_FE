@@ -3,9 +3,9 @@ import TabBar from "@/components/ui/TabBar";
 import PortfolioTab from "@/components/profile/PortfolioTab";
 
 const TABS = [
+  { id: "portfolio", label: "포트폴리오" },
   { id: "diary", label: "매매일지" },
   { id: "history", label: "매매내역" },
-  { id: "portfolio", label: "포트폴리오" },
 ];
 
 const DUMMY_PORTFOLIO = [
