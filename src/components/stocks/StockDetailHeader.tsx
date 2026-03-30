@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ArrowUp, ArrowDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/Avatar";
 import type { StockDetail } from "@/api/stockApi";
@@ -59,8 +59,8 @@ export default function StockDetailHeader({ stock }: Props) {
           <span className="text-[26px] font-bold text-gray-900">
             {stock.currentPrice.toLocaleString()}원
           </span>
-          <span className={`text-[14px] font-semibold ${changeColor}`}>
-            {isPositive ? "▲" : isNegative ? "▼" : ""}
+          <span className={`inline-flex items-center gap-0.5 text-[14px] font-semibold ${changeColor}`}>
+            {isPositive ? <ArrowUp size={13} /> : isNegative ? <ArrowDown size={13} /> : null}
             {Math.abs(stock.change).toLocaleString()} ({isPositive ? "+" : ""}
             {stock.changeRate.toFixed(2)}%)
           </span>
