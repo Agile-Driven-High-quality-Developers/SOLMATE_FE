@@ -188,7 +188,7 @@ export default function MyMentorPage() {
                   <TrendingUp size={12} className="text-gray-400" />
                   <span>총 수익률</span>
                   <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(1)}%
+                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center gap-1">

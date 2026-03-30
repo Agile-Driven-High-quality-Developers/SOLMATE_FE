@@ -159,7 +159,7 @@ function ReturnCells({
   return (
     <>
       <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
-        {prefix}{rate.toFixed(1)}%
+        {prefix}{rate.toFixed(2)}%
       </td>
       <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
         {prefix}{(amount / 10000).toFixed(0)}만원

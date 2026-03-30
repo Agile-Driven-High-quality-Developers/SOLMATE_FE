@@ -228,7 +228,7 @@ export default function SidebarNav() {
   }, [myProfile, updateUserProfile]);
 
   const returnRate = accountSummary
-    ? `${accountSummary.totalReturnRate >= 0 ? "+" : ""}${accountSummary.totalReturnRate.toFixed(1)}%`
+    ? `${accountSummary.totalReturnRate >= 0 ? "+" : ""}${accountSummary.totalReturnRate.toFixed(2)}%`
     : "-";
 
   const user = storeUser
