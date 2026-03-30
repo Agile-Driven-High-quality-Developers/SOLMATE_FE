@@ -197,13 +197,19 @@ export default function StockList() {
   const [stocks, setStocks] = useState<StockItem[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get("search") ?? "";
-  const sector = searchParams.get("sector") ?? "전체";
+  const sectors = (searchParams.get("sector") ?? "").split(",").filter(Boolean);
   const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
 
   const setSearch = (v: string) =>
     setSearchParams((p) => { if (v) p.set("search", v); else p.delete("search"); return p; }, { replace: true });
-  const setSector = (v: string) =>
-    setSearchParams((p) => { if (v === "전체") p.delete("sector"); else p.set("sector", v); return p; }, { replace: true });
+  const toggleSector = (v: string) =>
+    setSearchParams((p) => {
+      if (v === "전체") { p.delete("sector"); return p; }
+      const cur = (p.get("sector") ?? "").split(",").filter(Boolean);
+      const next = cur.includes(v) ? cur.filter((s) => s !== v) : [...cur, v];
+      if (next.length === 0) p.delete("sector"); else p.set("sector", next.join(","));
+      return p;
+    }, { replace: true });
   const setSort = (v: SortType) =>
     setSearchParams((p) => { if (v === "거래량순") p.delete("sort"); else p.set("sort", v); return p; }, { replace: true });
 
@@ -242,7 +248,7 @@ export default function StockList() {
   }, []);
 
   const filtered = stocks
-    .filter((s) => sector === "전체" || SECTOR_MAP[s.sectorType] === sector)
+    .filter((s) => sectors.length === 0 || sectors.includes(SECTOR_MAP[s.sectorType]))
     .filter(
       (s) =>
         s.stockName.toLowerCase().includes(search.toLowerCase()) ||
@@ -305,19 +311,22 @@ export default function StockList() {
 
       {/* 섹터 탭 */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {SECTORS.map((s) => (
-          <button
-            key={s}
-            onClick={() => setSector(s)}
-            className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
-              sector === s
-                ? "bg-[#0046FF] text-white"
-                : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
+        {SECTORS.map((s) => {
+          const isActive = s === "전체" ? sectors.length === 0 : sectors.includes(s);
+          return (
+            <button
+              key={s}
+              onClick={() => toggleSector(s)}
+              className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+                isActive
+                  ? "bg-[#0046FF] text-white"
+                  : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+              }`}
+            >
+              {s}
+            </button>
+          );
+        })}
       </div>
 
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
