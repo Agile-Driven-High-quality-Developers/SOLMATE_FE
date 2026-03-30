@@ -54,7 +54,7 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
+    if (file.size > 1 * 1024 * 1024) {
       setImageError("이미지는 2MB 이하만 업로드할 수 있어요.");
       e.target.value = "";
       return;
@@ -67,21 +67,23 @@ export default function EditProfileModal({ nickname, profileImageUrl, onClose, o
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = useAuthStore.getState().accessToken;
-      const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
       const formData = new FormData();
       if (nicknameValue !== nickname) formData.append("nickname", nicknameValue);
       if (imageFile) formData.append("image", imageFile);
 
-      const res = await fetch(`${BASE_URL}/api/users/profile`, {
-        method: "PATCH",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        credentials: "include",
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      await fetchClient.patchForm("/api/users/profile", formData);
       await queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+      // 이미지 변경 시 auth store의 imageUrl도 최신값으로 동기화
+      if (imageFile) {
+        try {
+          const profileRes = await fetchClient.get<{ data: { imageUrl: string } }>("/api/users/me");
+          useAuthStore.getState().updateUserProfile({ nickname: nicknameValue, imageUrl: profileRes.data.imageUrl });
+        } catch {
+          useAuthStore.getState().updateUserProfile({ nickname: nicknameValue });
+        }
+      } else {
+        useAuthStore.getState().updateUserProfile({ nickname: nicknameValue });
+      }
       onSave(nicknameValue);
       onClose();
     } catch (e) {
