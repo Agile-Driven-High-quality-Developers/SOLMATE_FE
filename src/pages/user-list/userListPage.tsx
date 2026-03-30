@@ -6,7 +6,7 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const USERS_TOUR: TourStep[] = [
   {
     target: "users-podium",
-    title: "🥇 수익률 TOP 3",
+    title: <span className="inline-flex items-center gap-1.5"><Medal size={15} />수익률 TOP 3</span>,
     description: "지금 가장 수익을 많이 낸 투자자 3명이에요.",
     items: [
       "클릭하면 그 사람의 포트폴리오를 볼 수 있어요",
@@ -16,18 +16,18 @@ const USERS_TOUR: TourStep[] = [
   },
   {
     target: "users-follow",
-    title: "➕ 팔로우",
+    title: <span className="inline-flex items-center gap-1.5"><UserPlus size={15} />팔로우</span>,
     description: "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
     placement: "left",
   },
   {
     target: "users-mentor",
-    title: "🎓 멘토신청",
+    title: <span className="inline-flex items-center gap-1.5"><GraduationCap size={15} />멘토신청</span>,
     description: "멘토로 등록하면 그 사람의 매매일지와 포트폴리오를 공유받을 수 있어요. 1명만 멘토로 설정할 수 있어요.",
     placement: "left",
   },
 ];
-import { Search } from "lucide-react";
+import { Search, Medal, UserPlus, GraduationCap, Crown, Users } from "lucide-react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -82,7 +82,7 @@ function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
   const cfg = PODIUM_CONFIG[rank];
   return (
     <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
-      {rank === 1 && <span className="text-xl mb-1">👑</span>}
+      {rank === 1 && <Crown className="w-5 h-5 mb-1 text-yellow-400" />}
       <Avatar
         name={user.nickname}
         src={user.imageUrl || undefined}
@@ -384,7 +384,7 @@ export default function UserListPage() {
       {/* 헤더 */}
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0046FF]">
-          👥
+          <Users className="w-4 h-4" />
         </div>
         <div>
           <h1 className="text-[20px] font-bold text-gray-900">유저 목록</h1>

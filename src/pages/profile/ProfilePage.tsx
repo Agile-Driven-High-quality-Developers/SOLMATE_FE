@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { User, FolderOpen } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -23,7 +24,7 @@ import LogoutModal from "@/components/profile/LogoutModal";
 const PROFILE_TOUR: TourStep[] = [
   {
     target: "profile-card",
-    title: "👤 내 프로필",
+    title: <span className="inline-flex items-center gap-1.5"><User size={15} />내 프로필</span>,
     description: "나의 투자 활동 기록이 쌓이는 공간이에요.",
     items: [
       "팔로워·팔로잉 — 서로 구독한 투자자 수",
@@ -33,7 +34,7 @@ const PROFILE_TOUR: TourStep[] = [
   },
   {
     target: "profile-tabs",
-    title: "📂 내 기록 보기",
+    title: <span className="inline-flex items-center gap-1.5"><FolderOpen size={15} />내 기록 보기</span>,
     description: "투자 관련 기록을 탭별로 확인할 수 있어요.",
     items: [
       "매매일지 — 거래할 때 남긴 메모 모음",

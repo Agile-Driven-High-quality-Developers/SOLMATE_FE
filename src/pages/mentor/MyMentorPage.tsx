@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, TrendingUp, Loader2, X } from "lucide-react";
+import { Users, TrendingUp, Loader2, X, GraduationCap, BookOpen } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
 const MENTOR_TOUR: TourStep[] = [
   {
     target: "mentor-card",
-    title: "🎓 나의 멘토",
+    title: <span className="inline-flex items-center gap-1.5"><GraduationCap size={15} />나의 멘토</span>,
     description: "멘토로 등록한 투자자의 정보예요.",
     items: [
       "멘토의 수익률·수익을 한눈에 볼 수 있어요",
@@ -18,7 +18,7 @@ const MENTOR_TOUR: TourStep[] = [
   },
   {
     target: "mentor-tabs",
-    title: "📖 멘토의 투자 기록",
+    title: <span className="inline-flex items-center gap-1.5"><BookOpen size={15} />멘토의 투자 기록</span>,
     description: "멘토가 어떻게 투자하는지 직접 확인할 수 있어요.",
     items: [
       "매매일지 — 멘토가 거래할 때 남긴 메모",

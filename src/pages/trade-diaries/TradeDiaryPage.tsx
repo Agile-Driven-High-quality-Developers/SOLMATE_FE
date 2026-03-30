@@ -1,5 +1,5 @@
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
-import { Search } from "lucide-react";
+import { Search, PenLine } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
@@ -12,7 +12,7 @@ import { useStocksQuery } from "@/api/stockApi";
 const DIARY_TOUR: TourStep[] = [
   {
     target: "diary-list",
-    title: "✍️ 나만의 투자 기록",
+    title: <span className="inline-flex items-center gap-1.5"><PenLine size={15} />나만의 투자 기록</span>,
     description:
       "매수·매도할 때 남긴 메모가 여기에 쌓여요. 왜 그 주식을 샀는지 기록해두면 나중에 내 투자 패턴을 볼 수 있어요.",
     placement: "bottom",
