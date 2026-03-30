@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -254,9 +253,17 @@ function UserRow({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function UserListPage() {
-  const [tab, setTab] = useState<"전체" | "팔로잉">("전체");
-  const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<SortBy>("returnRate");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = (searchParams.get("tab") ?? "전체") as "전체" | "팔로잉";
+  const search = searchParams.get("search") ?? "";
+  const sortBy = (searchParams.get("sort") ?? "returnRate") as SortBy;
+
+  const setTab = (v: "전체" | "팔로잉") =>
+    setSearchParams((p) => { v === "전체" ? p.delete("tab") : p.set("tab", v); return p; }, { replace: true });
+  const setSearch = (v: string) =>
+    setSearchParams((p) => { v ? p.set("search", v) : p.delete("search"); return p; }, { replace: true });
+  const setSortBy = (v: SortBy) =>
+    setSearchParams((p) => { v === "returnRate" ? p.delete("sort") : p.set("sort", v); return p; }, { replace: true });
 
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();

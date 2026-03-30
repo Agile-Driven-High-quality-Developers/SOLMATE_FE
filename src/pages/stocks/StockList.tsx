@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -195,9 +195,17 @@ export default function StockList() {
     useMarketIndicesQuery();
 
   const [stocks, setStocks] = useState<StockItem[]>([]);
-  const [search, setSearch] = useState("");
-  const [sector, setSector] = useState("전체");
-  const [sort, setSort] = useState<SortType>("거래량순");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") ?? "";
+  const sector = searchParams.get("sector") ?? "전체";
+  const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
+
+  const setSearch = (v: string) =>
+    setSearchParams((p) => { if (v) p.set("search", v); else p.delete("search"); return p; }, { replace: true });
+  const setSector = (v: string) =>
+    setSearchParams((p) => { if (v === "전체") p.delete("sector"); else p.set("sector", v); return p; }, { replace: true });
+  const setSort = (v: SortType) =>
+    setSearchParams((p) => { if (v === "거래량순") p.delete("sort"); else p.set("sort", v); return p; }, { replace: true });
 
   // ── 초기 fetch 후 STOMP 구독 (공유 클라이언트 재사용) ────────────────────
   useEffect(() => {

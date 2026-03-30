@@ -1,7 +1,6 @@
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { Search, PenLine } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -120,7 +119,10 @@ function DiaryCard({
 
 export default function TradeDiaryPage() {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get("search") ?? "";
+  const setSearch = (v: string) =>
+    setSearchParams((p) => { v ? p.set("search", v) : p.delete("search"); return p; }, { replace: true });
   const { data: myDiaries = [], isLoading } = useMyDiariesQuery();
   const { data: stocks = [] } = useStocksQuery();
   const logoMap = new Map(stocks.map((s) => [s.stockName, s.stockLogo]));
