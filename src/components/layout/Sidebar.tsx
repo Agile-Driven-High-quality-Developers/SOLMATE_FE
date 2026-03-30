@@ -144,16 +144,21 @@ function NavItem({
 function UserProfile({
   user,
   onLogout,
+  onProfileClick,
 }: {
   user: NonNullable<SidebarNavProps["user"]>;
   onLogout?: () => void;
+  onProfileClick?: () => void;
 }) {
   const isPositive = user.returnRate.startsWith("+");
   const isNegative = user.returnRate.startsWith("-");
 
   return (
     <div className="px-4 pt-3 border-t border-gray-100 mt-2">
-      <div className="flex items-center gap-2.5 mb-2.5">
+      <button
+        onClick={onProfileClick}
+        className="flex items-center gap-2.5 mb-2.5 w-full text-left hover:opacity-80 transition-opacity cursor-pointer"
+      >
         <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
         <div className="min-w-0 flex-1">
           <p className="text-[14px] font-semibold text-gray-900 truncate">
@@ -172,7 +177,7 @@ function UserProfile({
             {user.returnRate}
           </p>
         </div>
-      </div>
+      </button>
 
       {onLogout && (
         <button
@@ -275,7 +280,13 @@ export default function SidebarNav() {
       </ul>
 
       <div className="flex-1" />
-      {user && <UserProfile user={user} onLogout={handleLogout} />}
+      {user && (
+        <UserProfile
+          user={user}
+          onLogout={handleLogout}
+          onProfileClick={() => navigate("/profile")}
+        />
+      )}
     </nav>
   );
 }
