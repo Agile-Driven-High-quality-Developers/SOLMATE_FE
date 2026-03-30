@@ -17,6 +17,7 @@ import {
   BookMarked,
   Sun,
   Moon,
+  X,
 } from "lucide-react";
 import Logo from "../ui/Logo";
 import Avatar from "../ui/Avatar";
@@ -26,6 +27,7 @@ import { authApi } from "@/api/authApi";
 import { useUnreadCountQuery } from "@/api/notificationApi";
 import { useMyProfileQuery } from "@/api/userListApi";
 import { useAccountSummaryQuery } from "@/api/accountSummaryApi";
+import { useSidebarStore } from "../../store/sidebarStore";
 import LogoutModal from "@/components/profile/LogoutModal";
 
 export type NavItemConfig = {
@@ -117,7 +119,9 @@ function NavItem({
         <Icon
           className={[
             "w-4 h-4 shrink-0 transition-colors duration-150",
-            isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-gray-300",
+            isActive
+              ? "text-white"
+              : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-gray-300",
           ].join(" ")}
         />
 
@@ -227,6 +231,10 @@ function UserProfile({
 export default function SidebarNav() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  // Zustand 스토어 연결
+  const { isOpen, close } = useSidebarStore();
+
   const activeId =
     NAV_ITEMS.find(
       (item) => item.href !== "/" && pathname.startsWith(item.href),
@@ -243,7 +251,6 @@ export default function SidebarNav() {
   const { data: accountSummary } = useAccountSummaryQuery();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  // myProfile이 도착하면 sessionStorage에 동기화 → 다음 새로고침 시 깜빡임 방지
   useEffect(() => {
     if (myProfile) {
       updateUserProfile({
@@ -253,6 +260,16 @@ export default function SidebarNav() {
     }
   }, [myProfile, updateUserProfile]);
 
+  // 네비게이션 클릭 핸들러 (모바일에서 클릭 시 자동으로 닫히도록)
+  const handleNavClick = (href: string, id: string) => {
+    if (id === "shinhan") {
+      window.open(href, "_blank");
+    } else {
+      navigate(href);
+    }
+    close(); // 페이지 이동 후 사이드바 닫기
+  };
+
   const returnRate = accountSummary
     ? `${accountSummary.totalReturnRate >= 0 ? "+" : ""}${accountSummary.totalReturnRate.toFixed(2)}%`
     : "-";
@@ -261,12 +278,12 @@ export default function SidebarNav() {
     ? {
         name: storeUser.nickname,
         returnRate,
-        // store에 캐시된 imageUrl 우선 → API 응답 도착 전에도 깜빡임 없음
         imageUrl: storeUser.imageUrl,
       }
     : null;
 
-  const handleLogout = async () => {
+  const handleLogoutConfirm = async () => {
+    setShowLogoutModal(false);
     try {
       await authApi.logout();
     } finally {
@@ -274,12 +291,8 @@ export default function SidebarNav() {
       localStorage.removeItem("autoLogin");
       queryClient.clear();
       navigate("/login");
+      close();
     }
-  };
-
-  const handleLogoutConfirm = () => {
-    setShowLogoutModal(false);
-    handleLogout();
   };
 
   const navItems = NAV_ITEMS.map((item) =>
@@ -290,46 +303,71 @@ export default function SidebarNav() {
 
   return (
     <>
-    <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto dark:bg-slate-900 dark:border-slate-800">
-      <div className="px-4 pb-2">
-        <button
-          onClick={() => navigate("/")}
-          className="w-full text-left cursor-pointer"
-        >
-          <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
-        </button>
-      </div>
-      <div className="mx-4 my-3 h-px bg-gray-100 dark:bg-slate-800" />
-      <ul className="flex flex-col gap-0.5 px-2.5 list-none">
-        {navItems.map((item) => (
-          <NavItem
-            key={item.id}
-            item={item}
-            isActive={item.id === activeId}
-            onClick={() =>
-              item.id === "shinhan"
-                ? window.open(item.href, "_blank")
-                : navigate(item.href)
-            }
-          />
-        ))}
-      </ul>
-
-      <div className="flex-1" />
-      {user && (
-        <UserProfile
-          user={user}
-          onLogout={() => setShowLogoutModal(true)}
-          onProfileClick={() => navigate("/profile")}
+      {/* 1. 모바일 오버레이 (사이드바 열렸을 때 배경 어둡게) */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] lg:hidden"
+          onClick={close}
         />
       )}
-    </nav>
-    {showLogoutModal && (
-      <LogoutModal
-        onClose={() => setShowLogoutModal(false)}
-        onConfirm={handleLogoutConfirm}
-      />
-    )}
-  </>
+
+      {/* 2. 사이드바 본체 */}
+      <nav
+        className={[
+          // 공통 스타일
+          "h-screen bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto dark:bg-slate-900 dark:border-slate-800 transition-transform duration-300 ease-in-out",
+          // 반응형 핵심 클래스
+          "fixed inset-y-0 left-0 w-64 z-[100] lg:sticky lg:translate-x-0",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+      >
+        {/* 모바일 전용 닫기 버튼 */}
+        <button
+          onClick={close}
+          className="lg:hidden absolute top-5 right-4 p-1 text-gray-400 hover:text-gray-600"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="px-4 pb-2">
+          <button
+            onClick={() => handleNavClick("/", "home")}
+            className="w-full text-left cursor-pointer"
+          >
+            <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
+          </button>
+        </div>
+
+        <div className="mx-4 my-3 h-px bg-gray-100 dark:bg-slate-800" />
+
+        <ul className="flex flex-col gap-0.5 px-2.5 list-none">
+          {navItems.map((item) => (
+            <NavItem
+              key={item.id}
+              item={item}
+              isActive={item.id === activeId}
+              onClick={() => handleNavClick(item.href, item.id)}
+            />
+          ))}
+        </ul>
+
+        <div className="flex-1" />
+
+        {user && (
+          <UserProfile
+            user={user}
+            onLogout={() => setShowLogoutModal(true)}
+            onProfileClick={() => handleNavClick("/profile", "profile")}
+          />
+        )}
+      </nav>
+
+      {showLogoutModal && (
+        <LogoutModal
+          onClose={() => setShowLogoutModal(false)}
+          onConfirm={handleLogoutConfirm}
+        />
+      )}
+    </>
   );
 }
