@@ -30,12 +30,13 @@ async function request<T>(
 ): Promise<T> {
   const { params, headers, ...init } = options;
   const token = useAuthStore.getState().accessToken;
+  const isFormData = init.body instanceof FormData;
 
   const res = await fetch(buildUrl(path, params), {
     ...init,
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
@@ -85,4 +86,7 @@ export const fetchClient = {
       method: "DELETE",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     }),
+
+  patchForm: <T>(path: string, formData: FormData) =>
+    request<T>(path, { method: "PATCH", body: formData }),
 };
