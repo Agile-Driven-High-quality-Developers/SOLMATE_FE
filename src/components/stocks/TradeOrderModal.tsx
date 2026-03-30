@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X, AlertCircle, Wallet, Tag, Hash, PenLine } from "lucide-react";
+import { adjustToTickSize, getTickSize } from "@/lib/tickSize";
 import Button from "@/components/ui/Button";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -111,6 +112,7 @@ export default function TradeOrderModal({
   const [limitPrice, setLimitPrice] = useState(
     initialPrice ? String(initialPrice) : "",
   );
+  const [limitPriceAdjusted, setLimitPriceAdjusted] = useState(false);
   const [quantity, setQuantity] = useState("");
   const [diary, setDiary] = useState("");
 
@@ -208,12 +210,33 @@ export default function TradeOrderModal({
                 {currentPrice.toLocaleString()}
               </div>
             ) : (
-              <input
-                type="number"
-                value={limitPrice}
-                onChange={(e) => setLimitPrice(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
-              />
+              <>
+                <input
+                  type="number"
+                  value={limitPrice}
+                  onChange={(e) => {
+                    setLimitPrice(e.target.value);
+                    setLimitPriceAdjusted(false);
+                  }}
+                  onBlur={() => {
+                    const raw = Number(limitPrice);
+                    if (!raw) return;
+                    const adjusted = adjustToTickSize(raw);
+                    if (adjusted !== raw) {
+                      setLimitPrice(String(adjusted));
+                      setLimitPriceAdjusted(true);
+                    } else {
+                      setLimitPriceAdjusted(false);
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
+                />
+                {limitPriceAdjusted && (
+                  <p className="text-[11px] text-blue-500 mt-1 ml-1">
+                    호가 단위({getTickSize(Number(limitPrice)).toLocaleString()}원)에 맞게 자동 보정됐어요.
+                  </p>
+                )}
+              </>
             )}
           </div>
           <div data-tour="trade-order-quantity">
