@@ -5,16 +5,6 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
 const USERS_TOUR: TourStep[] = [
   {
-    target: "users-podium",
-    title: <span className="inline-flex items-center gap-1.5"><Medal size={15} />수익률 TOP 3</span>,
-    description: "지금 가장 수익을 많이 낸 투자자 3명이에요.",
-    items: [
-      "클릭하면 그 사람의 포트폴리오를 볼 수 있어요",
-      "어떤 주식을 얼마나 보유하고 있는지 확인 가능해요",
-    ],
-    placement: "bottom",
-  },
-  {
     target: "users-follow",
     title: <span className="inline-flex items-center gap-1.5"><UserPlus size={15} />팔로우</span>,
     description: "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
@@ -53,7 +43,7 @@ type SortBy = "returnRate" | "returnAmount" | "follower";
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "returnRate",   label: "수익률순"  },
   { value: "returnAmount", label: "수익순"    },
-  { value: "follower",     label: "팔로워수순" },
+  { value: "follower",     label: "팔로워순" },
 ];
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
@@ -67,49 +57,6 @@ function getAvatarColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-}
-
-// ─── Podium ───────────────────────────────────────────────────────────────────
-
-const PODIUM_CONFIG = {
-  1: { barHeight: "h-24", barBg: "bg-yellow-400" },
-  2: { barHeight: "h-16", barBg: "bg-gray-400"   },
-  3: { barHeight: "h-12", barBg: "bg-orange-400" },
-} as const;
-
-function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
-  const navigate = useNavigate();
-  const cfg = PODIUM_CONFIG[rank];
-  return (
-    <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
-      {rank === 1 && <Crown className="w-5 h-5 mb-1 text-yellow-400" />}
-      <Avatar
-        name={user.nickname}
-        src={user.imageUrl || undefined}
-        size={rank === 1 ? 56 : 44}
-        color={getAvatarColor(user.nickname)}
-      />
-      <p className="text-[13px] font-medium text-gray-800 mt-1.5 max-w-20 text-center truncate">
-        {user.nickname}
-      </p>
-      <div
-        className={`w-20 rounded-t-xl mt-2 flex items-center justify-center ${cfg.barHeight} ${cfg.barBg}`}
-      >
-        <span className="text-white text-[20px] font-bold">{rank}</span>
-      </div>
-    </div>
-  );
-}
-
-function Podium({ users }: { users: UserItem[] }) {
-  const [second, first, third] = [users[1], users[0], users[2]];
-  return (
-    <div className="flex items-end justify-center gap-3 py-6 bg-gray-50 rounded-2xl mb-4">
-      {second && <PodiumSlot user={second} rank={2} />}
-      {first  && <PodiumSlot user={first}  rank={1} />}
-      {third  && <PodiumSlot user={third}  rank={3} />}
-    </div>
-  );
 }
 
 // ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
@@ -249,9 +196,15 @@ function UserRow({
     <tr className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${user.me ? "bg-blue-50/40" : ""}`}>
       {/* 순위 */}
       <td className="px-5 py-3.5 text-center">
-        <span className={`text-[14px] font-bold ${rank <= 3 ? "text-[#0046FF]" : "text-gray-400"}`}>
-          {rank}
-        </span>
+        {rank === 1 ? (
+          <span className="text-[18px]">🥇</span>
+        ) : rank === 2 ? (
+          <span className="text-[18px]">🥈</span>
+        ) : rank === 3 ? (
+          <span className="text-[18px]">🥉</span>
+        ) : (
+          <span className="text-[14px] font-bold text-gray-400">{rank}</span>
+        )}
       </td>
 
       {/* 투자자 */}
@@ -317,6 +270,7 @@ export default function UserListPage() {
     queries: allUsers.map((u) => ({
       queryKey: u.me ? ["account-summary"] : ["account-summary", u.userId],
       queryFn: u.me ? fetchAccountSummary : () => fetchAccountSummaryByUser(u.userId),
+      staleTime: u.me ? 10_000 : 60_000,
       refetchInterval: u.me ? 10_000 : 60_000,
     })),
   });
@@ -367,8 +321,11 @@ export default function UserListPage() {
     .filter((u) => tab === "전체" || u.following || u.me)
     .filter((u) => !search || u.nickname.includes(search));
 
+  const allSummariesLoaded = sortBy === "follower" || summaryQueries.every((q) => !q.isLoading);
+
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "follower") return b.followerCount - a.followerCount;
+    if (!allSummariesLoaded) return 0;
     const aData = summaryMap.get(a.userId)?.data;
     const bData = summaryMap.get(b.userId)?.data;
     if (sortBy === "returnRate") {
@@ -377,24 +334,15 @@ export default function UserListPage() {
     return (bData?.totalReturnAmount ?? -Infinity) - (aData?.totalReturnAmount ?? -Infinity);
   });
 
-  const top3 = sorted.slice(0, 3);
-
   return (
     <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50">
       {/* 헤더 */}
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0046FF]">
-          <Users className="w-4 h-4" />
-        </div>
+   
         <div>
           <h1 className="text-[20px] font-bold text-gray-900">유저 목록</h1>
           <p className="text-[12px] text-gray-400">투자자 랭킹</p>
         </div>
-      </div>
-
-      {/* 포디움 */}
-      <div data-tour="users-podium">
-        {!isLoading && top3.length >= 3 && <Podium users={top3} />}
       </div>
 
       {/* 탭 */}
@@ -426,7 +374,7 @@ export default function UserListPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="투자자 검색..."
+              placeholder="투자자 검색"
               className="text-[13px] text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
             />
           </div>
@@ -461,7 +409,7 @@ export default function UserListPage() {
             </tr>
           </thead>
           <tbody>
-            {isLoading
+            {isLoading || !allSummariesLoaded
               ? Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} className="border-b border-gray-50 animate-pulse">
                     <td className="px-5 py-4"><div className="h-3 bg-gray-100 rounded-full w-4" /></td>
