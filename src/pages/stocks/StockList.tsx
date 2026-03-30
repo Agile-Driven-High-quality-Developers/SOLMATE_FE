@@ -221,20 +221,12 @@ export default function StockList() {
     useMarketIndicesQuery();
 
   const [stocks, setStocks] = useState<StockItem[]>([]);
+  const [search, setSearch] = useState(""); // 검색어 상태
+
   const [searchParams, setSearchParams] = useSearchParams();
-  const search = searchParams.get("search") ?? "";
   const sectors = (searchParams.get("sector") ?? "").split(",").filter(Boolean);
   const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
 
-  const setSearch = (v: string) =>
-    setSearchParams(
-      (p) => {
-        if (v) p.set("search", v);
-        else p.delete("search");
-        return p;
-      },
-      { replace: true },
-    );
   const toggleSector = (v: string) =>
     setSearchParams(
       (p) => {
