@@ -11,7 +11,8 @@ import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
 import Sidebar from "./Sidebar";
 import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
 import { useOnboardingStore } from "@/store/onboardingStore";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore, useUser } from "@/store/authStore";
+import { useNotificationSubscription } from "@/api/notificationApi";
 
 function parseJwtSub(token: string): string | null {
   try {
@@ -27,6 +28,9 @@ export default function Layout() {
   const accessToken = useAuthStore((s) => s.accessToken);
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
   const init = useOnboardingStore((s) => s.init);
+  const user = useUser();
+
+  useNotificationSubscription(user?.userId);
 
   // JWT sub(userId)를 키로 유저별 온보딩 상태 불러오기
   useEffect(() => {
