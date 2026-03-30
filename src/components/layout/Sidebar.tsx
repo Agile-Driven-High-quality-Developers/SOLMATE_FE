@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import type { LucideIcon } from "lucide-react";
@@ -23,6 +23,7 @@ import { authApi } from "@/api/authApi";
 import { useUnreadCountQuery } from "@/api/notificationApi";
 import { useMyProfileQuery } from "@/api/userListApi";
 import { useAccountSummaryQuery } from "@/api/accountSummaryApi";
+import LogoutModal from "@/components/profile/LogoutModal";
 
 export type NavItemConfig = {
   id: string;
@@ -155,29 +156,31 @@ function UserProfile({
 
   return (
     <div className="px-4 pt-3 border-t border-gray-100 mt-2">
-      <button
-        onClick={onProfileClick}
-        className="flex items-center gap-2.5 mb-2.5 w-full text-left hover:opacity-80 transition-opacity cursor-pointer"
-      >
-        <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
-        <div className="min-w-0 flex-1">
-          <p className="text-[14px] font-semibold text-gray-900 truncate">
-            {user.name}
-          </p>
-          <p
-            className={[
-              "text-[13px] font-medium mt-px",
-              isPositive
-                ? "text-red-500"
-                : isNegative
-                  ? "text-blue-500"
-                  : "text-gray-400",
-            ].join(" ")}
-          >
-            {user.returnRate}
-          </p>
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <div
+          onClick={onProfileClick}
+          className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
+          <div className="min-w-0 flex-1">
+            <p className="text-[14px] font-semibold text-gray-900 truncate">
+              {user.name}
+            </p>
+            <p
+              className={[
+                "text-[13px] font-medium mt-px",
+                isPositive
+                  ? "text-red-500"
+                  : isNegative
+                    ? "text-blue-500"
+                    : "text-gray-400",
+              ].join(" ")}
+            >
+              {user.returnRate}
+            </p>
+          </div>
         </div>
-      </button>
+      </div>
 
       {onLogout && (
         <button
@@ -212,6 +215,7 @@ export default function SidebarNav() {
   const { data: unreadCount } = useUnreadCountQuery();
   const { data: myProfile } = useMyProfileQuery();
   const { data: accountSummary } = useAccountSummaryQuery();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // myProfile이 도착하면 sessionStorage에 동기화 → 다음 새로고침 시 깜빡임 방지
   useEffect(() => {
@@ -247,6 +251,11 @@ export default function SidebarNav() {
     }
   };
 
+  const handleLogoutConfirm = () => {
+    setShowLogoutModal(false);
+    handleLogout();
+  };
+
   const navItems = NAV_ITEMS.map((item) =>
     item.id === "notifications"
       ? { ...item, badge: unreadCount?.total ?? 0 }
@@ -254,6 +263,7 @@ export default function SidebarNav() {
   );
 
   return (
+    <>
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
       <div className="px-4 pb-2">
         <button
@@ -283,10 +293,17 @@ export default function SidebarNav() {
       {user && (
         <UserProfile
           user={user}
-          onLogout={handleLogout}
+          onLogout={() => setShowLogoutModal(true)}
           onProfileClick={() => navigate("/profile")}
         />
       )}
     </nav>
+    {showLogoutModal && (
+      <LogoutModal
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
+      />
+    )}
+  </>
   );
 }

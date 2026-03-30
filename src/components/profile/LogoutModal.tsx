@@ -8,7 +8,7 @@ type Props = {
 
 export default function LogoutModal({ onClose, onConfirm }: Props) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="bg-white rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
