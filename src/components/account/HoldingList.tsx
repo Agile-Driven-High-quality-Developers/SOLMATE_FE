@@ -71,7 +71,7 @@ export default function HoldingList({
               {showAvgPrice && <th className={`text-right ${compact ? "px-2 py-2" : "px-4 py-3"} text-[11px] text-gray-400 font-medium`}>평균단가</th>}
               <th className={`text-right ${compact ? "px-2 py-2" : "px-4 py-3"} text-[11px] text-gray-400 font-medium`}>현재가</th>
               <th className={`text-right ${compact ? "px-2 py-2" : "px-4 py-3"} text-[11px] text-gray-400 font-medium`}>평가금액</th>
-              <th className={`text-right ${compact ? "px-3 py-2" : "px-6 py-3"} text-[11px] text-gray-400 font-medium`}>수익률</th>
+              <th className={`text-right ${compact ? "px-3 py-2" : "px-6 py-3"} text-[11px] text-gray-400 font-medium`}>종목 수익률</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">

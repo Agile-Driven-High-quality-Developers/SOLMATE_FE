@@ -116,7 +116,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
                   <TrendingUp size={12} className="text-gray-400" />
                   <span>총 수익률</span>
                   <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(1)}%
+                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -193,7 +193,7 @@ function MenteeListItem({
       <div className="flex-1 min-w-0">
         <p className="text-[13px] font-semibold text-gray-900 truncate">{profile?.nickname ?? "..."}</p>
         <p className={`text-[12px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-          {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(1)}%
+          {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
         </p>
       </div>
     </button>

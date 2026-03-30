@@ -329,7 +329,7 @@ function HoldingsTable({
                   평가손익
                 </th>
                 <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 font-medium">
-                  수익률
+                  종목 수익률
                 </th>
               </tr>
             </thead>
@@ -408,7 +408,7 @@ function InvestorReturnRate({ rate }: { rate: number | undefined }) {
   return (
     <span className={`text-[14px] font-semibold ${color}`}>
       {isPositive ? "+" : ""}
-      {rate.toFixed(1)}%
+      {rate.toFixed(2)}%
     </span>
   );
 }
