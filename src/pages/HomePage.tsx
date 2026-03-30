@@ -153,7 +153,7 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
           <TrendingDown size={12} className="text-blue-600" />
         )}
         <ReturnText
-          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : "-"}${index.changePercent}%)`}
+          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
           isPositive={index.isPositive}
           className="text-[12px] font-medium"
         />
