@@ -44,7 +44,7 @@ export default function TradeDiaryTab({ items }: Props) {
   const logoMap = new Map(stocks.map((s) => [s.stockName, s.stockLogo]));
 
   const filtered = items.filter((item) =>
-    item.stockName.toLowerCase().includes(search.toLowerCase())
+    item.stockName.toLowerCase().includes(search.toLowerCase()),
   );
   const grouped = groupByDate(filtered);
 
@@ -52,7 +52,10 @@ export default function TradeDiaryTab({ items }: Props) {
     <div className="flex flex-col gap-4">
       {/* 검색 */}
       <div className="relative">
-        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search
+          size={15}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+        />
         <input
           type="text"
           placeholder="종목명으로 검색"
@@ -71,7 +74,9 @@ export default function TradeDiaryTab({ items }: Props) {
         <div className="flex flex-col gap-4">
           {grouped.map(([dateLabel, groupItems]) => (
             <div key={dateLabel} className="flex flex-col gap-1">
-              <p className="text-[12px] font-semibold text-gray-400 dark:text-slate-500 px-1 mb-1">{dateLabel}</p>
+              <p className="text-[12px] font-semibold text-gray-400 dark:text-slate-500 px-1 mb-1">
+                {dateLabel}
+              </p>
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
                 {groupItems.map((item) => {
                   const isBuy = item.tradeType === "BUY";
@@ -83,16 +88,28 @@ export default function TradeDiaryTab({ items }: Props) {
                     >
                       {/* 좌측: 종목 정보 */}
                       <div className="flex items-center gap-3 w-52 shrink-0">
-                        <Avatar name={item.stockName} src={logoMap.get(item.stockName)} size={40} />
+                        <Avatar
+                          name={item.stockName}
+                          src={logoMap.get(item.stockName)}
+                          size={40}
+                        />
                         <div className="flex flex-col gap-0.5 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{item.stockName}</span>
-                            <Badge name={isBuy ? "매수" : "매도"} color={isBuy ? "#FF4444" : "#0046FF"} />
+                            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+                              {item.stockName}
+                            </span>
+                            <Badge
+                              name={isBuy ? "매수" : "매도"}
+                              color={isBuy ? "#FF4444" : "#0046FF"}
+                            />
                           </div>
                           <span className="text-[12px] text-gray-400 dark:text-slate-500">
-                            {item.quantity}주 · {item.filledPrice?.toLocaleString()}원
+                            {item.quantity}주 ·{" "}
+                            {item.filledPrice?.toLocaleString()}원
                           </span>
-                          <span className="text-[12px] text-gray-400 dark:text-slate-500">{formatTime(item.createdAt)}</span>
+                          <span className="text-[12px] text-gray-400 dark:text-slate-500">
+                            {formatTime(item.createdAt)}
+                          </span>
                         </div>
                       </div>
 
@@ -102,8 +119,11 @@ export default function TradeDiaryTab({ items }: Props) {
                           {item.content}
                         </p>
                         {!isBuy && (
-                          <span className={`text-[15px] font-bold shrink-0 ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
-                            {isPositive ? "+" : ""}{item.profit?.toLocaleString()}원
+                          <span
+                            className={`text-[15px] font-bold shrink-0 ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                          >
+                            {isPositive ? "+" : ""}
+                            {item.profit?.toLocaleString()}원
                           </span>
                         )}
                       </div>

@@ -12,9 +12,9 @@ import { useThemeStore } from "@/store/themeStore";
 
 // --- 증권사 표준 색상 정의 ---
 const COLORS = {
-  up: "#F04452",      // 국내 증권사 Red
-  down: "#3B7DEB",    // 국내 증권사 Blue
-  darkBg: "#131722",  // 트레이딩뷰 표준 다크 배경
+  up: "#F04452", // 국내 증권사 Red
+  down: "#3B7DEB", // 국내 증권사 Blue
+  darkBg: "#131722", // 트레이딩뷰 표준 다크 배경
   lightBg: "#ffffff",
   darkGrid: "#1e222d",
   lightGrid: "#f0f3fa",
@@ -102,6 +102,7 @@ export default function StockChart({ stockCode }: Props) {
   const [period, setPeriod] = useState<PeriodType>("1");
   const [limit, setLimit] = useState(INITIAL_LIMIT["1"]);
   const [ohlcv, setOhlcv] = useState<OhlcvInfo | null>(null);
+  const isDark = useThemeStore((s) => s.theme === "dark");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -126,27 +127,32 @@ export default function StockChart({ stockCode }: Props) {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const dark = useThemeStore.getState().theme === "dark";
+    const bg = dark ? COLORS.darkBg : COLORS.lightBg;
+    const textColor = dark ? COLORS.darkText : COLORS.lightText;
+    const gridColor = dark ? COLORS.darkGrid : COLORS.lightGrid;
+
     const chart = createChart(containerRef.current, {
       autoSize: true,
       layout: {
-        background: { color: "#FFFFFF" },
-        textColor: "#9CA3AF",
+        background: { color: bg },
+        textColor,
         fontSize: 11,
         fontFamily:
           "'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif",
         panes: {
           enableResize: true,
-          separatorColor: "#F3F4F6",
-          separatorHoverColor: "#E5E7EB",
+          separatorColor: dark ? COLORS.darkGrid : "#F3F4F6",
+          separatorHoverColor: dark ? "#2a2e39" : "#E5E7EB",
         },
       },
       grid: {
         vertLines: { visible: false },
-        horzLines: { color: "#F3F4F6", style: 1 },
+        horzLines: { color: gridColor, style: 1 },
       },
       rightPriceScale: {
         borderVisible: false,
-        textColor: "#9CA3AF",
+        textColor,
         mode: PriceScaleMode.Logarithmic,
       },
       leftPriceScale: { visible: false },
@@ -156,13 +162,13 @@ export default function StockChart({ stockCode }: Props) {
       },
       crosshair: {
         vertLine: {
-          color: "#D1D5DB",
+          color: dark ? "#4b5563" : "#D1D5DB",
           width: 1,
           style: 2,
           labelBackgroundColor: "#1F2937",
         },
         horzLine: {
-          color: "#D1D5DB",
+          color: dark ? "#4b5563" : "#D1D5DB",
           width: 1,
           style: 2,
           labelBackgroundColor: "#1F2937",
@@ -204,7 +210,7 @@ export default function StockChart({ stockCode }: Props) {
         scaleMargins: { top: 0.1, bottom: 0 },
         visible: true,
         borderVisible: false,
-        textColor: "#9CA3AF",
+        textColor,
       });
 
     // pane 높이 비율 설정 (캔들 : 거래량 ≈ 2 : 1)
@@ -264,6 +270,23 @@ export default function StockChart({ stockCode }: Props) {
       volumeSeriesRef.current = null;
     };
   }, []);
+
+  // 테마 변경 시 차트 색상 업데이트
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const bg = isDark ? COLORS.darkBg : COLORS.lightBg;
+    const textColor = isDark ? COLORS.darkText : COLORS.lightText;
+    const gridColor = isDark ? COLORS.darkGrid : COLORS.lightGrid;
+    chartRef.current.applyOptions({
+      layout: { background: { color: bg }, textColor },
+      grid: { horzLines: { color: gridColor } },
+      crosshair: {
+        vertLine: { color: isDark ? "#4b5563" : "#D1D5DB" },
+        horzLine: { color: isDark ? "#4b5563" : "#D1D5DB" },
+      },
+    });
+    chartRef.current.panes()[1]?.priceScale("right").applyOptions({ textColor });
+  }, [isDark]);
 
   // 기간 변경 시 timeVisible 동기화
   useEffect(() => {
@@ -331,10 +354,10 @@ export default function StockChart({ stockCode }: Props) {
             <button
               key={value}
               onClick={() => handlePeriodChange(value)}
-              className={`px-2.5 py-1 text-[12px] font-medium rounded-md transition-colors   ${
+              className={`px-2.5 py-1 text-[12px] font-medium rounded-md transition-colors ${
                 period === value
-                  ? "text-[#0046FF] bg-blue-5 dark:bg-gray-50"
-                  : "text-gray-400 hover:text-gray-500 hover:bg-gray-50"
+                  ? "text-[#0046FF] bg-blue-50 dark:bg-slate-700 dark:text-blue-400"
+                  : "text-gray-400 hover:text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-700 dark:hover:text-slate-300"
               }`}
             >
               {label}
@@ -346,30 +369,30 @@ export default function StockChart({ stockCode }: Props) {
       {/* 차트 영역 */}
       <div className="relative" style={{ height: CHART_HEIGHT }}>
         {isPending && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-b-2xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 rounded-b-2xl">
             <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
           </div>
         )}
 
         {/* OHLCV 오버레이 */}
         {ohlcv && (
-          <div className="absolute top-2 left-2 z-10 flex items-center gap-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-[11px] shadow-sm border border-gray-100 pointer-events-none">
-            <span className="text-gray-400">시가</span>
+          <div className="absolute top-2 left-2 z-10 flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-[11px] shadow-sm border border-gray-100 dark:border-slate-700 pointer-events-none">
+            <span className="text-gray-400 dark:text-slate-500">시가</span>
             <span className={ohlcv.isUp ? "text-[#F04452]" : "text-[#3B7DEB]"}>
               {ohlcv.open.toLocaleString()}
             </span>
-            <span className="text-gray-400">고가</span>
+            <span className="text-gray-400 dark:text-slate-500">고가</span>
             <span className="text-[#F04452]">
               {ohlcv.high.toLocaleString()}
             </span>
-            <span className="text-gray-400">저가</span>
+            <span className="text-gray-400 dark:text-slate-500">저가</span>
             <span className="text-[#3B7DEB]">{ohlcv.low.toLocaleString()}</span>
-            <span className="text-gray-400">종가</span>
+            <span className="text-gray-400 dark:text-slate-500">종가</span>
             <span className={ohlcv.isUp ? "text-[#F04452]" : "text-[#3B7DEB]"}>
               {ohlcv.close.toLocaleString()}
             </span>
-            <span className="text-gray-400">거래량</span>
-            <span className="text-gray-700">{formatVolume(ohlcv.volume)}</span>
+            <span className="text-gray-400 dark:text-slate-500">거래량</span>
+            <span className="text-gray-700 dark:text-gray-300">{formatVolume(ohlcv.volume)}</span>
           </div>
         )}
 

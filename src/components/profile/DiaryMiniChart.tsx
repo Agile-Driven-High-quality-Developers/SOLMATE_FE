@@ -1,6 +1,11 @@
 import { useRef, useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { createChart, CandlestickSeries, type UTCTimestamp } from "lightweight-charts";
+import { useThemeStore } from "@/store/themeStore";
+import {
+  createChart,
+  CandlestickSeries,
+  type UTCTimestamp,
+} from "lightweight-charts";
 import { useCandleQuery, type PeriodType } from "@/api/stockApi";
 
 const KST_OFFSET = 9 * 3600;
@@ -19,7 +24,10 @@ const PERIODS: { label: string; value: PeriodType }[] = [
 const MINUTE_PERIODS = new Set<PeriodType>(["1", "5", "30", "60"]);
 
 const INITIAL_LIMIT: Record<PeriodType, number> = {
-  "1": 0, "5": 0, "30": 0, "60": 0,
+  "1": 0,
+  "5": 0,
+  "30": 0,
+  "60": 0,
   day: 365,
   week: 365 * 3,
   month: 365 * 5,
@@ -31,14 +39,23 @@ const MAX_LIMIT = 365 * 20;
 
 // 탭 변경 시 거래 캔들 기준 양쪽에 보여줄 캔들 수
 const HALF_WINDOW: Record<PeriodType, number> = {
-  "1": 60, "5": 36, "30": 12, "60": 6,
-  day: 30, week: 26, month: 12, year: 5,
+  "1": 60,
+  "5": 36,
+  "30": 12,
+  "60": 6,
+  day: 30,
+  week: 26,
+  month: 12,
+  year: 5,
 };
 
 const UP_COLOR = "#F04452";
 const DOWN_COLOR = "#3B7DEB";
 
-function toChartTime(epochSec: number, isMinute: boolean): UTCTimestamp | string {
+function toChartTime(
+  epochSec: number,
+  isMinute: boolean,
+): UTCTimestamp | string {
   const adjusted = epochSec + KST_OFFSET;
   if (isMinute) return adjusted as UTCTimestamp;
   const d = new Date(adjusted * 1000);
@@ -61,8 +78,8 @@ function addDays(dateStr: string, days: number): string {
 
 interface Props {
   tickerCode: string;
-  tradeDate: string;       // "YYYY-MM-DD"
-  tradeDateTime?: string;  // ISO string
+  tradeDate: string; // "YYYY-MM-DD"
+  tradeDateTime?: string; // ISO string
   tradeType: string;
   filledPrice?: number;
   chartHeight?: number;
@@ -77,7 +94,9 @@ export default function DiaryMiniChart({
   chartHeight = 220,
 }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const elapsed = Math.floor((Date.now() - new Date(tradeDate).getTime()) / 86400000);
+  const elapsed = Math.floor(
+    (Date.now() - new Date(tradeDate).getTime()) / 86400000,
+  );
 
   // 비분봉 기간은 거래일이 데이터 범위에 포함되도록 최소 limit 보장
   const getLimit = (p: PeriodType) => {
@@ -95,6 +114,8 @@ export default function DiaryMiniChart({
     }
     return elapsed === 0 ? "5" : "day";
   };
+
+  const isDark = useThemeStore((s) => s.theme === "dark");
 
   const [period, setPeriod] = useState<PeriodType>(getFallbackPeriod);
   const [limit, setLimit] = useState(() => getLimit(getFallbackPeriod()));
@@ -114,11 +135,18 @@ export default function DiaryMiniChart({
 
   // 거래 시각 → 차트 time 값
   const tradeEpoch = useMemo(
-    () => tradeDateTime ? new Date(tradeDateTime).getTime() / 1000 : new Date(tradeDate).getTime() / 1000,
-    [tradeDateTime, tradeDate]
+    () =>
+      tradeDateTime
+        ? new Date(tradeDateTime).getTime() / 1000
+        : new Date(tradeDate).getTime() / 1000,
+    [tradeDateTime, tradeDate],
   );
 
-  const { data: candles, isPending } = useCandleQuery(tickerCode, period, limit);
+  const { data: candles, isPending } = useCandleQuery(
+    tickerCode,
+    period,
+    limit,
+  );
 
   const handlePeriodChange = (p: PeriodType) => {
     setPeriod(p);
@@ -126,7 +154,13 @@ export default function DiaryMiniChart({
     initialScrollDoneRef.current = false;
     setMarkerX(null);
     seriesRef.current?.setData([]);
-    setSearchParams((prev) => { prev.set("chartPeriod", p); return prev; }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        prev.set("chartPeriod", p);
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const isBuy = tradeType === "BUY";
@@ -137,24 +171,40 @@ export default function DiaryMiniChart({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    const dark = useThemeStore.getState().theme === "dark";
+    const bg = dark ? "#131722" : "#FFFFFF";
+    const textColor = dark ? "#d1d4dc" : "#9CA3AF";
+    const gridColor = dark ? "#1e222d" : "#F3F4F6";
+    const crosshairColor = dark ? "#4b5563" : "#D1D5DB";
+
     const chart = createChart(containerRef.current, {
       autoSize: true,
       layout: {
-        background: { color: "#FFFFFF" },
-        textColor: "#9CA3AF",
+        background: { color: bg },
+        textColor,
         fontSize: 11,
         fontFamily: "'Pretendard', 'Noto Sans KR', -apple-system, sans-serif",
       },
       grid: {
         vertLines: { visible: false },
-        horzLines: { color: "#F3F4F6", style: 1 },
+        horzLines: { color: gridColor, style: 1 },
       },
-      rightPriceScale: { borderVisible: false, textColor: "#9CA3AF" },
+      rightPriceScale: { borderVisible: false, textColor },
       leftPriceScale: { visible: false },
       timeScale: { borderVisible: false, timeVisible: false },
       crosshair: {
-        vertLine: { color: "#D1D5DB", width: 1, style: 2, labelBackgroundColor: "#1F2937" },
-        horzLine: { color: "#D1D5DB", width: 1, style: 2, labelBackgroundColor: "#1F2937" },
+        vertLine: {
+          color: crosshairColor,
+          width: 1,
+          style: 2,
+          labelBackgroundColor: "#1F2937",
+        },
+        horzLine: {
+          color: crosshairColor,
+          width: 1,
+          style: 2,
+          labelBackgroundColor: "#1F2937",
+        },
       },
       handleScroll: true,
       handleScale: true,
@@ -183,10 +233,13 @@ export default function DiaryMiniChart({
       const target = tradeChartTimeRef.current;
       if (!target) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const x = typeof target === "number"
-        ? chart.timeScale().timeToCoordinate(target)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        : chart.timeScale().timeToCoordinate(toBusinessDay(target as string) as any);
+      const x =
+        typeof target === "number"
+          ? chart.timeScale().timeToCoordinate(target)
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            chart
+              .timeScale()
+              .timeToCoordinate(toBusinessDay(target as string) as any);
       setMarkerX(x ?? null);
     });
 
@@ -199,6 +252,24 @@ export default function DiaryMiniChart({
       seriesRef.current = null;
     };
   }, []);
+
+  // 테마 변경 시 차트 색상 업데이트
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const bg = isDark ? "#131722" : "#FFFFFF";
+    const textColor = isDark ? "#d1d4dc" : "#9CA3AF";
+    const gridColor = isDark ? "#1e222d" : "#F3F4F6";
+    const crosshairColor = isDark ? "#4b5563" : "#D1D5DB";
+    chartRef.current.applyOptions({
+      layout: { background: { color: bg }, textColor },
+      grid: { horzLines: { color: gridColor } },
+      crosshair: {
+        vertLine: { color: crosshairColor },
+        horzLine: { color: crosshairColor },
+      },
+    });
+    chartRef.current.priceScale("right").applyOptions({ textColor });
+  }, [isDark]);
 
   // timeVisible 동기화
   useEffect(() => {
@@ -219,8 +290,11 @@ export default function DiaryMiniChart({
     seriesRef.current.setData(
       sorted.map((c) => ({
         time: toChartTime(c.time, isMinute),
-        open: c.open, high: c.high, low: c.low, close: c.close,
-      }))
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+      })),
     );
 
     // 거래 시각과 가장 가까운 실제 캔들 인덱스 탐색
@@ -228,7 +302,10 @@ export default function DiaryMiniChart({
     if (isMinute) {
       // 분봉: epoch 기준 가장 가까운 캔들
       sorted.forEach((c, i) => {
-        if (Math.abs(c.time - tradeEpoch) < Math.abs(sorted[nearestIdx].time - tradeEpoch)) {
+        if (
+          Math.abs(c.time - tradeEpoch) <
+          Math.abs(sorted[nearestIdx].time - tradeEpoch)
+        ) {
           nearestIdx = i;
         }
       });
@@ -237,14 +314,18 @@ export default function DiaryMiniChart({
       const tradeDateMs = new Date(tradeDate).getTime();
       sorted.forEach((c, i) => {
         const cMs = new Date(toChartTime(c.time, false) as string).getTime();
-        const nearestMs = new Date(toChartTime(sorted[nearestIdx].time, false) as string).getTime();
+        const nearestMs = new Date(
+          toChartTime(sorted[nearestIdx].time, false) as string,
+        ).getTime();
         if (Math.abs(cMs - tradeDateMs) < Math.abs(nearestMs - tradeDateMs)) {
           nearestIdx = i;
         }
       });
     }
     const nearest = sorted[nearestIdx];
-    const tct = nearest ? toChartTime(nearest.time, isMinute) : toChartTime(tradeEpoch, isMinute);
+    const tct = nearest
+      ? toChartTime(nearest.time, isMinute)
+      : toChartTime(tradeEpoch, isMinute);
     tradeChartTimeRef.current = tct;
 
     if (loadingMoreRef.current) {
@@ -266,10 +347,13 @@ export default function DiaryMiniChart({
     setTimeout(() => {
       if (!chartRef.current || !tct) return;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const x = typeof tct === "number"
-        ? chartRef.current.timeScale().timeToCoordinate(tct)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        : chartRef.current.timeScale().timeToCoordinate(toBusinessDay(tct as string) as any);
+      const x =
+        typeof tct === "number"
+          ? chartRef.current.timeScale().timeToCoordinate(tct)
+          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            chartRef.current
+              .timeScale()
+              .timeToCoordinate(toBusinessDay(tct as string) as any);
       setMarkerX(x ?? null);
     }, 200);
   }, [candles, isMinute, period, tradeDate, tradeEpoch]);
@@ -277,9 +361,11 @@ export default function DiaryMiniChart({
   if (!tickerCode) return null;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 mt-1">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-1">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
-        <span className="text-[12px] font-semibold text-gray-500">체결 시점 차트</span>
+        <span className="text-[12px] font-semibold text-gray-500 dark:text-slate-400">
+          체결 시점 차트
+        </span>
         <div className="flex items-center gap-0.5">
           {PERIODS.map(({ label, value }) => {
             const isMinutePeriod = MINUTE_PERIODS.has(value);
@@ -291,10 +377,10 @@ export default function DiaryMiniChart({
                 onClick={() => !disabled && handlePeriodChange(value)}
                 className={`px-2 py-1 text-[11px] font-medium rounded-md transition-colors ${
                   disabled
-                    ? "text-gray-200 cursor-not-allowed"
+                    ? "text-gray-200 dark:text-slate-700 cursor-not-allowed"
                     : period === value
-                    ? "text-[#0046FF] bg-blue-50"
-                    : "text-gray-400 hover:text-gray-500 hover:bg-gray-50"
+                      ? "text-[#0046FF] bg-blue-50 dark:bg-slate-700 dark:text-blue-400"
+                      : "text-gray-400 hover:text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                 }`}
               >
                 {label}
@@ -306,7 +392,7 @@ export default function DiaryMiniChart({
 
       <div className="relative overflow-hidden" style={{ height: chartHeight }}>
         {isPending && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-b-2xl">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 rounded-b-2xl">
             <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
           </div>
         )}
@@ -316,14 +402,24 @@ export default function DiaryMiniChart({
         {markerX != null && (
           <div
             className="absolute top-0 bottom-0 w-px pointer-events-none"
-            style={{ left: markerX, backgroundColor: markerColor, opacity: 0.4, zIndex: 5 }}
+            style={{
+              left: markerX,
+              backgroundColor: markerColor,
+              opacity: 0.4,
+              zIndex: 5,
+            }}
           />
         )}
         {/* 화살표 */}
         {markerX != null && isBuy && (
           <div
             className="absolute pointer-events-none"
-            style={{ left: markerX, bottom: 8, transform: "translateX(-50%)", zIndex: 10 }}
+            style={{
+              left: markerX,
+              bottom: 8,
+              transform: "translateX(-50%)",
+              zIndex: 10,
+            }}
           >
             <svg width={10} height={9} viewBox="0 0 10 9">
               <polygon points="5,0 10,9 0,9" fill={markerColor} />
@@ -333,7 +429,12 @@ export default function DiaryMiniChart({
         {markerX != null && !isBuy && (
           <div
             className="absolute pointer-events-none"
-            style={{ left: markerX, top: 8, transform: "translateX(-50%)", zIndex: 10 }}
+            style={{
+              left: markerX,
+              top: 8,
+              transform: "translateX(-50%)",
+              zIndex: 10,
+            }}
           >
             <svg width={10} height={9} viewBox="0 0 10 9">
               <polygon points="5,9 10,0 0,0" fill={markerColor} />

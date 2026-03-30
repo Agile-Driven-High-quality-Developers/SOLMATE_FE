@@ -1,4 +1,4 @@
-import { Bell, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -33,7 +33,14 @@ export default function NotificationPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") ?? "all") as TabId;
   const setActiveTab = (v: TabId) =>
-    setSearchParams((p) => { if (v === "all") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v === "all") p.delete("tab");
+        else p.set("tab", v);
+        return p;
+      },
+      { replace: true },
+    );
 
   const [alertOpen, setAlertOpen] = useState(false);
 
@@ -63,17 +70,32 @@ export default function NotificationPage() {
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 이미 멘토 있음 알림 모달 */}
       {alertOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setAlertOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40"
+          onClick={() => setAlertOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl w-80 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 신청 수락 불가</p>
-              <button onClick={() => setAlertOpen(false)} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+                멘토 신청 수락 불가
+              </p>
+              <button
+                onClick={() => setAlertOpen(false)}
+                className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors"
+              >
                 <X size={18} />
               </button>
             </div>
             <div className="px-6 py-6">
-              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">이미 멘토가 있습니다.</p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">해당 멘티는 이미 다른 멘토가 배정되어 있어요.</p>
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+                이미 멘토가 있습니다.
+              </p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+                해당 멘티는 이미 다른 멘토가 배정되어 있어요.
+              </p>
             </div>
             <div className="px-6 pb-6">
               <button

@@ -3,17 +3,29 @@ import { X, AlertCircle, Wallet, Tag, Hash, PenLine } from "lucide-react";
 import Button from "@/components/ui/Button";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
+import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 const TRADE_ORDER_TOUR: TourStep[] = [
   {
     target: "trade-order-available",
-    title: <span className="inline-flex items-center gap-1.5"><Wallet size={15} />주문 가능금액</span>,
-    description: "현재 내 예수금(투자에 쓸 수 있는 현금)이에요. 이 금액 안에서만 매수할 수 있어요.",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Wallet size={15} />
+        주문 가능금액
+      </span>
+    ),
+    description:
+      "현재 내 예수금(투자에 쓸 수 있는 현금)이에요. 이 금액 안에서만 매수할 수 있어요.",
     placement: "bottom",
   },
   {
     target: "trade-order-type",
-    title: <span className="inline-flex items-center gap-1.5"><Tag size={15} />시장가 vs 지정가</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Tag size={15} />
+        시장가 vs 지정가
+      </span>
+    ),
     description: "주문 방식을 선택해요.",
     items: [
       "시장가 — 지금 바로 현재 가격으로 체결돼요",
@@ -23,18 +35,28 @@ const TRADE_ORDER_TOUR: TourStep[] = [
   },
   {
     target: "trade-order-quantity",
-    title: <span className="inline-flex items-center gap-1.5"><Hash size={15} />수량 입력</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Hash size={15} />
+        수량 입력
+      </span>
+    ),
     description: "몇 주를 살지 입력해요. 아래 최대 수량을 넘을 수 없어요.",
     placement: "bottom",
   },
   {
     target: "trade-order-diary",
-    title: <span className="inline-flex items-center gap-1.5"><PenLine size={15} />매매일지 (필수)</span>,
-    description: "이 주식을 사는 이유를 꼭 기록해야 주문할 수 있어요. 나중에 내 투자 패턴을 분석하는 데 도움이 돼요.",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <PenLine size={15} />
+        매매일지 (필수)
+      </span>
+    ),
+    description:
+      "이 주식을 사는 이유를 꼭 기록해야 주문할 수 있어요. 나중에 내 투자 패턴을 분석하는 데 도움이 돼요.",
     placement: "top",
   },
 ];
-import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 type OrderType = "MARKET" | "LIMIT";
 
@@ -70,66 +92,104 @@ export default function TradeOrderModal({
 }: Props) {
   const today = new Date().toISOString().slice(0, 10);
   const isBuy = side === "buy";
+
+  // 다크모드에서 너무 밝은 배경색 대신 반투명도를 활용하도록 수정
   const accent = {
-    text: isBuy ? "text-red-500" : "text-[#0046FF]",
-    bg: isBuy ? "bg-red-500 hover:bg-red-600" : "bg-[#0046FF] hover:bg-blue-700",
-    bgLight: isBuy ? "bg-red-50" : "bg-blue-50",
+    text: isBuy ? "text-red-500" : "text-blue-500",
+    bg: isBuy
+      ? "bg-red-500 hover:bg-red-600 active:bg-red-700"
+      : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800",
+    // 다크모드 대응 라이트 배경 (투명도 조절)
+    bgLight: isBuy
+      ? "bg-red-50 dark:bg-red-500/10"
+      : "bg-blue-50 dark:bg-blue-500/10",
   };
 
-  const [orderType, setOrderType] = useState<OrderType>(initialPrice ? "LIMIT" : "MARKET");
-  const [limitPrice, setLimitPrice] = useState(initialPrice ? String(initialPrice) : "");
+  const [orderType, setOrderType] = useState<OrderType>(
+    initialPrice ? "LIMIT" : "MARKET",
+  );
+  const [limitPrice, setLimitPrice] = useState(
+    initialPrice ? String(initialPrice) : "",
+  );
   const [quantity, setQuantity] = useState("");
   const [diary, setDiary] = useState("");
 
-  const execPrice = orderType === "MARKET" ? currentPrice : Number(limitPrice) || 0;
+  const execPrice =
+    orderType === "MARKET" ? currentPrice : Number(limitPrice) || 0;
   const qty = parseInt(quantity) || 0;
   const totalAmount = execPrice * qty;
-
-  const maxQty = isBuy
-    ? Math.floor(cash / currentPrice)
-    : holdingQuantity;
-
-  const canSubmit = qty > 0 && diary.trim().length > 0 && (orderType === "MARKET" || execPrice > 0);
+  const maxQty = isBuy ? Math.floor(cash / currentPrice) : holdingQuantity;
+  const canSubmit =
+    qty > 0 &&
+    diary.trim().length > 0 &&
+    (orderType === "MARKET" || execPrice > 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl p-4 w-full max-w-lg z-10 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
 
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md z-10 shadow-2xl border border-transparent dark:border-slate-800">
         {/* 헤더 */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-[17px] font-bold text-gray-900">
-              <span className={accent.text}>{isBuy ? "매수" : "매도"}</span>{" "}
-              {stockName}
-            </h3>
-            <p className="text-[12px] text-gray-400 mt-0.5">
-              현재가: {currentPrice.toLocaleString()}원
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-[13px] font-bold px-1.5 py-0.5 rounded ${isBuy ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"}`}
+              >
+                {isBuy ? "매수" : "매도"}
+              </span>
+              <h3 className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+                {stockName}
+              </h3>
+            </div>
+            <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-1 tabular-nums">
+              현재가:{" "}
+              <span className="text-gray-600 dark:text-gray-300">
+                {currentPrice.toLocaleString()}원
+              </span>
             </p>
           </div>
-          <button onClick={onClose} className="cursor-pointer">
-            <X size={20} className="text-gray-400" />
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+          >
+            <X size={20} className="text-gray-400 dark:text-slate-500" />
           </button>
         </div>
 
         {/* 주문 가능금액 */}
-        <div className={`rounded-xl px-3 py-2 mb-3 ${accent.bgLight}`} data-tour="trade-order-available">
+        <div
+          className={`rounded-xl px-4 py-3 mb-4 ${accent.bgLight} border border-transparent dark:border-white/5`}
+          data-tour="trade-order-available"
+        >
           <div className="flex justify-between items-center">
-            <span className="text-[12px] font-semibold text-gray-500">주문 가능금액</span>
-            <span className={`text-[12px] font-bold ${accent.text}`}>
+            <span className="text-[12px] font-medium text-gray-500 dark:text-slate-400">
+              주문 가능금액
+            </span>
+            <span
+              className={`text-[14px] font-bold tabular-nums ${accent.text}`}
+            >
               {cash.toLocaleString()}원
             </span>
           </div>
         </div>
 
-        {/* 시장가 / 지정가 */}
-        <div className="flex bg-gray-100 rounded-xl p-1 mb-3" data-tour="trade-order-type">
+        {/* 시장가 / 지정가 탭 */}
+        <div
+          className="flex bg-gray-100 dark:bg-slate-800/50 rounded-xl p-1 mb-4 border dark:border-slate-800"
+          data-tour="trade-order-type"
+        >
           {(["MARKET", "LIMIT"] as OrderType[]).map((t) => (
             <button
               key={t}
               onClick={() => setOrderType(t)}
-              className={`flex-1 py-1.5 rounded-lg text-[13px] font-semibold transition-all cursor-pointer ${
-                orderType === t ? "bg-white text-[#0046FF] shadow-sm" : "text-gray-400"
+              className={`flex-1 py-2 rounded-lg text-[13px] font-bold transition-all ${
+                orderType === t
+                  ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
+                  : "text-gray-400 dark:text-slate-500 hover:text-gray-500"
               }`}
             >
               {t === "MARKET" ? "시장가" : "지정가"}
@@ -137,87 +197,84 @@ export default function TradeOrderModal({
           ))}
         </div>
 
-        {/* 가격 */}
-        <div className="mb-3">
-          <label className="text-[12px] font-semibold text-gray-500 mb-1 block">
-            주문가격
-          </label>
-          {orderType === "MARKET" ? (
-            <div className="w-full px-4 py-2 rounded-xl border border-gray-100 bg-gray-50 text-[13px] text-gray-500">
-              {currentPrice.toLocaleString()}원 (시장가)
-            </div>
-          ) : (
+        {/* 가격 & 수량 그리드 */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="text-[12px] font-semibold text-gray-500 dark:text-slate-400 mb-1.5 block ml-1">
+              주문가격
+            </label>
+            {orderType === "MARKET" ? (
+              <div className="w-full px-4 py-2.5 rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/80 text-[13px] text-gray-400 dark:text-slate-500 tabular-nums">
+                {currentPrice.toLocaleString()}
+              </div>
+            ) : (
+              <input
+                type="number"
+                value={limitPrice}
+                onChange={(e) => setLimitPrice(e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
+              />
+            )}
+          </div>
+          <div data-tour="trade-order-quantity">
+            <label className="text-[12px] font-semibold text-gray-500 dark:text-slate-400 mb-1.5 block ml-1">
+              수량 (주)
+            </label>
             <input
               type="number"
-              value={limitPrice}
-              onChange={(e) => setLimitPrice(e.target.value)}
-              placeholder="가격을 입력하세요"
-              className="w-full px-4 py-2 rounded-xl border border-gray-200 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[#0046FF] transition-colors"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="0"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
             />
-          )}
-        </div>
-
-        {/* 수량 */}
-        <div className="mb-3" data-tour="trade-order-quantity">
-          <label className="text-[12px] font-semibold text-gray-500 mb-1 block">
-            수량 (주)
-          </label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            placeholder="0"
-            min="1"
-            className="w-full px-4 py-2 rounded-xl border border-gray-200 text-[13px] text-gray-900 placeholder:text-gray-400 outline-none focus:border-[#0046FF] transition-colors"
-          />
-          <p className="text-[12px] text-gray-400 mt-1">
-            최대 {maxQty}주 {isBuy ? "매수" : "매도"} 가능
-          </p>
-        </div>
-
-        {/* 주문금액 */}
-        <div className="bg-gray-50 rounded-xl px-3 py-2 mb-3">
-          <div className="flex justify-between text-[13px]">
-            <span className="text-gray-500">주문금액</span>
-            <span className="font-bold text-gray-900">
-              {qty > 0 ? totalAmount.toLocaleString() : "-"}원
-            </span>
           </div>
         </div>
 
-        {/* 차트 */}
-        <div className="mb-3">
+        <div className="flex justify-between px-1 mb-4">
+          <p className="text-[11px] text-gray-400 dark:text-slate-500">
+            최대 {maxQty}주 {isBuy ? "매수" : "매도"} 가능
+          </p>
+          <p className="text-[13px] font-bold text-gray-900 dark:text-gray-100">
+            총 {qty > 0 ? totalAmount.toLocaleString() : "0"}원
+          </p>
+        </div>
+
+        {/* 미니 차트 */}
+        <div className="mb-4 rounded-xl overflow-hidden border dark:border-slate-800">
           <DiaryMiniChart
             tickerCode={tickerCode}
             tradeDate={today}
             tradeDateTime={new Date().toISOString()}
             tradeType={isBuy ? "BUY" : "SELL"}
             filledPrice={currentPrice}
-            chartHeight={100}
+            chartHeight={80}
           />
         </div>
 
         {/* 매매일지 */}
-        <div className="mb-3" data-tour="trade-order-diary">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[13px] font-semibold text-gray-700">
-              매매일지 <span className="text-red-400">*</span>
-              <span className="text-[12px] font-normal text-gray-400 ml-1">(필수)</span>
+        <div className="mb-5" data-tour="trade-order-diary">
+          <div className="flex items-center justify-between mb-1.5 px-1">
+            <label className="text-[13px] font-bold text-gray-700 dark:text-gray-200">
+              매매일지 <span className="text-red-500">*</span>
             </label>
-            <span className={`text-[12px] ${diary.length > 450 ? "text-red-400" : "text-gray-400"}`}>
+            <span
+              className={`text-[11px] ${diary.length > 450 ? "text-red-500" : "text-gray-400 dark:text-slate-500"}`}
+            >
               {diary.length}/500
             </span>
           </div>
           <textarea
             value={diary}
-            onChange={(e) => e.target.value.length <= 500 && setDiary(e.target.value)}
-            placeholder="이 종목을 매수/매도한 이유, 전략, 목표가 등을 기록하세요."
-            rows={5}
-            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-[13px] outline-none focus:border-[#0046FF] transition-colors resize-none leading-relaxed"
+            onChange={(e) =>
+              e.target.value.length <= 500 && setDiary(e.target.value)
+            }
+            placeholder="매수/매도 전략을 기록하세요 (필수)"
+            rows={4}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none leading-relaxed"
           />
           {!diary.trim() && qty > 0 && (
-            <p className="text-[12px] text-red-400 mt-1 flex items-center gap-1">
-              <AlertCircle size={11} />
+            <p className="text-[11px] text-red-500 mt-1.5 flex items-center gap-1 ml-1">
+              <AlertCircle size={12} />
               매매일지를 작성해야 주문할 수 있습니다.
             </p>
           )}
@@ -225,22 +282,23 @@ export default function TradeOrderModal({
 
         <SpotlightTour tourKey="trade-order" steps={TRADE_ORDER_TOUR} />
 
-        {/* 버튼 */}
-        <div className="flex gap-2">
-          <Button
-            variant="invalid"
-            className="flex-1 py-3 text-[13px] font-semibold cursor-pointer"
+        {/* 하단 버튼 */}
+        <div className="flex gap-3">
+          <button
             onClick={onClose}
+            className="flex-1 py-3.5 rounded-xl text-[14px] font-bold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
           >
             취소
-          </Button>
-          <Button
+          </button>
+          <button
             disabled={!canSubmit}
-            className={`flex-1 py-3 text-[13px] font-bold cursor-pointer disabled:opacity-40 ${accent.bg}`}
-            onClick={() => onConfirm({ orderType, price: execPrice, quantity: qty, diary })}
+            onClick={() =>
+              onConfirm({ orderType, price: execPrice, quantity: qty, diary })
+            }
+            className={`flex-[1.5] py-3.5 rounded-xl text-[14px] font-bold text-white transition-all disabled:opacity-30 disabled:grayscale ${accent.bg}`}
           >
             {isBuy ? "매수하기" : "매도하기"}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

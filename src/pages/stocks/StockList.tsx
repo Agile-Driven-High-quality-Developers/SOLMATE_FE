@@ -6,7 +6,12 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const INVEST_TOUR: TourStep[] = [
   {
     target: "invest-market",
-    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />코스피 · 코스닥이 뭔가요?</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <TrendingUp size={15} />
+        코스피 · 코스닥이 뭔가요?
+      </span>
+    ),
     description: "주식 시장 전체의 흐름을 숫자 하나로 나타낸 지수예요.",
     items: [
       "코스피(KOSPI) — 삼성·현대 같은 대형 우량 기업 지수",
@@ -17,7 +22,11 @@ const INVEST_TOUR: TourStep[] = [
   },
   {
     target: "stock-columns",
-    title: <span className="inline-flex items-center gap-1.5"><Hash size={15} />각 숫자가 무슨 뜻이에요?</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Hash size={15} />각 숫자가 무슨 뜻이에요?
+      </span>
+    ),
     description: "종목 리스트에서 보이는 숫자들이에요.",
     items: [
       "현재가 — 지금 이 순간 거래되는 가격",
@@ -29,20 +38,36 @@ const INVEST_TOUR: TourStep[] = [
   },
   {
     target: "stock-search",
-    title: <span className="inline-flex items-center gap-1.5"><Search size={15} />원하는 종목 찾기</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Search size={15} />
+        원하는 종목 찾기
+      </span>
+    ),
     description:
       "회사 이름으로 검색하거나 거래량·등락률 순으로 정렬해서 마음에 드는 종목을 찾아봐요.",
     placement: "bottom",
   },
   {
     target: "stock-table",
-    title: <span className="inline-flex items-center gap-1.5"><ClipboardList size={15} />종목을 클릭해봐요!</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <ClipboardList size={15} />
+        종목을 클릭해봐요!
+      </span>
+    ),
     description:
       "현재가·등락률이 실시간으로 바뀌어요. 종목을 클릭하면 차트 보기와 매수·매도 화면으로 이동해요!",
     placement: "bottom",
   },
 ];
-import { Search, TrendingUp, TrendingDown, Hash, ClipboardList } from "lucide-react";
+import {
+  Search,
+  TrendingUp,
+  TrendingDown,
+  Hash,
+  ClipboardList,
+} from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useStockStore } from "@/store/stockStore";
 
@@ -104,7 +129,9 @@ function MarketPanel({
           <p className="text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-1">
             {idx.label}
           </p>
-          <p className="text-[24px] font-bold text-gray-900 dark:text-gray-100">{idx.value}</p>
+          <p className="text-[24px] font-bold text-gray-900 dark:text-gray-100">
+            {idx.value}
+          </p>
           <div className="flex items-center gap-1 mt-0.5">
             {idx.isPositive ? (
               <TrendingUp size={12} className="text-red-500" />
@@ -200,17 +227,38 @@ export default function StockList() {
   const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
 
   const setSearch = (v: string) =>
-    setSearchParams((p) => { if (v) p.set("search", v); else p.delete("search"); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v) p.set("search", v);
+        else p.delete("search");
+        return p;
+      },
+      { replace: true },
+    );
   const toggleSector = (v: string) =>
-    setSearchParams((p) => {
-      if (v === "전체") { p.delete("sector"); return p; }
-      const cur = (p.get("sector") ?? "").split(",").filter(Boolean);
-      const next = cur.includes(v) ? cur.filter((s) => s !== v) : [...cur, v];
-      if (next.length === 0) p.delete("sector"); else p.set("sector", next.join(","));
-      return p;
-    }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v === "전체") {
+          p.delete("sector");
+          return p;
+        }
+        const cur = (p.get("sector") ?? "").split(",").filter(Boolean);
+        const next = cur.includes(v) ? cur.filter((s) => s !== v) : [...cur, v];
+        if (next.length === 0) p.delete("sector");
+        else p.set("sector", next.join(","));
+        return p;
+      },
+      { replace: true },
+    );
   const setSort = (v: SortType) =>
-    setSearchParams((p) => { if (v === "거래량순") p.delete("sort"); else p.set("sort", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v === "거래량순") p.delete("sort");
+        else p.set("sort", v);
+        return p;
+      },
+      { replace: true },
+    );
 
   // ── 초기 fetch 후 STOMP 구독 (공유 클라이언트 재사용) ────────────────────
   useEffect(() => {
@@ -247,7 +295,9 @@ export default function StockList() {
   }, []);
 
   const filtered = stocks
-    .filter((s) => sectors.length === 0 || sectors.includes(SECTOR_MAP[s.sectorType]))
+    .filter(
+      (s) => sectors.length === 0 || sectors.includes(SECTOR_MAP[s.sectorType]),
+    )
     .filter(
       (s) =>
         s.stockName.toLowerCase().includes(search.toLowerCase()) ||
@@ -265,7 +315,9 @@ export default function StockList() {
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">모의투자</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          모의투자
+        </h1>
         <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
           KOSPI200 종목으로 실전 같은 모의 매매를 경험하세요
         </p>
@@ -311,7 +363,8 @@ export default function StockList() {
       {/* 섹터 탭 */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {SECTORS.map((s) => {
-          const isActive = s === "전체" ? sectors.length === 0 : sectors.includes(s);
+          const isActive =
+            s === "전체" ? sectors.length === 0 : sectors.includes(s);
           return (
             <button
               key={s}
@@ -331,7 +384,10 @@ export default function StockList() {
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
 
       {/* 종목 테이블 */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto" data-tour="stock-table">
+      <div
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto"
+        data-tour="stock-table"
+      >
         <table className="w-full min-w-175">
           <thead data-tour="stock-columns">
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">

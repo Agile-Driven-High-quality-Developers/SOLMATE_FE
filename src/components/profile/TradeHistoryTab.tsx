@@ -36,16 +36,28 @@ export default function TradeHistoryTab({ items }: Props) {
             const isPositive = (item.profitAmount ?? 0) >= 0;
 
             return (
-              <tr key={index} className={`hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${item.tickerCode ? "cursor-pointer" : ""}`} onClick={() => item.tickerCode && navigate(`/invest/${item.tickerCode}`)}>
+              <tr
+                key={index}
+                className={`hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${item.tickerCode ? "cursor-pointer" : ""}`}
+                onClick={() =>
+                  item.tickerCode && navigate(`/invest/${item.tickerCode}`)
+                }
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <Avatar name={item.stockName} src={item.stockLogo} size={28} />
+                    <Avatar
+                      name={item.stockName}
+                      src={item.stockLogo}
+                      size={28}
+                    />
                     <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">
                       {item.stockName}
                     </span>
                   </div>
                 </td>
-                <td className={`px-3 py-3 text-center text-[13px] font-semibold ${isBuy ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+                <td
+                  className={`px-3 py-3 text-center text-[13px] font-semibold ${isBuy ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                >
                   {isBuy ? "매수" : "매도"}
                 </td>
                 <td className="px-3 py-3 text-right text-[13px] text-gray-600 dark:text-slate-400">
@@ -59,7 +71,9 @@ export default function TradeHistoryTab({ items }: Props) {
                 </td>
                 <td className="px-3 py-3 text-right">
                   {item.profitAmount != null ? (
-                    <div className={`flex flex-col items-end ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
+                    <div
+                      className={`flex flex-col items-end ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                    >
                       <span className="text-[13px] font-bold">
                         {isPositive ? "+" : ""}
                         {item.profitAmount.toLocaleString()}원
@@ -72,7 +86,9 @@ export default function TradeHistoryTab({ items }: Props) {
                       )}
                     </div>
                   ) : (
-                    <span className="text-[12px] text-gray-300 dark:text-slate-600">-</span>
+                    <span className="text-[12px] text-gray-300 dark:text-slate-600">
+                      -
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right text-[12px] text-gray-400 dark:text-slate-500">

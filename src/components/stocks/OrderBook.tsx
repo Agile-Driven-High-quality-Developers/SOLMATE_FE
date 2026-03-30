@@ -7,7 +7,11 @@ interface Props {
   onPriceClick?: (price: number, side: "buy" | "sell") => void;
 }
 
-export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick }: Props) {
+export default function OrderBook({
+  orderBook,
+  holdingQuantity = 0,
+  onPriceClick,
+}: Props) {
   const { sellLevels, buyLevels, currentPrice, changeRate } = orderBook;
   const isPositive = changeRate > 0;
   const hasHolding = holdingQuantity > 0;
@@ -41,11 +45,13 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
     const ratio = maxQuantity > 0 ? level.quantity / maxQuantity : 0;
     const priceDiff = ((level.price - previousClose) / previousClose) * 100;
     const isCurrent =
-      level.price === currentPrice &&
-      (side === "sell" ? true : !currentInSell);
+      level.price === currentPrice && (side === "sell" ? true : !currentInSell);
     const bgColor =
       side === "sell" ? "rgba(59,130,246,0.12)" : "rgba(239,68,68,0.12)";
-    const quantityColor = side === "sell" ? "text-blue-400 dark:text-blue-500" : "text-red-400 dark:text-red-500";
+    const quantityColor =
+      side === "sell"
+        ? "text-blue-400 dark:text-blue-500"
+        : "text-red-400 dark:text-red-500";
 
     return (
       <div
@@ -73,15 +79,21 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
         <span
           className={`relative w-[25%] text-center text-[11px] tabular-nums ${
             isCurrent
-              ? isPositive ? "font-semibold text-red-500" : "font-semibold text-blue-500"
-              : priceDiff >= 0 ? "text-red-400" : "text-blue-400"
+              ? isPositive
+                ? "font-semibold text-red-500"
+                : "font-semibold text-blue-500"
+              : priceDiff >= 0
+                ? "text-red-400"
+                : "text-blue-400"
           }`}
         >
           {isCurrent
             ? `${isPositive ? "+" : ""}${changeRate.toFixed(2)}%`
             : `${priceDiff > 0 ? "+" : ""}${priceDiff.toFixed(2)}%`}
         </span>
-        <span className={`relative w-[35%] text-right tabular-nums ${isCurrent ? "text-gray-400 dark:text-slate-500" : quantityColor}`}>
+        <span
+          className={`relative w-[35%] text-right tabular-nums ${isCurrent ? "text-gray-400 dark:text-slate-500" : quantityColor}`}
+        >
           {level.quantity.toLocaleString()}
         </span>
       </div>
@@ -91,9 +103,14 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
   return (
     <>
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4">
-        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">호가</h3>
+        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          호가
+        </h3>
         <div className="flex flex-col text-[13px]">
-          {sellLevels.slice().reverse().map((level, i) => renderRow(level, i, "sell"))}
+          {sellLevels
+            .slice()
+            .reverse()
+            .map((level, i) => renderRow(level, i, "sell"))}
           {buyLevels.map((level, i) => renderRow(level, i, "buy"))}
         </div>
       </div>
@@ -109,7 +126,9 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
             className="relative bg-white dark:bg-slate-900 rounded-2xl p-5 w-64 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-[13px] text-gray-500 dark:text-slate-400 text-center mb-1">주문 가격</p>
+            <p className="text-[13px] text-gray-500 dark:text-slate-400 text-center mb-1">
+              주문 가격
+            </p>
             <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100 text-center mb-4">
               {pendingPrice.toLocaleString()}원
             </p>

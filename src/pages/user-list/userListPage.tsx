@@ -5,19 +5,31 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const USERS_TOUR: TourStep[] = [
   {
     target: "users-follow",
-    title: <span className="inline-flex items-center gap-1.5"><UserPlus size={15} />팔로우</span>,
-    description: "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <UserPlus size={15} />
+        팔로우
+      </span>
+    ),
+    description:
+      "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
     placement: "left",
   },
   {
     target: "users-mentor",
-    title: <span className="inline-flex items-center gap-1.5"><GraduationCap size={15} />멘토신청</span>,
-    description: "멘토로 등록하면 그 사람의 매매일지와 포트폴리오를 공유받을 수 있어요. 1명만 멘토로 설정할 수 있어요.",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <GraduationCap size={15} />
+        멘토신청
+      </span>
+    ),
+    description:
+      "멘토로 등록하면 그 사람의 매매일지와 포트폴리오를 공유받을 수 있어요. 1명만 멘토로 설정할 수 있어요.",
     placement: "left",
   },
 ];
 import { useState } from "react";
-import { Search, Medal, UserPlus, GraduationCap, Crown, Users, X } from "lucide-react";
+import { Search, Medal, UserPlus, GraduationCap, Crown, X } from "lucide-react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -41,21 +53,30 @@ import type { AccountSummaryData } from "@/api/accountSummaryApi";
 type SortBy = "returnRate" | "returnAmount" | "follower";
 
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
-  { value: "returnRate",   label: "수익률순"  },
-  { value: "returnAmount", label: "수익순"    },
-  { value: "follower",     label: "팔로워순" },
+  { value: "returnRate", label: "수익률순" },
+  { value: "returnAmount", label: "수익순" },
+  { value: "follower", label: "팔로워순" },
 ];
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
-  "#4ECDC4", "#45B7D1", "#FF6B35", "#96CEB4", "#DDA0DD",
-  "#BB8FCE", "#85C1E9", "#F0A500", "#E74C3C", "#2ECC71",
+  "#4ECDC4",
+  "#45B7D1",
+  "#FF6B35",
+  "#96CEB4",
+  "#DDA0DD",
+  "#BB8FCE",
+  "#85C1E9",
+  "#F0A500",
+  "#E74C3C",
+  "#2ECC71",
 ];
 
 function getAvatarColor(name: string): string {
   let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < name.length; i++)
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
@@ -63,7 +84,7 @@ function getAvatarColor(name: string): string {
 
 const PODIUM_CONFIG = {
   1: { barHeight: "h-24", barBg: "bg-yellow-400" },
-  2: { barHeight: "h-16", barBg: "bg-gray-400"   },
+  2: { barHeight: "h-16", barBg: "bg-gray-400" },
   3: { barHeight: "h-12", barBg: "bg-orange-400" },
 } as const;
 
@@ -71,7 +92,10 @@ function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
   const navigate = useNavigate();
   const cfg = PODIUM_CONFIG[rank];
   return (
-    <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
+    <div
+      className="flex flex-col items-center cursor-pointer"
+      onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}
+    >
       {rank === 1 && <span className="text-xl mb-1">👑</span>}
       <Avatar
         name={user.nickname}
@@ -96,8 +120,8 @@ function Podium({ users }: { users: UserItem[] }) {
   return (
     <div className="flex items-end justify-center gap-3 py-6 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-4">
       {second && <PodiumSlot user={second} rank={2} />}
-      {first  && <PodiumSlot user={first}  rank={1} />}
-      {third  && <PodiumSlot user={third}  rank={3} />}
+      {first && <PodiumSlot user={first} rank={1} />}
+      {third && <PodiumSlot user={third} rank={3} />}
     </div>
   );
 }
@@ -113,11 +137,19 @@ function FollowButton({
 }) {
   if (user.me) return null;
   return user.following ? (
-    <Button variant="basic" className="text-[12px] w-full" onClick={() => onToggle(user)}>
+    <Button
+      variant="invalid"
+      className="text-[12px] w-full"
+      onClick={() => onToggle(user)}
+    >
       팔로잉
     </Button>
   ) : (
-    <Button variant="primary" className="text-[12px] w-full" onClick={() => onToggle(user)}>
+    <Button
+      variant="primary"
+      className="text-[12px] w-full"
+      onClick={() => onToggle(user)}
+    >
       팔로우
     </Button>
   );
@@ -196,16 +228,22 @@ function ReturnCells({
   const amount = summary?.totalReturnAmount ?? 0;
   const isPositive = rate > 0;
   const isNegative = rate < 0;
-  const color = isPositive ? "text-red-500" : isNegative ? "text-blue-500" : "text-gray-400";
+  const color = isPositive
+    ? "text-red-500"
+    : isNegative
+      ? "text-blue-500"
+      : "text-gray-400";
   const prefix = isPositive ? "+" : "";
 
   return (
     <>
       <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
-        {prefix}{rate.toFixed(2)}%
+        {prefix}
+        {rate.toFixed(2)}%
       </td>
       <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
-        {prefix}{(amount / 10000).toFixed(0)}만원
+        {prefix}
+        {(amount / 10000).toFixed(0)}만원
       </td>
     </>
   );
@@ -236,7 +274,9 @@ function UserRow({
 }) {
   const navigate = useNavigate();
   return (
-    <tr className={`border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors ${user.me ? "bg-blue-50/40 dark:bg-blue-950/20" : ""}`}>
+    <tr
+      className={`border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors ${user.me ? "bg-blue-50/40 dark:bg-blue-950/20" : ""}`}
+    >
       {/* 순위 */}
       <td className="px-5 py-3.5 text-center">
         {rank === 1 ? (
@@ -252,14 +292,21 @@ function UserRow({
 
       {/* 투자자 */}
       <td className="px-2 py-3.5">
-        <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-70 transition-opacity w-fit" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
+        <div
+          className="flex items-center gap-2.5 cursor-pointer hover:opacity-70 transition-opacity w-fit"
+          onClick={() =>
+            navigate(user.me ? "/profile" : `/users/${user.userId}`)
+          }
+        >
           <Avatar
             name={user.nickname}
             src={user.imageUrl || undefined}
             size={32}
             color={getAvatarColor(user.nickname)}
           />
-          <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">{user.nickname}</span>
+          <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">
+            {user.nickname}
+          </span>
           {user.me && (
             <span className="text-[11px] font-semibold text-white bg-[#0046FF] px-1.5 py-0.5 rounded-full">
               나
@@ -277,12 +324,18 @@ function UserRow({
       <ReturnCells summary={summary} isLoading={summaryLoading} />
 
       {/* 팔로우 */}
-      <td className="px-4 py-3.5 text-center" data-tour={isFirstNonMe ? "users-follow" : undefined}>
+      <td
+        className="px-4 py-3.5 text-center"
+        data-tour={isFirstNonMe ? "users-follow" : undefined}
+      >
         <FollowButton user={user} onToggle={onFollowToggle} />
       </td>
 
       {/* 멘토 */}
-      <td className="px-4 py-3.5 text-center" data-tour={isFirstNonMe ? "users-mentor" : undefined}>
+      <td
+        className="px-4 py-3.5 text-center"
+        data-tour={isFirstNonMe ? "users-mentor" : undefined}
+      >
         <MentoringButton
           user={user}
           hasAcceptedMentor={hasAcceptedMentor}
@@ -303,13 +356,33 @@ export default function UserListPage() {
   const sortBy = (searchParams.get("sort") ?? "returnRate") as SortBy;
 
   const setTab = (v: "전체" | "팔로잉") =>
-    setSearchParams((p) => { v === "전체" ? p.delete("tab") : p.set("tab", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        v === "전체" ? p.delete("tab") : p.set("tab", v);
+        return p;
+      },
+      { replace: true },
+    );
   const setSearch = (v: string) =>
-    setSearchParams((p) => { v ? p.set("search", v) : p.delete("search"); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        v ? p.set("search", v) : p.delete("search");
+        return p;
+      },
+      { replace: true },
+    );
   const setSortBy = (v: SortBy) =>
-    setSearchParams((p) => { v === "returnRate" ? p.delete("sort") : p.set("sort", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        v === "returnRate" ? p.delete("sort") : p.set("sort", v);
+        return p;
+      },
+      { replace: true },
+    );
 
-  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(null);
+  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(
+    null,
+  );
 
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
@@ -322,13 +395,18 @@ export default function UserListPage() {
   const summaryQueries = useQueries({
     queries: allUsers.map((u) => ({
       queryKey: u.me ? ["account-summary"] : ["account-summary", u.userId],
-      queryFn: u.me ? fetchAccountSummary : () => fetchAccountSummaryByUser(u.userId),
+      queryFn: u.me
+        ? fetchAccountSummary
+        : () => fetchAccountSummaryByUser(u.userId),
       staleTime: u.me ? 10_000 : 60_000,
       refetchInterval: u.me ? 10_000 : 60_000,
     })),
   });
 
-  const summaryMap = new Map<number, { data?: AccountSummaryData; isLoading: boolean }>();
+  const summaryMap = new Map<
+    number,
+    { data?: AccountSummaryData; isLoading: boolean }
+  >();
   allUsers.forEach((u, i) => {
     summaryMap.set(u.userId, {
       data: summaryQueries[i]?.data,
@@ -345,7 +423,9 @@ export default function UserListPage() {
         await followUser(user.userId);
       }
       queryClient.invalidateQueries({ queryKey: ["users", "me"] });
-      queryClient.invalidateQueries({ queryKey: ["follows", user.userId, "followers"] });
+      queryClient.invalidateQueries({
+        queryKey: ["follows", user.userId, "followers"],
+      });
       queryClient.invalidateQueries({ queryKey: ["follows", "following"] });
     } catch {
       toggleFollow(user.userId, user.following);
@@ -381,7 +461,8 @@ export default function UserListPage() {
     .filter((u) => tab === "전체" || u.following || u.me)
     .filter((u) => !search || u.nickname.includes(search));
 
-  const allSummariesLoaded = sortBy === "follower" || summaryQueries.every((q) => !q.isLoading);
+  const allSummariesLoaded =
+    sortBy === "follower" || summaryQueries.every((q) => !q.isLoading);
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "follower") return b.followerCount - a.followerCount;
@@ -389,41 +470,78 @@ export default function UserListPage() {
     const aData = summaryMap.get(a.userId)?.data;
     const bData = summaryMap.get(b.userId)?.data;
     if (sortBy === "returnRate") {
-      return (bData?.totalReturnRate ?? -Infinity) - (aData?.totalReturnRate ?? -Infinity);
+      return (
+        (bData?.totalReturnRate ?? -Infinity) -
+        (aData?.totalReturnRate ?? -Infinity)
+      );
     }
-    return (bData?.totalReturnAmount ?? -Infinity) - (aData?.totalReturnAmount ?? -Infinity);
+    return (
+      (bData?.totalReturnAmount ?? -Infinity) -
+      (aData?.totalReturnAmount ?? -Infinity)
+    );
   });
 
   return (
     <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {cancelTargetUser && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setCancelTargetUser(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40"
+          onClick={() => setCancelTargetUser(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 취소</p>
-              <button onClick={() => setCancelTargetUser(null)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+                멘토 취소
+              </p>
+              <button
+                onClick={() => setCancelTargetUser(null)}
+                className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+              >
                 <X size={18} />
               </button>
             </div>
             <div className="px-6 py-6">
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-                <span className="font-bold text-[#0046FF]">{cancelTargetUser.nickname}</span> 멘토를 취소하시겠어요?
+                <span className="font-bold text-[#0046FF]">
+                  {cancelTargetUser.nickname}
+                </span>{" "}
+                멘토를 취소하시겠어요?
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">멘토 취소 후에도 다시 신청할 수 있어요.</p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+                멘토 취소 후에도 다시 신청할 수 있어요.
+              </p>
             </div>
             <div className="flex gap-2 px-6 pb-6">
-              <Button variant="invalid" className="flex-1 py-2.5" onClick={() => setCancelTargetUser(null)}>닫기</Button>
-              <Button variant="danger" className="flex-1 py-2.5" onClick={confirmMentoringCancel}>멘토 취소</Button>
+              <Button
+                variant="invalid"
+                className="flex-1 py-2.5"
+                onClick={() => setCancelTargetUser(null)}
+              >
+                닫기
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1 py-2.5"
+                onClick={confirmMentoringCancel}
+              >
+                멘토 취소
+              </Button>
             </div>
           </div>
         </div>
       )}
       {/* 헤더 */}
       <div className="flex items-center gap-2">
-   
         <div>
-          <h1 className="text-[20px] font-bold text-gray-900 dark:text-gray-100">유저 목록</h1>
-          <p className="text-[12px] text-gray-400 dark:text-slate-500">투자자 랭킹</p>
+          <h1 className="text-[20px] font-bold text-gray-900 dark:text-gray-100">
+            유저 목록
+          </h1>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
+            투자자 랭킹
+          </p>
         </div>
       </div>
 
@@ -452,7 +570,10 @@ export default function UserListPage() {
         {/* 검색 + 정렬 */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 w-52">
-            <Search size={14} className="text-gray-400 dark:text-slate-500 shrink-0" />
+            <Search
+              size={14}
+              className="text-gray-400 dark:text-slate-500 shrink-0"
+            />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -478,58 +599,87 @@ export default function UserListPage() {
           </div>
         </div>
         <div className="overflow-y-auto flex-1">
-        <table className="w-full">
-          <thead>
-            <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-16">순위</th>
-              <th className="text-left px-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium">투자자</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">팔로워</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">총 수익률</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">총 수익</th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">팔로우</th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">멘토</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading || !allSummariesLoaded
-              ? Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-b border-gray-50 animate-pulse">
-                    <td className="px-5 py-4"><div className="h-3 bg-gray-100 rounded-full w-4" /></td>
-                    <td className="px-2 py-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full" />
-                        <div className="h-3 bg-gray-100 rounded-full w-24" />
-                      </div>
-                    </td>
-                    <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-10 ml-auto" /></td>
-                    <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-14 ml-auto" /></td>
-                    <td className="px-4 py-4"><div className="h-3 bg-gray-100 rounded-full w-16 ml-auto" /></td>
-                    <td className="px-3 py-4"><div className="h-7 bg-gray-100 rounded-lg w-16 ml-auto" /></td>
-                    <td className="px-5 py-4"><div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" /></td>
-                  </tr>
-                ))
-              : (() => {
-                  const firstNonMeIdx = sorted.findIndex((u) => !u.me);
-                  return sorted.map((user, i) => {
-                    const s = summaryMap.get(user.userId);
-                    return (
-                      <UserRow
-                        key={user.userId}
-                        user={user}
-                        rank={i + 1}
-                        summary={s?.data}
-                        summaryLoading={s?.isLoading ?? false}
-                        hasAcceptedMentor={hasAcceptedMentor}
-                        onFollowToggle={handleFollowToggle}
-                        onMentoringRequest={handleMentoringRequest}
-                        onMentoringCancel={handleMentoringCancel}
-                        isFirstNonMe={i === firstNonMeIdx}
-                      />
-                    );
-                  });
-                })()}
-          </tbody>
-        </table>
+          <table className="w-full">
+            <thead>
+              <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+                <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-16">
+                  순위
+                </th>
+                <th className="text-left px-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                  투자자
+                </th>
+                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">
+                  팔로워
+                </th>
+                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                  총 수익률
+                </th>
+                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
+                  총 수익
+                </th>
+                <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                  팔로우
+                </th>
+                <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                  멘토
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading || !allSummariesLoaded
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-50 animate-pulse"
+                    >
+                      <td className="px-5 py-4">
+                        <div className="h-3 bg-gray-100 rounded-full w-4" />
+                      </td>
+                      <td className="px-2 py-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 bg-gray-100 rounded-full" />
+                          <div className="h-3 bg-gray-100 rounded-full w-24" />
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-3 bg-gray-100 rounded-full w-10 ml-auto" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-3 bg-gray-100 rounded-full w-14 ml-auto" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-3 bg-gray-100 rounded-full w-16 ml-auto" />
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="h-7 bg-gray-100 rounded-lg w-16 ml-auto" />
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" />
+                      </td>
+                    </tr>
+                  ))
+                : (() => {
+                    const firstNonMeIdx = sorted.findIndex((u) => !u.me);
+                    return sorted.map((user, i) => {
+                      const s = summaryMap.get(user.userId);
+                      return (
+                        <UserRow
+                          key={user.userId}
+                          user={user}
+                          rank={i + 1}
+                          summary={s?.data}
+                          summaryLoading={s?.isLoading ?? false}
+                          hasAcceptedMentor={hasAcceptedMentor}
+                          onFollowToggle={handleFollowToggle}
+                          onMentoringRequest={handleMentoringRequest}
+                          onMentoringCancel={handleMentoringCancel}
+                          isFirstNonMe={i === firstNonMeIdx}
+                        />
+                      );
+                    });
+                  })()}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
