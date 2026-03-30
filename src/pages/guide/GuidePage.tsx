@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import {
   BookOpen,
   TrendingUp,
+  TrendingDown,
   BarChart2,
   Users,
   Wallet,
@@ -18,6 +19,15 @@ import {
   Activity,
   Layers,
   HelpCircle,
+  FileText,
+  Hash,
+  Ruler,
+  Gift,
+  MessageCircle,
+  Volume2,
+  Zap,
+  CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 
 // ─── 섹션 정의 ───────────────────────────────────────────────
@@ -35,62 +45,62 @@ const STOCK_TERMS = [
   {
     term: "주식 (Stock)",
     desc: "기업의 소유권을 나타내는 증서. 주식을 보유하면 해당 기업의 주주가 됩니다.",
-    icon: "📄",
+    icon: FileText,
   },
   {
     term: "시가총액 (Market Cap)",
     desc: "현재 주가 × 발행 주식 수로 계산한 기업의 총 시장 가치입니다.",
-    icon: "💰",
+    icon: Wallet,
   },
   {
     term: "KOSPI",
     desc: "한국종합주가지수. 유가증권시장에 상장된 모든 종목의 시가총액을 기준으로 산출합니다.",
-    icon: "📊",
+    icon: BarChart2,
   },
   {
     term: "KOSDAQ",
     desc: "코스닥 지수. 주로 IT·바이오 등 성장 기업이 상장된 시장의 주가지수입니다.",
-    icon: "📈",
+    icon: TrendingUp,
   },
   {
     term: "PER (주가수익비율)",
     desc: "주가 ÷ EPS(주당순이익). 주식이 수익 대비 얼마나 비싼지를 나타내는 지표입니다.",
-    icon: "🔢",
+    icon: Hash,
   },
   {
     term: "PBR (주가순자산비율)",
     desc: "주가 ÷ BPS(주당순자산). 기업의 순자산 대비 주가 수준을 나타냅니다.",
-    icon: "📐",
+    icon: Ruler,
   },
   {
     term: "배당금 (Dividend)",
     desc: "기업이 이익의 일부를 주주에게 나눠주는 금액. 현금 또는 주식 형태로 지급됩니다.",
-    icon: "🎁",
+    icon: Gift,
   },
   {
     term: "호가 (Quote)",
     desc: "매수자와 매도자가 제시하는 가격. 매수호가(Bid)와 매도호가(Ask)로 구분됩니다.",
-    icon: "💬",
+    icon: MessageCircle,
   },
   {
     term: "거래량 (Volume)",
     desc: "특정 기간 동안 거래된 주식의 수량. 시장 관심도와 유동성을 나타냅니다.",
-    icon: "🔊",
+    icon: Volume2,
   },
   {
     term: "RSI (상대강도지수)",
     desc: "0~100 사이 값으로 주식의 과매수·과매도 상태를 측정하는 기술적 지표입니다.",
-    icon: "⚡",
+    icon: Zap,
   },
   {
     term: "이동평균선 (MA)",
     desc: "일정 기간의 종가 평균을 연결한 선. 5일·20일·60일선이 자주 사용됩니다.",
-    icon: "〰️",
+    icon: Activity,
   },
   {
     term: "수익률 (Return Rate)",
     desc: "(현재가 - 매수가) ÷ 매수가 × 100. 투자 성과를 퍼센트로 나타냅니다.",
-    icon: "📉",
+    icon: TrendingDown,
   },
 ];
 
@@ -220,32 +230,38 @@ const SERVICE_FEATURES = [
 // ─── 투자 원칙 카드 ──────────────────────────────────────────
 const INVEST_RULES = [
   {
-    icon: "✅",
+    icon: CheckCircle2,
+    iconColor: "text-green-500",
     title: "매수 및 매도 기준 설정",
     desc: "매수 전 손실 허용 범위(-5% ~ -10%)를 미리 정하고 감정 없이 실행하세요.",
   },
   {
-    icon: "✅",
+    icon: CheckCircle2,
+    iconColor: "text-green-500",
     title: "분할 매수",
     desc: "한 번에 전량 매수하지 말고 여러 번에 나눠 평균 단가를 낮추세요.",
   },
   {
-    icon: "✅",
+    icon: CheckCircle2,
+    iconColor: "text-green-500",
     title: "기업 분석 우선",
     desc: "차트만 보지 말고 재무제표, 사업 모델, 성장성을 함께 파악하세요.",
   },
   {
-    icon: "⚠️",
+    icon: AlertTriangle,
+    iconColor: "text-orange-400",
     title: "단일 종목 투자 금지",
     desc: "단일 종목에 전 자산을 투자하면 리스크가 극단적으로 커집니다.",
   },
   {
-    icon: "⚠️",
+    icon: AlertTriangle,
+    iconColor: "text-orange-400",
     title: "뇌동매매 주의",
     desc: "SNS·커뮤니티 소문에 충동적으로 매매하면 손실 확률이 높아집니다.",
   },
   {
-    icon: "⚠️",
+    icon: AlertTriangle,
+    iconColor: "text-orange-400",
     title: "빚 투자 금지",
     desc: "대출을 이용한 투자(레버리지)는 손실 시 원금 이상 잃을 수 있습니다.",
   },
@@ -584,7 +600,7 @@ export default function GuidePage() {
                       : "",
                   ].join(" ")}
                 >
-                  <span className="text-lg shrink-0">{rule.icon}</span>
+                  <rule.icon className={`w-5 h-5 shrink-0 ${rule.iconColor}`} />
                   <div>
                     <p className="text-[13px] font-semibold text-gray-800 mb-0.5">
                       {rule.title}
@@ -638,7 +654,7 @@ export default function GuidePage() {
                   key={item.term}
                   className="bg-white rounded-2xl p-4 border border-gray-100 flex gap-4 hover:border-gray-200 hover:shadow-sm transition-all"
                 >
-                  <span className="text-2xl shrink-0">{item.icon}</span>
+                  <item.icon className="w-6 h-6 shrink-0 text-[#0046FF]" />
                   <div>
                     <p className="text-[14px] font-semibold text-gray-800 mb-0.5">
                       {item.term}

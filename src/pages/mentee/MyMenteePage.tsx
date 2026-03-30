@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, TrendingUp, Loader2 } from "lucide-react";
+import { Users, TrendingUp, Loader2, ClipboardList } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
 const MENTEE_TOUR: TourStep[] = [
   {
     target: "mentee-list",
-    title: "👥 나의 멘티 목록",
+    title: <span className="inline-flex items-center gap-1.5"><Users size={15} />나의 멘티 목록</span>,
     description: "나에게 멘토 신청을 한 투자자들이에요.",
     items: [
       "클릭하면 그 멘티의 투자 기록을 볼 수 있어요",
@@ -17,7 +17,7 @@ const MENTEE_TOUR: TourStep[] = [
   },
   {
     target: "mentee-detail",
-    title: "📋 멘티의 투자 기록",
+    title: <span className="inline-flex items-center gap-1.5"><ClipboardList size={15} />멘티의 투자 기록</span>,
     description: "선택한 멘티가 어떻게 투자하고 있는지 확인할 수 있어요.",
     items: [
       "매매일지 — 멘티가 남긴 메모에 피드백을 줄 수 있어요",

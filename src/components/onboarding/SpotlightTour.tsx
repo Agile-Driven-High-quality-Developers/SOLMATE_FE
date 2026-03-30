@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { HelpCircle } from "lucide-react";
 import { useOnboardingStore } from "@/store/onboardingStore";
 
@@ -18,7 +18,7 @@ export type TourItem =
 
 export type TourStep = {
   target: string;
-  title: string;
+  title: ReactNode;
   description: string;
   items?: TourItem[];
   placement: Placement;

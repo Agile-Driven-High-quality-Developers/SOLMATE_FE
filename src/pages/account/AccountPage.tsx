@@ -1,5 +1,6 @@
 import PortfolioChart from "@/components/account/PortfolioChart";
 import HoldingList from "@/components/account/HoldingList";
+import { Wallet, Landmark, Package, TrendingUp, PieChart, ClipboardList } from "lucide-react";
 import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -7,7 +8,7 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const ACCOUNT_TOUR: TourStep[] = [
   {
     target: "account-total",
-    title: "💰 보유 총 자산",
+    title: <span className="inline-flex items-center gap-1.5"><Wallet size={15} />보유 총 자산</span>,
     description: "예수금과 보유 주식 평가금액을 합친 내 전체 자산이에요.",
     items: [
       "파란 카드 — 지금 내 총 자산을 한눈에 볼 수 있어요",
@@ -17,31 +18,31 @@ const ACCOUNT_TOUR: TourStep[] = [
   },
   {
     target: "account-cash",
-    title: "🏦 보유 현금 (예수금)",
+    title: <span className="inline-flex items-center gap-1.5"><Landmark size={15} />보유 현금 (예수금)</span>,
     description: "아직 주식을 사지 않고 남겨둔 내 돈이에요. 이 돈으로 주식을 살 수 있어요.",
     placement: "bottom",
   },
   {
     target: "account-holdings-count",
-    title: "📦 보유 종목 수",
+    title: <span className="inline-flex items-center gap-1.5"><Package size={15} />보유 종목 수</span>,
     description: "지금 내가 가지고 있는 주식 종류가 몇 개인지 보여줘요.",
     placement: "bottom",
   },
   {
     target: "account-return",
-    title: "📈 수익률",
+    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />수익률</span>,
     description: "처음 받은 1,000만원 대비 지금까지 얼마나 벌었는지(%) 보여줘요. 빨강이면 수익, 파랑이면 손실이에요.",
     placement: "bottom",
   },
   {
     target: "account-chart",
-    title: "🥧 종목 비중",
+    title: <span className="inline-flex items-center gap-1.5"><PieChart size={15} />종목 비중</span>,
     description: "내가 가진 주식들이 전체 자산에서 얼마나 차지하는지 파이 차트로 보여줘요.",
     placement: "right",
   },
   {
     target: "account-holdings-table",
-    title: "📋 보유 종목 목록",
+    title: <span className="inline-flex items-center gap-1.5"><ClipboardList size={15} />보유 종목 목록</span>,
     description: "내가 산 주식들의 상세 정보예요.",
     items: [
       "평균단가 — 내가 산 평균 가격",

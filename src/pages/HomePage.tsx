@@ -5,42 +5,42 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const HOME_TOUR: TourStep[] = [
   {
     target: "market-indices",
-    title: "📈 오늘 주식시장은?",
+    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />오늘 주식시장은?</span>,
     description:
       "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강(▲)이면 오름, 파랑(▼)이면 내림이에요.",
     placement: "bottom",
   },
   {
     target: "portfolio",
-    title: "💰 내 자산 현황",
+    title: <span className="inline-flex items-center gap-1.5"><Wallet size={15} />내 자산 현황</span>,
     description:
       "가상 1,000만원으로 시작한 내 돈이 얼마가 됐는지 보여줘요. 예수금은 아직 투자 안 한 현금이에요.",
     placement: "bottom",
   },
   {
     target: "holdings",
-    title: "📦 내가 산 주식들",
+    title: <span className="inline-flex items-center gap-1.5"><Package size={15} />내가 산 주식들</span>,
     description:
       "지금 가지고 있는 주식 목록이에요. 각 종목이 얼마나 올랐는지(수익률) 바로 확인할 수 있어요.",
     placement: "top",
   },
   {
     target: "top-investors",
-    title: "🏆 TOP 투자자",
+    title: <span className="inline-flex items-center gap-1.5"><Trophy size={15} />TOP 투자자</span>,
     description:
       "수익을 가장 많이 낸 투자자 순위예요. 클릭하면 그 사람이 어떤 주식을 샀는지 볼 수 있어요!",
     placement: "top",
   },
   {
     target: "popular-stocks",
-    title: "🔥 인기 종목",
+    title: <span className="inline-flex items-center gap-1.5"><Flame size={15} />인기 종목</span>,
     description:
       "지금 가장 많이 거래되고 있는 주식이에요. 클릭하면 해당 종목의 차트와 매수·매도 화면으로 바로 이동해요.",
     placement: "top",
   },
   {
     target: "nav-guide",
-    title: "📖 가이드 탭을 확인해보세요",
+    title: <span className="inline-flex items-center gap-1.5"><BookOpen size={15} />가이드 탭을 확인해보세요</span>,
     description: "주식 용어, 투자 전략, SOLMate 사용법이 모두 정리되어 있어요. 투자가 처음이라면 꼭 읽어보세요!",
     items: [
       "서비스 소개 — SOLMate 핵심 기능 한눈에",
@@ -51,7 +51,7 @@ const HOME_TOUR: TourStep[] = [
     placement: "right",
   },
 ];
-import { Bell, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
+import { Bell, ChevronRight, TrendingUp, TrendingDown, Wallet, Package, Trophy, Flame, BookOpen } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useMarketIndicesQuery } from "@/api/homeApi";
 import type { MarketIndexData } from "@/api/homeApi";
@@ -153,7 +153,7 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
           <TrendingDown size={12} className="text-blue-600" />
         )}
         <ReturnText
-          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : "-"}${index.changePercent}%)`}
+          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
           isPositive={index.isPositive}
           className="text-[12px] font-medium"
         />
