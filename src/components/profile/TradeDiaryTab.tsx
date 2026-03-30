@@ -58,7 +58,7 @@ export default function TradeDiaryTab({ items }: Props) {
           placeholder="종목명으로 검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-[14px] bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:border-[#0046FF] transition-colors"
+          className="w-full pl-10 pr-4 py-2.5 text-[14px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
         />
       </div>
 
@@ -71,8 +71,8 @@ export default function TradeDiaryTab({ items }: Props) {
         <div className="flex flex-col gap-4">
           {grouped.map(([dateLabel, groupItems]) => (
             <div key={dateLabel} className="flex flex-col gap-1">
-              <p className="text-[12px] font-semibold text-gray-400 px-1 mb-1">{dateLabel}</p>
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-100">
+              <p className="text-[12px] font-semibold text-gray-400 dark:text-slate-500 px-1 mb-1">{dateLabel}</p>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
                 {groupItems.map((item) => {
                   const isBuy = item.tradeType === "BUY";
                   const isPositive = item.profit > 0;
@@ -86,19 +86,19 @@ export default function TradeDiaryTab({ items }: Props) {
                         <Avatar name={item.stockName} src={logoMap.get(item.stockName)} size={40} />
                         <div className="flex flex-col gap-0.5 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[15px] font-bold text-gray-900">{item.stockName}</span>
+                            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{item.stockName}</span>
                             <Badge name={isBuy ? "매수" : "매도"} color={isBuy ? "#FF4444" : "#0046FF"} />
                           </div>
-                          <span className="text-[12px] text-gray-400">
+                          <span className="text-[12px] text-gray-400 dark:text-slate-500">
                             {item.quantity}주 · {item.filledPrice?.toLocaleString()}원
                           </span>
-                          <span className="text-[12px] text-gray-400">{formatTime(item.createdAt)}</span>
+                          <span className="text-[12px] text-gray-400 dark:text-slate-500">{formatTime(item.createdAt)}</span>
                         </div>
                       </div>
 
                       {/* 우측: 내용 + 수익 */}
                       <div className="flex flex-1 items-start justify-between gap-4 min-w-0">
-                        <p className="text-[14px] text-gray-700 leading-relaxed line-clamp-2 flex-1 min-w-0">
+                        <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2 flex-1 min-w-0">
                           {item.content}
                         </p>
                         {!isBuy && (

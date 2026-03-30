@@ -80,7 +80,7 @@ export default function NotificationCard({ item, onRead, onAccept, onReject }: P
     <div
       onClick={handleClick}
       className={`rounded-2xl border p-5 shadow-sm cursor-pointer ${
-        isUnread ? "bg-white border-blue-200" : "bg-white border-gray-100"
+        isUnread ? "bg-white dark:bg-slate-900 border-blue-200 dark:border-blue-900" : "bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800"
       }`}
     >
       <div className="flex items-start gap-4">
@@ -98,18 +98,18 @@ export default function NotificationCard({ item, onRead, onAccept, onReject }: P
           {/* 뱃지 + 읽음 점 + 시간 */}
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex items-center gap-1.5">
-              <span className={`text-[12px] font-semibold px-2 py-0.5 rounded-md ${isUnread ? badgeClass : "text-gray-400 bg-gray-100"}`}>
+              <span className={`text-[12px] font-semibold px-2 py-0.5 rounded-md ${isUnread ? badgeClass : "text-gray-400 dark:text-slate-500 bg-gray-100 dark:bg-slate-800"}`}>
                 {badgeText}
               </span>
               {isUnread && (
                 <span className="w-2 h-2 rounded-full bg-[#0046FF] inline-block" />
               )}
             </div>
-            <span className="text-[12px] text-gray-400 shrink-0">{timeAgo(item.createdAt)}</span>
+            <span className="text-[12px] text-gray-400 dark:text-slate-500 shrink-0">{timeAgo(item.createdAt)}</span>
           </div>
 
           {/* 메시지 */}
-          <p className={`text-[14px] font-medium mt-1.5 ${isUnread ? "text-gray-800" : "text-gray-500"}`}>
+          <p className={`text-[14px] font-medium mt-1.5 ${isUnread ? "text-gray-800 dark:text-gray-200" : "text-gray-500 dark:text-slate-400"}`}>
             {item.content}
           </p>
 

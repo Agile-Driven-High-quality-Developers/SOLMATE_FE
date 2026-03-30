@@ -64,14 +64,14 @@ function DiaryCard({
   return (
     <div
       onClick={onClick}
-      className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl bg-white hover:bg-gray-50 transition-colors cursor-pointer"
+      className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
     >
       {/* 왼쪽: 종목 정보 */}
       <div className="flex items-center gap-3 w-52 shrink-0">
         <Avatar name={item.stockName} src={logoUrl} size={40} />
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[15px] font-bold text-gray-900">
+            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
               {item.stockName}
             </span>
             <Badge
@@ -93,7 +93,7 @@ function DiaryCard({
       {/* 오른쪽: 일지 내용 + 수익 */}
       <div className="flex flex-1 items-start justify-between gap-4 min-w-0">
         <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <p className="text-[14px] text-gray-700 leading-relaxed line-clamp-2">
+          <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">
             {item.content}
           </p>
           {item.commentCount > 0 && (
@@ -134,11 +134,11 @@ export default function TradeDiaryPage() {
   const grouped = groupByDate(filtered);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="px-6 pt-6 pb-4 shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900">매매일지</h1>
-        <p className="text-[13px] text-gray-400 mt-0.5">
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">매매일지</h1>
+        <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
           나의 매매 기록을 확인하세요
         </p>
       </div>
@@ -155,7 +155,7 @@ export default function TradeDiaryPage() {
             placeholder="종목명으로 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-[14px] bg-white border border-gray-200 rounded-2xl outline-none focus:border-[#0046FF] transition-colors"
+            className="w-full pl-10 pr-4 py-2.5 text-[14px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
           />
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function TradeDiaryPage() {
             </p>
 
             {/* 카드 묶음 */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-100">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
               {items.map((item) => (
                 <DiaryCard
                   key={item.diaryId}

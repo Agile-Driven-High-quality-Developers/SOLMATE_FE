@@ -12,7 +12,16 @@ import NotificationCard from "@/components/notification/NotificationCard";
 
 type TabId = "all" | NotificationCategory;
 
-const TABS: { id: TabId; label: string; countKey?: keyof { total: number; social: number; trading: number; mentoring: number } }[] = [
+const TABS: {
+  id: TabId;
+  label: string;
+  countKey?: keyof {
+    total: number;
+    social: number;
+    trading: number;
+    mentoring: number;
+  };
+}[] = [
   { id: "all", label: "전체", countKey: "total" },
   { id: "MENTORING", label: "멘토신청", countKey: "mentoring" },
   { id: "TRADING", label: "주문체결", countKey: "trading" },
@@ -31,22 +40,26 @@ export default function NotificationPage() {
   const rejectMentor = useRejectMentorMutation();
   const markRead = useMarkReadMutation();
 
-  const filtered = activeTab === "all"
-    ? notifications
-    : notifications.filter((n) => n.category === activeTab);
+  const filtered =
+    activeTab === "all"
+      ? notifications
+      : notifications.filter((n) => n.category === activeTab);
 
   const totalUnread = unreadCount?.total ?? 0;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 헤더 + 탭 (고정) */}
       <div className="flex flex-col gap-4 p-6 pb-4 shrink-0">
         <div className="flex items-center gap-3">
-          <Bell size={22} className="text-[#0046FF]" />
           <div>
-            <h1 className="text-[22px] font-bold text-gray-900">알림</h1>
+            <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+              알림
+            </h1>
             {totalUnread > 0 && (
-              <p className="text-[13px] text-gray-400">읽지 않은 알림 {totalUnread}개</p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+                읽지 않은 알림 {totalUnread}개
+              </p>
             )}
           </div>
         </div>
@@ -63,14 +76,16 @@ export default function NotificationPage() {
                 className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold rounded-xl cursor-pointer transition-colors ${
                   isActive
                     ? "bg-[#0046FF] text-white"
-                    : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                    : "bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700"
                 }`}
               >
                 {tab.label}
                 {count > 0 && (
                   <span
                     className={`flex items-center justify-center rounded-full text-[11px] font-bold w-[18px] h-[18px] ${
-                      isActive ? "bg-white text-[#0046FF]" : "bg-red-500 text-white"
+                      isActive
+                        ? "bg-white text-[#0046FF]"
+                        : "bg-red-500 text-white"
                     }`}
                   >
                     {count}

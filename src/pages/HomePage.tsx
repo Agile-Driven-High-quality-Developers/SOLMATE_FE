@@ -7,7 +7,7 @@ const HOME_TOUR: TourStep[] = [
     target: "market-indices",
     title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />오늘 주식시장은?</span>,
     description:
-      "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강(▲)이면 오름, 파랑(▼)이면 내림이에요.",
+      "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강이면 오름, 파랑이면 내림이에요.",
     placement: "bottom",
   },
   {
@@ -141,11 +141,11 @@ function SectionSkeleton({ rows = 3 }: { rows?: number }) {
 
 function MarketIndexCard({ index }: { index: MarketIndexData }) {
   return (
-    <div className="flex-1 bg-white rounded-xl border border-gray-100 px-4 py-3">
-      <p className="text-[12px] text-gray-400 font-medium mb-1">
+    <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 px-4 py-3">
+      <p className="text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1">
         {index.label}
       </p>
-      <p className="text-[18px] font-bold text-gray-900">{index.value}</p>
+      <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">{index.value}</p>
       <div className="flex items-center gap-1 mt-0.5">
         {index.isPositive ? (
           <TrendingUp size={12} className="text-red-500" />
@@ -153,7 +153,7 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
           <TrendingDown size={12} className="text-blue-600" />
         )}
         <ReturnText
-          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
+          value={`${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
           isPositive={index.isPositive}
           className="text-[12px] font-medium"
         />
@@ -175,11 +175,11 @@ function MarketIndicesRow({
         {[0, 1, 2].map((i) => (
           <div
             key={i}
-            className="flex-1 bg-white rounded-xl border border-gray-100 px-4 py-3 animate-pulse"
+            className="flex-1 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 px-4 py-3 animate-pulse"
           >
-            <div className="h-3 bg-gray-100 rounded-full w-16 mb-2" />
-            <div className="h-5 bg-gray-100 rounded-full w-24 mb-2" />
-            <div className="h-3 bg-gray-100 rounded-full w-28" />
+            <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-16 mb-2" />
+            <div className="h-5 bg-gray-100 dark:bg-slate-700 rounded-full w-24 mb-2" />
+            <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-28" />
           </div>
         ))}
       </div>
@@ -294,9 +294,9 @@ function HoldingsTable({
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col flex-1 min-h-0">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 shrink-0">
-        <h2 className="text-[15px] font-semibold text-gray-900">보유 종목</h2>
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800 shrink-0">
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">보유 종목</h2>
         <button
           onClick={() => navigate("/account")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -314,33 +314,38 @@ function HoldingsTable({
       ) : (
         <div className="overflow-y-auto flex-1 min-h-0 scrollbar-hide">
           <table className="w-full">
-            <thead className="sticky top-0 bg-white z-10">
-              <tr className="bg-gray-50">
-                <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 font-medium">
+            <thead className="sticky top-0 bg-white dark:bg-slate-900 z-10">
+              <tr className="bg-gray-50 dark:bg-slate-800">
+                <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   종목
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   보유량
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   평가금액
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   평가손익
                 </th>
+<<<<<<< HEAD
                 <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 font-medium">
                   종목 수익률
+=======
+                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                  수익률
+>>>>>>> 3565c14 (feat: 다크모드 구현)
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
               {data.map((stock) => {
                 const isPositive = stock.returnRate >= 0;
                 return (
                   <tr
                     key={stock.tickerCode}
                     onClick={() => navigate(`/invest/${stock.tickerCode}`)}
-                    className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                    className="hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
@@ -351,19 +356,19 @@ function HoldingsTable({
                           color={getAvatarColor(stock.stockName)}
                         />
                         <div>
-                          <span className="text-[14px] font-medium text-gray-900">
+                          <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">
                             {stock.stockName}
                           </span>
-                          <p className="text-[11px] text-gray-400">
+                          <p className="text-[11px] text-gray-400 dark:text-slate-500">
                             {stock.tickerCode}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right text-[14px] text-gray-600">
+                    <td className="px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400">
                       {stock.quantity}주
                     </td>
-                    <td className="px-4 py-3 text-right text-[14px] text-gray-800 font-medium">
+                    <td className="px-4 py-3 text-right text-[14px] text-gray-800 dark:text-gray-200 font-medium">
                       {stock.evaluation.toLocaleString()}원
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -450,9 +455,9 @@ function TopInvestors({
     .slice(0, 5);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-        <h2 className="text-[15px] font-semibold text-gray-900">TOP 투자자</h2>
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">TOP 투자자</h2>
         <button
           onClick={() => navigate("/users")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -475,17 +480,17 @@ function TopInvestors({
           ))}
         </ul>
       ) : (
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-gray-50 dark:divide-slate-800">
           {top5.map((investor, i) => (
             <li
               key={investor.userId}
               onClick={() =>
                 navigate(investor.me ? "/profile" : `/users/${investor.userId}`)
               }
-              className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer"
+              className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <span
-                className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}
+                className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
               >
                 {i + 1}
               </span>
@@ -496,10 +501,10 @@ function TopInvestors({
                 color={getAvatarColor(investor.nickname)}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-[14px] font-medium text-gray-800 truncate">
+                <p className="text-[14px] font-medium text-gray-800 dark:text-gray-200 truncate">
                   {investor.nickname}
                 </p>
-                <p className="text-[11px] text-gray-400">
+                <p className="text-[11px] text-gray-400 dark:text-slate-500">
                   {investor.followerCount.toLocaleString()}명 팔로워
                 </p>
               </div>
@@ -525,9 +530,9 @@ function PopularStocks({
   const top5 = [...data].sort((a, b) => b.volume - a.volume).slice(0, 5);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
-        <h2 className="text-[15px] font-semibold text-gray-900">인기 종목</h2>
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">인기 종목</h2>
         <button
           onClick={() => navigate("/invest")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -538,7 +543,7 @@ function PopularStocks({
       {loading ? (
         <SectionSkeleton rows={5} />
       ) : (
-        <ul className="divide-y divide-gray-50">
+        <ul className="divide-y divide-gray-50 dark:divide-slate-800">
           {top5.map((stock, i) => {
             const isPositive = stock.changeRate > 0;
             const isNegative = stock.changeRate < 0;
@@ -546,10 +551,10 @@ function PopularStocks({
               <li
                 key={stock.tickerCode}
                 onClick={() => navigate(`/invest/${stock.tickerCode}`)}
-                className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 transition-colors cursor-pointer"
+                className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <span
-                  className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400"}`}
+                  className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
                 >
                   {i + 1}
                 </span>
@@ -560,15 +565,15 @@ function PopularStocks({
                   color={getAvatarColor(stock.stockName)}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-medium text-gray-800 truncate">
+                  <p className="text-[14px] font-medium text-gray-800 dark:text-gray-200 truncate">
                     {stock.stockName}
                   </p>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-[11px] text-gray-400 dark:text-slate-500">
                     {stock.tickerCode}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[14px] font-semibold text-gray-900">
+                  <p className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">
                     {stock.currentPrice.toLocaleString()}원
                   </p>
                   <p
@@ -602,12 +607,12 @@ export default function HomePage() {
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900">홈</h1>
-          <p className="text-[13px] text-gray-400 mt-0.5">{TODAY}</p>
+          <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">홈</h1>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">{TODAY}</p>
         </div>
       </div>
 

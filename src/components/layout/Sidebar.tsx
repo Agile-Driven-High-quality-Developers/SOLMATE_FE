@@ -15,10 +15,13 @@ import {
   LogOut,
   Receipt,
   BookMarked,
+  Sun,
+  Moon,
 } from "lucide-react";
 import Logo from "../ui/Logo";
 import Avatar from "../ui/Avatar";
 import { useAuthStore } from "@/store/authStore";
+import { useThemeStore } from "@/store/themeStore";
 import { authApi } from "@/api/authApi";
 import { useUnreadCountQuery } from "@/api/notificationApi";
 import { useMyProfileQuery } from "@/api/userListApi";
@@ -102,7 +105,7 @@ function NavItem({
           "text-left transition-colors duration-150 group cursor-pointer",
           isActive
             ? "bg-[#0046FF] text-white"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-gray-100",
         ].join(" ")}
       >
         {/* 활성 인디케이터 바 */}
@@ -114,7 +117,7 @@ function NavItem({
         <Icon
           className={[
             "w-4 h-4 shrink-0 transition-colors duration-150",
-            isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600",
+            isActive ? "text-white" : "text-gray-400 group-hover:text-gray-600 dark:text-slate-500 dark:group-hover:text-gray-300",
           ].join(" ")}
         />
 
@@ -153,10 +156,12 @@ function UserProfile({
 }) {
   const isPositive = user.returnRate.startsWith("+");
   const isNegative = user.returnRate.startsWith("-");
+  const { theme, toggleTheme } = useThemeStore();
 
   return (
-    <div className="px-4 pt-3 border-t border-gray-100 mt-2">
+    <div className="px-4 pt-3 border-t border-gray-100 mt-2 dark:border-slate-800">
       <div className="flex items-center gap-2.5 mb-2.5">
+<<<<<<< HEAD
         <div
           onClick={onProfileClick}
           className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -179,13 +184,54 @@ function UserProfile({
               {user.returnRate}
             </p>
           </div>
+=======
+        <Avatar name={user.name} src={user.imageUrl || undefined} size={34} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[14px] font-semibold text-gray-900 truncate dark:text-gray-100">
+            {user.name}
+          </p>
+          <p
+            className={[
+              "text-[13px] font-medium mt-px",
+              isPositive
+                ? "text-red-500"
+                : isNegative
+                  ? "text-blue-500"
+                  : "text-gray-400",
+            ].join(" ")}
+          >
+            {user.returnRate}
+          </p>
+>>>>>>> 3565c14 (feat: 다크모드 구현)
         </div>
+        <button
+          onClick={toggleTheme}
+          aria-label="테마 변경"
+          className={[
+            "shrink-0 relative flex items-center w-14 h-7 rounded-full px-1 transition-colors duration-300 cursor-pointer",
+            theme === "dark" ? "bg-[#4a4a6a]" : "bg-blue-200",
+          ].join(" ")}
+        >
+          {/* 슬라이딩 원 */}
+          <span
+            className={[
+              "absolute w-5.5 h-5.5 rounded-full bg-white shadow transition-all duration-300",
+              theme === "dark" ? "left-7.5" : "left-0.75",
+            ].join(" ")}
+          />
+          {/* 아이콘 */}
+          {theme === "light" ? (
+            <Sun className="absolute right-1.5 w-3.5 h-3.5 text-blue-400" />
+          ) : (
+            <Moon className="absolute left-1.5 w-3.5 h-3.5 text-slate-300" />
+          )}
+        </button>
       </div>
 
       {onLogout && (
         <button
           onClick={onLogout}
-          className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-gray-600 transition-colors py-1 cursor-pointer"
+          className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-gray-600 transition-colors py-1 cursor-pointer dark:text-slate-500 dark:hover:text-slate-300"
         >
           <LogOut className="w-3.5 h-3.5" />
           로그아웃
@@ -263,8 +309,12 @@ export default function SidebarNav() {
   );
 
   return (
+<<<<<<< HEAD
     <>
     <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto">
+=======
+    <nav className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto dark:bg-slate-900 dark:border-slate-800">
+>>>>>>> 3565c14 (feat: 다크모드 구현)
       <div className="px-4 pb-2">
         <button
           onClick={() => navigate("/")}
@@ -273,7 +323,7 @@ export default function SidebarNav() {
           <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
         </button>
       </div>
-      <div className="mx-4 my-3 h-px bg-gray-100" />
+      <div className="mx-4 my-3 h-px bg-gray-100 dark:bg-slate-800" />
       <ul className="flex flex-col gap-0.5 px-2.5 list-none">
         {navItems.map((item) => (
           <NavItem

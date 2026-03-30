@@ -15,7 +15,7 @@ export default function Input({
     <div className="flex flex-col gap-1.5 w-full">
       {/* label이 있을 때만 렌더 */}
       {label && (
-        <label className="text-[14px] font-medium text-gray-700">{label}</label>
+        <label className="text-[14px] font-medium text-gray-700 dark:text-gray-300">{label}</label>
       )}
       <input
         className={[
@@ -23,8 +23,9 @@ export default function Input({
           "border border-gray-200 outline-none",
           "text-[16px] text-gray-900 placeholder:text-gray-400",
           "transition-colors duration-150",
+          "dark:bg-slate-800 dark:border-slate-700 dark:text-gray-100 dark:placeholder:text-slate-500",
           error
-            ? "border-red-400 focus:border-red-500"
+            ? "border-red-400 focus:border-red-500 dark:border-red-700"
             : "focus:border-[#0046FF]",
           className,
         ].join(" ")}

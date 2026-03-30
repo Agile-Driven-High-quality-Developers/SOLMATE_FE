@@ -58,6 +58,49 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
+// ─── Podium ───────────────────────────────────────────────────────────────────
+
+const PODIUM_CONFIG = {
+  1: { barHeight: "h-24", barBg: "bg-yellow-400" },
+  2: { barHeight: "h-16", barBg: "bg-gray-400"   },
+  3: { barHeight: "h-12", barBg: "bg-orange-400" },
+} as const;
+
+function PodiumSlot({ user, rank }: { user: UserItem; rank: 1 | 2 | 3 }) {
+  const navigate = useNavigate();
+  const cfg = PODIUM_CONFIG[rank];
+  return (
+    <div className="flex flex-col items-center cursor-pointer" onClick={() => navigate(user.me ? "/profile" : `/users/${user.userId}`)}>
+      {rank === 1 && <span className="text-xl mb-1">👑</span>}
+      <Avatar
+        name={user.nickname}
+        src={user.imageUrl || undefined}
+        size={rank === 1 ? 56 : 44}
+        color={getAvatarColor(user.nickname)}
+      />
+      <p className="text-[13px] font-medium text-gray-800 dark:text-gray-200 mt-1.5 max-w-20 text-center truncate">
+        {user.nickname}
+      </p>
+      <div
+        className={`w-20 rounded-t-xl mt-2 flex items-center justify-center ${cfg.barHeight} ${cfg.barBg}`}
+      >
+        <span className="text-white text-[20px] font-bold">{rank}</span>
+      </div>
+    </div>
+  );
+}
+
+function Podium({ users }: { users: UserItem[] }) {
+  const [second, first, third] = [users[1], users[0], users[2]];
+  return (
+    <div className="flex items-end justify-center gap-3 py-6 bg-gray-50 dark:bg-slate-900 rounded-2xl mb-4">
+      {second && <PodiumSlot user={second} rank={2} />}
+      {first  && <PodiumSlot user={first}  rank={1} />}
+      {third  && <PodiumSlot user={third}  rank={3} />}
+    </div>
+  );
+}
+
 // ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
 
 function FollowButton({
@@ -192,15 +235,15 @@ function UserRow({
 }) {
   const navigate = useNavigate();
   return (
-    <tr className={`border-b border-gray-50 hover:bg-gray-50/50 transition-colors ${user.me ? "bg-blue-50/40" : ""}`}>
+    <tr className={`border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors ${user.me ? "bg-blue-50/40 dark:bg-blue-950/20" : ""}`}>
       {/* 순위 */}
       <td className="px-5 py-3.5 text-center">
         {rank === 1 ? (
-          <span className="text-[18px]">🥇</span>
+          <Crown size={20} className="mx-auto text-yellow-400" />
         ) : rank === 2 ? (
-          <span className="text-[18px]">🥈</span>
+          <Medal size={20} className="mx-auto text-gray-400" />
         ) : rank === 3 ? (
-          <span className="text-[18px]">🥉</span>
+          <Medal size={20} className="mx-auto text-amber-600" />
         ) : (
           <span className="text-[14px] font-bold text-gray-400">{rank}</span>
         )}
@@ -215,7 +258,7 @@ function UserRow({
             size={32}
             color={getAvatarColor(user.nickname)}
           />
-          <span className="text-[14px] font-medium text-gray-900">{user.nickname}</span>
+          <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">{user.nickname}</span>
           {user.me && (
             <span className="text-[11px] font-semibold text-white bg-[#0046FF] px-1.5 py-0.5 rounded-full">
               나
@@ -342,13 +385,13 @@ export default function UserListPage() {
   });
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="flex items-center gap-2">
    
         <div>
-          <h1 className="text-[20px] font-bold text-gray-900">유저 목록</h1>
-          <p className="text-[12px] text-gray-400">투자자 랭킹</p>
+          <h1 className="text-[20px] font-bold text-gray-900 dark:text-gray-100">유저 목록</h1>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">투자자 랭킹</p>
         </div>
       </div>
 
@@ -362,7 +405,7 @@ export default function UserListPage() {
               "px-5 py-2 rounded-lg text-[14px] font-semibold transition-colors",
               tab === t
                 ? "bg-[#0046FF] text-white"
-                : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50",
+                : "bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700",
             ].join(" ")}
           >
             {t}
@@ -373,16 +416,16 @@ export default function UserListPage() {
       <SpotlightTour tourKey="users" steps={USERS_TOUR} />
 
       {/* 랭킹 테이블 */}
-      <div className="flex-1 flex flex-col bg-white rounded-2xl border border-gray-100 overflow-hidden min-h-0">
+      <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden min-h-0">
         {/* 검색 + 정렬 */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-52">
-            <Search size={14} className="text-gray-400 shrink-0" />
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 w-52">
+            <Search size={14} className="text-gray-400 dark:text-slate-500 shrink-0" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="투자자 검색"
-              className="text-[13px] text-gray-700 bg-transparent outline-none w-full placeholder:text-gray-400"
+              placeholder="투자자 검색..."
+              className="text-[13px] text-gray-700 dark:text-gray-300 bg-transparent outline-none w-full placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -394,7 +437,7 @@ export default function UserListPage() {
                   "px-3 py-1.5 rounded-lg text-[12px] font-medium transition-colors whitespace-nowrap",
                   sortBy === opt.value
                     ? "bg-[#0046FF]/10 text-[#0046FF] border border-[#0046FF]/30"
-                    : "bg-white text-gray-400 border border-gray-200 hover:bg-gray-50",
+                    : "bg-white dark:bg-slate-800 text-gray-400 dark:text-slate-500 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700",
                 ].join(" ")}
               >
                 {opt.label}
@@ -405,14 +448,14 @@ export default function UserListPage() {
         <div className="overflow-y-auto flex-1">
         <table className="w-full">
           <thead>
-            <tr className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100">
-              <th className="text-center px-5 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-16">순위</th>
-              <th className="text-left px-2 py-3 text-[12px] text-gray-400 font-medium">투자자</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-20">팔로워</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">총 수익률</th>
-              <th className="text-right px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-28">총 수익</th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">팔로우</th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 font-medium whitespace-nowrap w-24">멘토</th>
+            <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+              <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-16">순위</th>
+              <th className="text-left px-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium">투자자</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">팔로워</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">총 수익률</th>
+              <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">총 수익</th>
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">팔로우</th>
+              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">멘토</th>
             </tr>
           </thead>
           <tbody>

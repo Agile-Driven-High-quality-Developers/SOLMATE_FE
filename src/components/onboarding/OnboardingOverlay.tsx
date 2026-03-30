@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { Hand, Wallet, BarChart2, Trophy } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useOnboardingStore } from "@/store/onboardingStore";
 
 type Slide = {
-  emoji: string;
+  icon: LucideIcon;
   badge: string;
   title: string;
   description: string;
@@ -11,7 +13,7 @@ type Slide = {
 
 const SLIDES: Slide[] = [
   {
-    emoji: "👋",
+    icon: Hand,
     badge: "환영해요",
     title: "Solmate에 오신 걸\n환영해요!",
     description:
@@ -19,7 +21,7 @@ const SLIDES: Slide[] = [
     highlight: "실제 코스피200 시세 그대로, 리스크 없이 시작",
   },
   {
-    emoji: "💰",
+    icon: Wallet,
     badge: "내 자산",
     title: "예수금·평가자산을\n한눈에 확인해요",
     description:
@@ -27,15 +29,15 @@ const SLIDES: Slide[] = [
     highlight: "평가자산 = 예수금 + 보유 종목 평가금액",
   },
   {
-    emoji: "📊",
+    icon: BarChart2,
     badge: "매수 · 매도",
     title: "종목을 골라\n매수·매도 해봐요",
     description:
       "모의투자 탭에서 종목을 검색하고\n매수(사기)·매도(팔기)를 직접 해볼 수 있어요.",
-    highlight: "등락률 빨강 ▲ = 오름 / 파랑 ▼ = 내림 (한국 증시)",
+    highlight: "등락률 빨강 = 오름 / 파랑 = 내림 (한국 증시)",
   },
   {
-    emoji: "🏆",
+    icon: Trophy,
     badge: "랭킹 · 멘토",
     title: "TOP 투자자와\n함께 성장해요",
     description:
@@ -79,9 +81,9 @@ export default function OnboardingOverlay() {
           transform: visible ? "translateY(0)" : "translateY(10px)",
         }}
       >
-        {/* 이모지 원형 */}
-        <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center text-5xl mb-6">
-          {slide.emoji}
+        {/* 아이콘 원형 */}
+        <div className="w-24 h-24 rounded-full bg-blue-50 flex items-center justify-center text-[#0046FF] mb-6">
+          <slide.icon size={44} />
         </div>
 
         {/* 뱃지 */}

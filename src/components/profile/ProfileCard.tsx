@@ -53,14 +53,14 @@ export default function ProfileCard({
   const isPositive = totalReturnRate >= 0;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5">
       {/* 아바타 + 닉네임 + 이메일 */}
       <div className="flex flex-col items-center text-center mb-4">
         <div className="mb-3">
           <Avatar name={nickname} src={profileImageUrl ?? undefined} size={80} />
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <h2 className="text-[17px] font-bold text-gray-900">{nickname}</h2>
+          <h2 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">{nickname}</h2>
           {badge === "멘토" && (
             <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">멘토</span>
           )}
@@ -69,7 +69,7 @@ export default function ProfileCard({
           )}
         </div>
         {email && (
-          <p className="text-[13px] text-gray-400 mt-0.5">{email}</p>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">{email}</p>
         )}
       </div>
 
@@ -77,31 +77,35 @@ export default function ProfileCard({
       <div className="flex gap-1 mb-4">
         <button
           onClick={onFollowersClick}
-          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 transition-colors"
+          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900">{followers}</p>
-          <p className="text-[12px] text-gray-400">팔로워</p>
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{followers}</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">팔로워</p>
         </button>
-        <div className="w-px bg-gray-100" />
+        <div className="w-px bg-gray-100 dark:bg-slate-800" />
         <button
           onClick={onFollowingClick}
-          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 transition-colors"
+          className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900">{following}</p>
-          <p className="text-[12px] text-gray-400">팔로잉</p>
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{following}</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">팔로잉</p>
         </button>
       </div>
 
       {/* 수익률 / 총 수익 */}
-      <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 mb-4">
+      <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 dark:border-slate-800 mb-4">
         <div className="text-center">
+<<<<<<< HEAD
           <p className="text-[12px] text-gray-400 mb-1">총 수익률</p>
+=======
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">수익률</p>
+>>>>>>> 3565c14 (feat: 다크모드 구현)
           <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
             {isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%
           </p>
         </div>
         <div className="text-center">
-          <p className="text-[12px] text-gray-400 mb-1">총 수익</p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">총 수익</p>
           <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
             {isPositive ? "+" : ""}{fmtAmount(totalReturn)}원
           </p>
@@ -109,7 +113,7 @@ export default function ProfileCard({
       </div>
 
       {/* 액션 버튼 */}
-      <div className="space-y-2 pt-4 border-t border-gray-100">
+      <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-slate-800">
         {isOwnProfile ? (
           <>
             <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>

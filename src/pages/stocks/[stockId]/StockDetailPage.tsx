@@ -60,8 +60,9 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
 ];
 import { Loader2 } from "lucide-react";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { stompSubscribe } from "@/lib/stompClient";
 import {
   useStockQuoteQuery,
   useStockHoldingQuery,
@@ -111,47 +112,51 @@ export default function StockDetailPage() {
   const { data: tradeHistory } = useStockTradeHistoryQuery(stockCode);
   const { data: orderBook } = useOrderBookQuery(stockCode);
 
-  // ── 실시간 구독 (공유 클라이언트 재사용) ────────────────────────────────
+  // ── 실시간 연결 (백엔드 스케줄러가 자동 구독 → STOMP 수신만 하면 됨) ────
   useEffect(() => {
     if (!stockCode) return;
 
-    const unsubQuote = stompSubscribe(
-      `/topic/stocks/${stockCode}/quote`,
-      (message) => {
-        const msg: StockItemMessage = JSON.parse(message.body);
-        queryClient.setQueryData<StockQuote>(
-          stockQueryKeys.quote(stockCode),
-          (prev) =>
-            prev
-              ? {
-                  ...prev,
-                  currentPrice: msg.currentPrice,
-                  changePrice: msg.changePrice,
-                  changeRate: msg.changeRate,
-                  highPrice: msg.highPrice,
-                  lowPrice: msg.lowPrice,
-                  volume: msg.volume,
-                }
-              : prev,
-        );
-      },
-    );
+    const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+    const client = new Client({
+      webSocketFactory: () => new SockJS(wsUrl),
+      onConnect: () => {
+        console.log("[STOMP] 종목 상세 연결됨:", stockCode);
+        client.subscribe(`/topic/stocks/${stockCode}/quote`, (message) => {
+          const msg: StockItemMessage = JSON.parse(message.body);
+          queryClient.setQueryData<StockQuote>(
+            stockQueryKeys.quote(stockCode),
+            (prev) =>
+              prev
+                ? {
+                    ...prev,
+                    currentPrice: msg.currentPrice,
+                    changePrice: msg.changePrice,
+                    changeRate: msg.changeRate,
+                    highPrice: msg.highPrice,
+                    lowPrice: msg.lowPrice,
+                    volume: msg.volume,
+                  }
+                : prev,
+          );
+        });
 
-    const unsubOrderBook = stompSubscribe(
-      `/topic/orderbook/${stockCode}`,
-      (message) => {
-        const raw = JSON.parse(message.body);
-        const msg: OrderBookData = raw.data ?? raw;
-        queryClient.setQueryData<OrderBookData>(
-          stockQueryKeys.orderBook(stockCode),
-          msg,
-        );
+        client.subscribe(`/topic/orderbook/${stockCode}`, (message) => {
+          const raw = JSON.parse(message.body);
+          console.log("[STOMP] 호가 원본:", JSON.stringify(raw));
+          const msg: OrderBookData = raw.data ?? raw;
+          queryClient.setQueryData<OrderBookData>(
+            stockQueryKeys.orderBook(stockCode),
+            msg,
+          );
+        });
       },
-    );
+      onDisconnect: () => console.log("[STOMP] 종목 상세 연결 끊김"),
+      onStompError: (frame) => console.error("[STOMP] 에러:", frame),
+    });
+    client.activate();
 
     return () => {
-      unsubQuote();
-      unsubOrderBook();
+      client.deactivate();
     };
   }, [stockCode, queryClient]);
 

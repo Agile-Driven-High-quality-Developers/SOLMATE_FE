@@ -8,6 +8,19 @@ import {
   type IChartApi,
 } from "lightweight-charts";
 import { useCandleQuery, type PeriodType } from "@/api/stockApi";
+import { useThemeStore } from "@/store/themeStore";
+
+// --- 증권사 표준 색상 정의 ---
+const COLORS = {
+  up: "#F04452",      // 국내 증권사 Red
+  down: "#3B7DEB",    // 국내 증권사 Blue
+  darkBg: "#131722",  // 트레이딩뷰 표준 다크 배경
+  lightBg: "#ffffff",
+  darkGrid: "#1e222d",
+  lightGrid: "#f0f3fa",
+  darkText: "#d1d4dc",
+  lightText: "#4b5563",
+};
 
 const PERIODS: { label: string; value: PeriodType }[] = [
   { label: "1분", value: "1" },
@@ -23,7 +36,10 @@ const PERIODS: { label: string; value: PeriodType }[] = [
 const MINUTE_PERIODS = new Set<PeriodType>(["1", "5", "30", "60"]);
 
 const INITIAL_LIMIT: Record<PeriodType, number> = {
-  "1": 0, "5": 0, "30": 0, "60": 0,
+  "1": 0,
+  "5": 0,
+  "30": 0,
+  "60": 0,
   day: 365,
   week: 365 * 3,
   month: 365 * 5,
@@ -50,7 +66,10 @@ const DOWN_COLOR = "#3B7DEB";
 
 const KST_OFFSET = 9 * 3600;
 
-function toChartTime(epochSec: number, isMinute: boolean): UTCTimestamp | string {
+function toChartTime(
+  epochSec: number,
+  isMinute: boolean,
+): UTCTimestamp | string {
   const adjusted = epochSec + KST_OFFSET;
   if (isMinute) return adjusted as UTCTimestamp;
   const d = new Date(adjusted * 1000);
@@ -136,8 +155,18 @@ export default function StockChart({ stockCode }: Props) {
         timeVisible: false,
       },
       crosshair: {
-        vertLine: { color: "#D1D5DB", width: 1, style: 2, labelBackgroundColor: "#1F2937" },
-        horzLine: { color: "#D1D5DB", width: 1, style: 2, labelBackgroundColor: "#1F2937" },
+        vertLine: {
+          color: "#D1D5DB",
+          width: 1,
+          style: 2,
+          labelBackgroundColor: "#1F2937",
+        },
+        horzLine: {
+          color: "#D1D5DB",
+          width: 1,
+          style: 2,
+          labelBackgroundColor: "#1F2937",
+        },
       },
       handleScroll: true,
       handleScale: true,
@@ -167,13 +196,16 @@ export default function StockChart({ stockCode }: Props) {
     );
 
     // pane 1의 right 스케일: 로그 모드 해제 + 레이블 표시
-    chart.panes()[1]?.priceScale("right").applyOptions({
-      mode: PriceScaleMode.Normal,
-      scaleMargins: { top: 0.1, bottom: 0 },
-      visible: true,
-      borderVisible: false,
-      textColor: "#9CA3AF",
-    });
+    chart
+      .panes()[1]
+      ?.priceScale("right")
+      .applyOptions({
+        mode: PriceScaleMode.Normal,
+        scaleMargins: { top: 0.1, bottom: 0 },
+        visible: true,
+        borderVisible: false,
+        textColor: "#9CA3AF",
+      });
 
     // pane 높이 비율 설정 (캔들 : 거래량 ≈ 2 : 1)
     try {
@@ -240,7 +272,8 @@ export default function StockChart({ stockCode }: Props) {
 
   // 데이터 업데이트
   const updateData = useCallback(() => {
-    if (!candles || !candleSeriesRef.current || !volumeSeriesRef.current) return;
+    if (!candles || !candleSeriesRef.current || !volumeSeriesRef.current)
+      return;
 
     const timeMap = new Map<string, (typeof candles)[0]>();
     for (const c of [...candles].sort((a, b) => a.time - b.time)) {
@@ -287,18 +320,20 @@ export default function StockChart({ stockCode }: Props) {
   }, [updateData]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100">
+    <div className="bg-white rounded-2xl border border-gray-100 dark:bg-slate-900 dark:border-slate-900">
       {/* 헤더 */}
       <div className="flex items-center justify-between px-5 pt-4 pb-3">
-        <span className="text-[13px] font-semibold text-gray-700">주가 차트</span>
+        <span className="text-[13px] font-semibold text-gray-700 dark:text-gray-100">
+          주가 차트
+        </span>
         <div className="flex items-center gap-0.5">
           {PERIODS.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => handlePeriodChange(value)}
-              className={`px-2.5 py-1 text-[12px] font-medium rounded-md transition-colors ${
+              className={`px-2.5 py-1 text-[12px] font-medium rounded-md transition-colors   ${
                 period === value
-                  ? "text-[#0046FF] bg-blue-50"
+                  ? "text-[#0046FF] bg-blue-5 dark:bg-gray-50"
                   : "text-gray-400 hover:text-gray-500 hover:bg-gray-50"
               }`}
             >
@@ -324,7 +359,9 @@ export default function StockChart({ stockCode }: Props) {
               {ohlcv.open.toLocaleString()}
             </span>
             <span className="text-gray-400">고가</span>
-            <span className="text-[#F04452]">{ohlcv.high.toLocaleString()}</span>
+            <span className="text-[#F04452]">
+              {ohlcv.high.toLocaleString()}
+            </span>
             <span className="text-gray-400">저가</span>
             <span className="text-[#3B7DEB]">{ohlcv.low.toLocaleString()}</span>
             <span className="text-gray-400">종가</span>

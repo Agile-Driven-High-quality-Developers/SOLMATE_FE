@@ -12,7 +12,7 @@ type TabBarProps = {
 export default function TabBar({ tabs, activeId, onChange, variant = "pill" }: TabBarProps) {
   if (variant === "underline") {
     return (
-      <div className="flex border-b border-gray-100">
+      <div className="flex border-b border-gray-100 dark:border-slate-800">
         {tabs.map((tab) => {
           const isActive = tab.id === activeId;
           return (
@@ -22,7 +22,7 @@ export default function TabBar({ tabs, activeId, onChange, variant = "pill" }: T
               className={`flex-1 py-3 text-[15px] font-semibold transition-colors duration-150 border-b-2 -mb-px ${
                 isActive
                   ? "text-[#0046FF] border-[#0046FF]"
-                  : "text-gray-400 border-transparent hover:text-gray-600"
+                  : "text-gray-400 border-transparent hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
               }`}
             >
               {tab.label}
@@ -49,9 +49,13 @@ export default function TabBar({ tabs, activeId, onChange, variant = "pill" }: T
                     color: "#ffffff",
                     border: "1px solid #0046FF",
                   }
-                : { background: "#ffffff" }
+                : undefined
             }
-            className="px-4 py-2 text-[16px] transition-colors duration-150 rounded-4xl font-semibold text-[#6B7280] border border-[#F3F4F6]"
+            className={`px-4 py-2 text-[16px] transition-colors duration-150 rounded-4xl font-semibold border ${
+              isActive
+                ? ""
+                : "bg-white border-gray-100 text-[#6B7280] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+            }`}
           >
             {tab.label}
           </button>

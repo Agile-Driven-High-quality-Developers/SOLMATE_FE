@@ -99,14 +99,14 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
   return (
     <div className="flex-1 flex flex-col gap-4 min-h-0">
       {/* 멘티 카드 */}
-      <div className="bg-white rounded-2xl border border-gray-100 px-6 py-4 shrink-0">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-4 shrink-0">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 flex-1">
             <Avatar name={mentee.nickname} src={mentee.imageUrl || undefined} size={52} />
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-bold text-gray-900">{mentee.nickname}</span>
-                <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">멘티</span>
+                <span className="text-[16px] font-bold text-gray-900 dark:text-gray-100">{mentee.nickname}</span>
+                <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-full">멘티</span>
               </div>
               <div className="flex items-center gap-4 text-[13px] text-gray-500">
                 <div className="flex items-center gap-1">
@@ -141,7 +141,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
       </div>
 
       {/* 탭 + 콘텐츠 */}
-      <div className="flex-1 min-h-0 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col">
         <UnderlineTabBar
           tabs={[...TABS]}
           activeId={activeTab}
@@ -188,12 +188,12 @@ function MenteeListItem({
     <button
       onClick={onClick}
       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left ${
-        selected ? "bg-[#0046FF]/8" : "hover:bg-gray-50"
+        selected ? "bg-[#0046FF]/8 dark:bg-[#0046FF]/15" : "hover:bg-gray-50 dark:hover:bg-slate-800"
       }`}
     >
       <Avatar name={profile?.nickname ?? ""} src={profile?.imageUrl || undefined} size={36} />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-gray-900 truncate">{profile?.nickname ?? "..."}</p>
+        <p className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate">{profile?.nickname ?? "..."}</p>
         <p className={`text-[12px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
           {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
         </p>
@@ -223,11 +223,11 @@ export default function MyMenteePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50">
+    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="flex items-baseline gap-2 shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900">나의 멘티</h1>
-        {mentees.length > 0 && <span className="text-[13px] text-gray-400">총 {mentees.length}명의 멘티</span>}
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">나의 멘티</h1>
+        {mentees.length > 0 && <span className="text-[13px] text-gray-400 dark:text-slate-500">총 {mentees.length}명의 멘티</span>}
       </div>
 
       {!menteesData?.hasMentee || mentees.length === 0 ? (
@@ -238,11 +238,11 @@ export default function MyMenteePage() {
         <div className="flex gap-4 flex-1 min-h-0">
           {/* 멘티 목록 (좌측) */}
           <div
-            className="w-[180px] shrink-0 bg-white rounded-2xl border border-gray-100 flex flex-col overflow-hidden"
+            className="w-[180px] shrink-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 flex flex-col overflow-hidden"
             data-tour="mentee-list"
           >
-            <div className="px-4 py-3 border-b border-gray-100 shrink-0">
-              <p className="text-[12px] font-semibold text-gray-400">멘티 목록</p>
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-800 shrink-0">
+              <p className="text-[12px] font-semibold text-gray-400 dark:text-slate-500">멘티 목록</p>
             </div>
             <div className="flex-1 overflow-y-auto p-2">
               {mentees.map((mentee) => (
