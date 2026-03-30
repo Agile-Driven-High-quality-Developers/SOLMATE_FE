@@ -319,26 +319,13 @@ export default function StockList() {
               className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
                 isActive
                   ? "bg-[#0046FF] text-white"
-                  : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+                  : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
               }`}
             >
               {s}
             </button>
           );
         })}
-        {SECTORS.map((s) => (
-          <button
-            key={s}
-            onClick={() => setSector(s)}
-            className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
-              sector === s
-                ? "bg-[#0046FF] text-white"
-                : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
       </div>
 
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />

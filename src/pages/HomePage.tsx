@@ -328,13 +328,8 @@ function HoldingsTable({
                 <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   평가손익
                 </th>
-<<<<<<< HEAD
-                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 font-medium">
-                  종목 수익률
-=======
                 <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
-                  수익률
->>>>>>> 3565c14 (feat: 다크모드 구현)
+                  종목 수익률
                 </th>
               </tr>
             </thead>
