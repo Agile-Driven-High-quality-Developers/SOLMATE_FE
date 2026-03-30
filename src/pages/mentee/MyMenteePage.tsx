@@ -72,7 +72,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
   const { data: diaries = [] } = useMentorDiariesQuery(menteeId);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(menteeId);
 
-  const holdings = holdingsRaw.map((h) => ({
+  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
     tickerCode: h.tickerCode,
     stockName: h.stockName,
     stockLogo: h.stockLogo,

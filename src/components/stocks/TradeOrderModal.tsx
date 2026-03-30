@@ -45,6 +45,7 @@ type Props = {
   stockName: string;
   tickerCode: string;
   currentPrice: number;
+  initialPrice?: number;
   cash: number;
   holdingQuantity: number;
   onClose: () => void;
@@ -61,6 +62,7 @@ export default function TradeOrderModal({
   stockName,
   tickerCode,
   currentPrice,
+  initialPrice,
   cash,
   holdingQuantity,
   onClose,
@@ -74,8 +76,8 @@ export default function TradeOrderModal({
     bgLight: isBuy ? "bg-red-50" : "bg-blue-50",
   };
 
-  const [orderType, setOrderType] = useState<OrderType>("MARKET");
-  const [limitPrice, setLimitPrice] = useState("");
+  const [orderType, setOrderType] = useState<OrderType>(initialPrice ? "LIMIT" : "MARKET");
+  const [limitPrice, setLimitPrice] = useState(initialPrice ? String(initialPrice) : "");
   const [quantity, setQuantity] = useState("");
   const [diary, setDiary] = useState("");
 

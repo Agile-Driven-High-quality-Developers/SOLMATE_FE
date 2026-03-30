@@ -47,7 +47,7 @@ export default function UserProfilePage() {
   const { data: myMentor } = useMyMentorQuery();
   const { data: myMentees } = useMyMenteesQuery();
 
-  const holdings = holdingsRaw.map((h) => ({
+  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
     tickerCode: h.tickerCode,
     stockName: h.stockName,
     stockLogo: h.stockLogo,

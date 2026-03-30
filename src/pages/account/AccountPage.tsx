@@ -64,7 +64,7 @@ export default function AccountPage() {
   const { data: summary } = useAccountSummaryQuery();
   const { data: holdingsRaw = [] } = useHoldingsQuery();
 
-  const holdings = holdingsRaw.map((h) => ({
+  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
     tickerCode: h.tickerCode,
     stockName: h.stockName,
     stockLogo: h.stockLogo,

@@ -103,7 +103,7 @@ export default function MyMentorPage() {
   const { data: diaries = [] } = useMentorDiariesQuery(mentorId);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(mentorId);
 
-  const holdings = holdingsRaw.map((h) => ({
+  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
     tickerCode: h.tickerCode,
     stockName: h.stockName,
     stockLogo: h.stockLogo,
