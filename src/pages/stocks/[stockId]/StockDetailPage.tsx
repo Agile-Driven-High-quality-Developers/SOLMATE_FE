@@ -6,7 +6,7 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const STOCK_DETAIL_TOUR: TourStep[] = [
   {
     target: "stock-chart",
-    title: "📊 주가 차트",
+    title: <span className="inline-flex items-center gap-1.5"><BarChart2 size={15} />주가 차트</span>,
     description: "주가가 시간에 따라 어떻게 변했는지 보여줘요.",
     items: [
       "빨간 캔들 — 어제보다 오른 날",
@@ -17,7 +17,7 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-info",
-    title: "📋 오늘의 주가 정보",
+    title: <span className="inline-flex items-center gap-1.5"><ClipboardList size={15} />오늘의 주가 정보</span>,
     description: "오늘 하루 동안의 주요 가격이에요.",
     items: [
       "시가 — 오늘 장이 열릴 때 첫 거래 가격",
@@ -29,7 +29,7 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-holding",
-    title: "💳 보유현황 & 매수·매도",
+    title: <span className="inline-flex items-center gap-1.5"><CreditCard size={15} />보유현황 & 매수·매도</span>,
     description: "내 주식 현황과 주문 버튼이에요.",
     items: [
       "매수 — 주식 사기 (예수금이 줄어요)",
@@ -40,7 +40,7 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
   },
   {
     target: "stock-orderbook",
-    title: "📚 호가창",
+    title: <span className="inline-flex items-center gap-1.5"><BookOpen size={15} />호가창</span>,
     description: "사려는 사람과 팔려는 사람의 희망 가격이에요.",
     items: [
       {
@@ -59,7 +59,7 @@ const STOCK_DETAIL_TOUR: TourStep[] = [
     placement: "left",
   },
 ];
-import { Loader2 } from "lucide-react";
+import { Loader2, BarChart2, ClipboardList, CreditCard, BookOpen } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { stompSubscribe } from "@/lib/stompClient";
 import {
@@ -255,6 +255,7 @@ export default function StockDetailPage() {
         <TradeOrderModal
           side={orderSide}
           stockName={quote.stockName}
+          tickerCode={stockCode}
           currentPrice={quote.currentPrice}
           cash={cash ?? 0}
           holdingQuantity={holding?.holdingQuantity ?? 0}
@@ -265,21 +266,6 @@ export default function StockDetailPage() {
           }}
         />
       )}
-    {orderSide && (
-      <TradeOrderModal
-        side={orderSide}
-        stockName={quote.stockName}
-        tickerCode={stockCode}
-        currentPrice={quote.currentPrice}
-        cash={cash ?? 0}
-        holdingQuantity={holding?.holdingQuantity ?? 0}
-        onClose={() => setOrderSide(null)}
-        onConfirm={(params) => {
-          setPendingOrder({ ...params, side: orderSide! });
-          setOrderSide(null);
-        }}
-      />
-    )}
 
       {pendingOrder && (
         <TradeConfirmModal
@@ -315,7 +301,7 @@ export default function StockDetailPage() {
           }}
         />
       )}
-      <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} />
+      <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} hidden={!!(orderSide || pendingOrder)} />
     </>
   );
 }

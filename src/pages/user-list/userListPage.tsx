@@ -197,11 +197,11 @@ function UserRow({
       {/* 순위 */}
       <td className="px-5 py-3.5 text-center">
         {rank === 1 ? (
-          <span className="text-[18px]">🥇</span>
+          <Crown size={20} className="mx-auto text-yellow-400" />
         ) : rank === 2 ? (
-          <span className="text-[18px]">🥈</span>
+          <Medal size={20} className="mx-auto text-gray-400" />
         ) : rank === 3 ? (
-          <span className="text-[18px]">🥉</span>
+          <Medal size={20} className="mx-auto text-amber-600" />
         ) : (
           <span className="text-[14px] font-bold text-gray-400">{rank}</span>
         )}

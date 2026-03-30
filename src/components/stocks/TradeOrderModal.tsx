@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, Wallet, Tag, Hash, PenLine } from "lucide-react";
 import Button from "@/components/ui/Button";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -7,13 +7,13 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const TRADE_ORDER_TOUR: TourStep[] = [
   {
     target: "trade-order-available",
-    title: "💰 주문 가능금액",
+    title: <span className="inline-flex items-center gap-1.5"><Wallet size={15} />주문 가능금액</span>,
     description: "현재 내 예수금(투자에 쓸 수 있는 현금)이에요. 이 금액 안에서만 매수할 수 있어요.",
     placement: "bottom",
   },
   {
     target: "trade-order-type",
-    title: "📌 시장가 vs 지정가",
+    title: <span className="inline-flex items-center gap-1.5"><Tag size={15} />시장가 vs 지정가</span>,
     description: "주문 방식을 선택해요.",
     items: [
       "시장가 — 지금 바로 현재 가격으로 체결돼요",
@@ -23,13 +23,13 @@ const TRADE_ORDER_TOUR: TourStep[] = [
   },
   {
     target: "trade-order-quantity",
-    title: "🔢 수량 입력",
+    title: <span className="inline-flex items-center gap-1.5"><Hash size={15} />수량 입력</span>,
     description: "몇 주를 살지 입력해요. 아래 최대 수량을 넘을 수 없어요.",
     placement: "bottom",
   },
   {
     target: "trade-order-diary",
-    title: "✍️ 매매일지 (필수)",
+    title: <span className="inline-flex items-center gap-1.5"><PenLine size={15} />매매일지 (필수)</span>,
     description: "이 주식을 사는 이유를 꼭 기록해야 주문할 수 있어요. 나중에 내 투자 패턴을 분석하는 데 도움이 돼요.",
     placement: "top",
   },

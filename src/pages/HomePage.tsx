@@ -7,7 +7,7 @@ const HOME_TOUR: TourStep[] = [
     target: "market-indices",
     title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />오늘 주식시장은?</span>,
     description:
-      "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강(▲)이면 오름, 파랑(▼)이면 내림이에요.",
+      "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강이면 오름, 파랑이면 내림이에요.",
     placement: "bottom",
   },
   {
@@ -153,7 +153,7 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
           <TrendingDown size={12} className="text-blue-600" />
         )}
         <ReturnText
-          value={`${index.isPositive ? "▲" : "▼"}${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
+          value={`${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
           isPositive={index.isPositive}
           className="text-[12px] font-medium"
         />

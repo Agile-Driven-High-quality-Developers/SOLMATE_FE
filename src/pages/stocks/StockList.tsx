@@ -114,7 +114,6 @@ function MarketPanel({
             <span
               className={`text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}
             >
-              {idx.isPositive ? "▲" : "▼"}
               {idx.change} ({idx.isPositive ? "+" : ""}
               {idx.changePercent}%)
             </span>
