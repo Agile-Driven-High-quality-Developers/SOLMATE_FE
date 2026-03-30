@@ -5,43 +5,73 @@ import type { TourStep } from "@/components/onboarding/SpotlightTour";
 const HOME_TOUR: TourStep[] = [
   {
     target: "market-indices",
-    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />오늘 주식시장은?</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <TrendingUp size={15} />
+        오늘 주식시장은?
+      </span>
+    ),
     description:
       "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강이면 오름, 파랑이면 내림이에요.",
     placement: "bottom",
   },
   {
     target: "portfolio",
-    title: <span className="inline-flex items-center gap-1.5"><Wallet size={15} />내 자산 현황</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Wallet size={15} />내 자산 현황
+      </span>
+    ),
     description:
       "가상 1,000만원으로 시작한 내 돈이 얼마가 됐는지 보여줘요. 예수금은 아직 투자 안 한 현금이에요.",
     placement: "bottom",
   },
   {
     target: "holdings",
-    title: <span className="inline-flex items-center gap-1.5"><Package size={15} />내가 산 주식들</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Package size={15} />
+        내가 산 주식들
+      </span>
+    ),
     description:
       "지금 가지고 있는 주식 목록이에요. 각 종목이 얼마나 올랐는지(수익률) 바로 확인할 수 있어요.",
     placement: "top",
   },
   {
     target: "top-investors",
-    title: <span className="inline-flex items-center gap-1.5"><Trophy size={15} />TOP 투자자</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Trophy size={15} />
+        TOP 투자자
+      </span>
+    ),
     description:
       "수익을 가장 많이 낸 투자자 순위예요. 클릭하면 그 사람이 어떤 주식을 샀는지 볼 수 있어요!",
     placement: "top",
   },
   {
     target: "popular-stocks",
-    title: <span className="inline-flex items-center gap-1.5"><Flame size={15} />인기 종목</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <Flame size={15} />
+        인기 종목
+      </span>
+    ),
     description:
       "지금 가장 많이 거래되고 있는 주식이에요. 클릭하면 해당 종목의 차트와 매수·매도 화면으로 바로 이동해요.",
     placement: "top",
   },
   {
     target: "nav-guide",
-    title: <span className="inline-flex items-center gap-1.5"><BookOpen size={15} />가이드 탭을 확인해보세요</span>,
-    description: "주식 용어, 투자 전략, SOLMate 사용법이 모두 정리되어 있어요. 투자가 처음이라면 꼭 읽어보세요!",
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <BookOpen size={15} />
+        가이드 탭을 확인해보세요
+      </span>
+    ),
+    description:
+      "주식 용어, 투자 전략, SOLMate 사용법이 모두 정리되어 있어요. 투자가 처음이라면 꼭 읽어보세요!",
     items: [
       "서비스 소개 — SOLMate 핵심 기능 한눈에",
       "사용 가이드 — 5단계로 따라하는 시작법",
@@ -51,7 +81,16 @@ const HOME_TOUR: TourStep[] = [
     placement: "right",
   },
 ];
-import { Bell, ChevronRight, TrendingUp, TrendingDown, Wallet, Package, Trophy, Flame, BookOpen } from "lucide-react";
+import {
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Package,
+  Trophy,
+  Flame,
+  BookOpen,
+} from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useMarketIndicesQuery } from "@/api/homeApi";
 import type { MarketIndexData } from "@/api/homeApi";
@@ -125,15 +164,19 @@ function ReturnText({
 
 function SectionSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="animate-pulse flex flex-col gap-3 p-5">
+    <ul className="divide-y divide-gray-50 animate-pulse dark:divide-gray-600">
       {Array.from({ length: rows }).map((_, i) => (
-        <div
-          key={i}
-          className="h-4 bg-gray-100 rounded-full"
-          style={{ width: `${70 + (i % 3) * 10}%` }}
-        />
+        <li key={i} className="flex items-center gap-3 px-5 py-3">
+          <div className="w-5 h-3 bg-gray-100 rounded-full dark:bg-gray-600" />
+          <div className="w-8 h-8 bg-gray-100 rounded-full shrink-0 dark:bg-gray-600" />
+          <div className="flex-1 flex flex-col gap-1.5">
+            <div className="h-3 bg-gray-100 rounded-full w-24 dark:bg-gray-600" />
+            <div className="h-2.5 bg-gray-100 rounded-full w-16 dark:bg-gray-600" />
+          </div>
+          <div className="h-3 bg-gray-100 rounded-full w-12 dark:bg-gray-600" />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -145,7 +188,9 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
       <p className="text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1">
         {index.label}
       </p>
-      <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">{index.value}</p>
+      <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+        {index.value}
+      </p>
       <div className="flex items-center gap-1 mt-0.5">
         {index.isPositive ? (
           <TrendingUp size={12} className="text-red-500" />
@@ -296,7 +341,9 @@ function HoldingsTable({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col flex-1 min-h-0">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800 shrink-0">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">보유 종목</h2>
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+          보유 종목
+        </h2>
         <button
           onClick={() => navigate("/account")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -306,7 +353,7 @@ function HoldingsTable({
       </div>
 
       {loading ? (
-        <SectionSkeleton rows={5} />
+        <SectionSkeleton rows={data.length} />
       ) : data.length === 0 ? (
         <p className="text-[13px] text-gray-400 text-center py-8">
           보유 종목이 없습니다.
@@ -452,7 +499,9 @@ function TopInvestors({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">TOP 투자자</h2>
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+          TOP 투자자
+        </h2>
         <button
           onClick={() => navigate("/users")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -461,19 +510,7 @@ function TopInvestors({
         </button>
       </div>
       {loading || !allSummariesLoaded ? (
-        <ul className="divide-y divide-gray-50 animate-pulse">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <li key={i} className="flex items-center gap-3 px-5 py-3">
-              <div className="w-5 h-3 bg-gray-100 rounded-full" />
-              <div className="w-8 h-8 bg-gray-100 rounded-full shrink-0" />
-              <div className="flex-1 flex flex-col gap-1.5">
-                <div className="h-3 bg-gray-100 rounded-full w-24" />
-                <div className="h-2.5 bg-gray-100 rounded-full w-16" />
-              </div>
-              <div className="h-3 bg-gray-100 rounded-full w-12" />
-            </li>
-          ))}
-        </ul>
+        <SectionSkeleton rows={5} />
       ) : (
         <ul className="divide-y divide-gray-50 dark:divide-slate-800">
           {top5.map((investor, i) => (
@@ -527,7 +564,9 @@ function PopularStocks({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">인기 종목</h2>
+        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+          인기 종목
+        </h2>
         <button
           onClick={() => navigate("/invest")}
           className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
@@ -606,8 +645,12 @@ export default function HomePage() {
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">홈</h1>
-          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">{TODAY}</p>
+          <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+            홈
+          </h1>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+            {TODAY}
+          </p>
         </div>
       </div>
 
@@ -624,7 +667,10 @@ export default function HomePage() {
             <PortfolioCard data={summary} loading={loadingSummary} />
           </div>
           <div data-tour="holdings">
-            <HoldingsTable data={holdings.filter((h) => h.quantity > 0)} loading={loadingHoldings} />
+            <HoldingsTable
+              data={holdings.filter((h) => h.quantity > 0)}
+              loading={loadingHoldings}
+            />
           </div>
         </div>
 

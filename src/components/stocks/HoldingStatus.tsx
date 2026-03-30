@@ -20,12 +20,17 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4 flex flex-col gap-4">
       <div>
-        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">내 보유 현황</h3>
+        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">
+          내 보유 현황
+        </h3>
         {holding && holding.holdingQuantity > 0 ? (
           <div className="flex flex-col gap-2">
             {[
               { label: "보유수량", value: `${holding.holdingQuantity}주` },
-              { label: "평균매수가", value: `${holding.averageBuyPrice.toLocaleString()}원` },
+              {
+                label: "평균매수가",
+                value: `${holding.averageBuyPrice.toLocaleString()}원`,
+              },
               { label: "평가금액", value: formatWon(holding.evaluationAmount) },
               {
                 label: "평가손익",
@@ -39,7 +44,9 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
               },
             ].map(({ label, value, colored }) => (
               <div key={label} className="flex justify-between items-center">
-                <span className="text-[13px] text-gray-400 dark:text-slate-500">{label}</span>
+                <span className="text-[13px] text-gray-400 dark:text-slate-500">
+                  {label}
+                </span>
                 <span
                   className={`text-[13px] font-medium ${
                     colored
@@ -55,12 +62,16 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
             ))}
           </div>
         ) : (
-          <p className="text-[13px] text-gray-400 dark:text-slate-500">보유 종목 없음</p>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500">
+            보유 종목 없음
+          </p>
         )}
       </div>
 
       <div className="border-t border-gray-100 dark:border-slate-800 pt-3">
-        <p className="text-[13px] text-gray-400 dark:text-slate-500 mb-1">주문 가능 금액</p>
+        <p className="text-[13px] text-gray-400 dark:text-slate-500 mb-1">
+          주문 가능 금액
+        </p>
         <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
           {cash != null ? `${cash.toLocaleString()}원` : "-"}
         </p>

@@ -209,7 +209,7 @@ export default function StockDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-screen">
+      <div className="flex items-center justify-center h-full min-h-screen bg-gray-50 dark:bg-slate-950">
         <Loader2 size={32} className="animate-spin text-[#0046FF]" />
       </div>
     );
@@ -217,7 +217,7 @@ export default function StockDetailPage() {
 
   if (!quote) {
     return (
-      <div className="flex items-center justify-center h-full min-h-screen text-[14px] text-gray-400">
+      <div className="flex items-center justify-center h-full min-h-screen bg-gray-50 dark:bg-slate-950 text-[14px] text-gray-400 dark:text-slate-500">
         종목 정보를 불러올 수 없습니다.
       </div>
     );
@@ -241,7 +241,7 @@ export default function StockDetailPage() {
 
   return (
     <>
-      <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+      <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
         <StockDetailHeader stock={headerStock} />
 
         <div className="flex gap-5 items-start">
@@ -296,7 +296,10 @@ export default function StockDetailPage() {
           initialPrice={selectedPrice ?? undefined}
           cash={cash ?? 0}
           holdingQuantity={holding?.holdingQuantity ?? 0}
-          onClose={() => { setOrderSide(null); setSelectedPrice(null); }}
+          onClose={() => {
+            setOrderSide(null);
+            setSelectedPrice(null);
+          }}
           onConfirm={(params) => {
             setPendingOrder({ ...params, side: orderSide! });
             setOrderSide(null);

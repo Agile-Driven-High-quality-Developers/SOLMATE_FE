@@ -49,8 +49,12 @@ export default function StockDetailHeader({ stock }: Props) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[18px] font-bold text-gray-900 dark:text-gray-100">{stock.stockName}</span>
-          <span className="text-[13px] text-gray-400 dark:text-slate-500">{stock.tickerCode}</span>
+          <span className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+            {stock.stockName}
+          </span>
+          <span className="text-[13px] text-gray-400 dark:text-slate-500">
+            {stock.tickerCode}
+          </span>
           <span className="text-[12px] text-gray-400 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">
             {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
           </span>
@@ -59,8 +63,14 @@ export default function StockDetailHeader({ stock }: Props) {
           <span className="text-[26px] font-bold text-gray-900 dark:text-gray-100">
             {stock.currentPrice.toLocaleString()}원
           </span>
-          <span className={`inline-flex items-center gap-0.5 text-[14px] font-semibold ${changeColor}`}>
-            {isPositive ? <ArrowUp size={13} /> : isNegative ? <ArrowDown size={13} /> : null}
+          <span
+            className={`inline-flex items-center gap-0.5 text-[14px] font-semibold ${changeColor}`}
+          >
+            {isPositive ? (
+              <ArrowUp size={13} />
+            ) : isNegative ? (
+              <ArrowDown size={13} />
+            ) : null}
             {Math.abs(stock.change).toLocaleString()} ({isPositive ? "+" : ""}
             {stock.changeRate.toFixed(2)}%)
           </span>

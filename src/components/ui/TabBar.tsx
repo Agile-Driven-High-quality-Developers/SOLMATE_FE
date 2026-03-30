@@ -9,7 +9,12 @@ type TabBarProps = {
   variant?: "pill" | "underline";
 };
 
-export default function TabBar({ tabs, activeId, onChange, variant = "pill" }: TabBarProps) {
+export default function TabBar({
+  tabs,
+  activeId,
+  onChange,
+  variant = "pill",
+}: TabBarProps) {
   if (variant === "underline") {
     return (
       <div className="flex border-b border-gray-100 dark:border-slate-800">

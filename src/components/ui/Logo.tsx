@@ -10,7 +10,11 @@ export default function Logo({
   return (
     <div className="flex items-center gap-2.5">
       <div className="w-9 h-9 rounded-md shrink-0">
-        <img src={solmateLogo} alt="SOLMATE logo" className="w-full h-full object-contain rounded-md" />
+        <img
+          src={solmateLogo}
+          alt="SOLMATE logo"
+          className="w-full h-full object-contain rounded-md"
+        />
       </div>
       <div className="min-w-0">
         <p className="text-[18px] font-bold text-gray-900 leading-tight truncate dark:text-gray-100">

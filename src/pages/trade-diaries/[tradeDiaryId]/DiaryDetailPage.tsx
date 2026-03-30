@@ -59,10 +59,11 @@ export default function DiaryDetailPage() {
   const { mutate: postComment, isPending } = usePostCommentMutation(diaryId);
   const { mutate: modifyComment } = useModifyCommentMutation(diaryId);
   const { mutate: deleteComment } = useDeleteCommentMutation(diaryId);
-  const { mutate: modifyDiary, isPending: isSavingDiary } = useModifyDiaryMutation(diaryId);
+  const { mutate: modifyDiary, isPending: isSavingDiary } =
+    useModifyDiaryMutation(diaryId);
   const { data: userListData } = useUserListQuery();
   const imageUrlMap = new Map(
-    (userListData?.users ?? []).map((u) => [u.nickname, u.imageUrl])
+    (userListData?.users ?? []).map((u) => [u.nickname, u.imageUrl]),
   );
 
   const isProfit = (diary?.profit ?? 0) >= 0;
@@ -71,28 +72,32 @@ export default function DiaryDetailPage() {
   const tradeTypeBg =
     diary?.tradeType === "BUY" ? "bg-[#FF4444]" : "bg-[#0046FF]";
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate("/trade-diary")}
-            className="text-gray-500 hover:text-gray-800 cursor-pointer"
+            className="text-gray-500 dark:text-slate-400 hover:text-gray-800 dark:hover:text-gray-200 cursor-pointer"
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-gray-400 text-[14px]">매매일지</span>
-          <span className="text-gray-300 text-[14px]">›</span>
-          <span className="text-[14px] font-semibold text-gray-900">
+          <span className="text-gray-400 dark:text-slate-500 text-[14px]">
+            매매일지
+          </span>
+          <span className="text-gray-300 dark:text-slate-600 text-[14px]">
+            ›
+          </span>
+          <span className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">
             매매일지 상세
           </span>
         </div>
       </div>
 
       {/* 메인 카드 */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 flex flex-col gap-4">
         {isLoading && (
-          <p className="text-[14px] text-gray-400 text-center py-8">
+          <p className="text-[14px] text-gray-400 dark:text-slate-500 text-center py-8">
             불러오는 중...
           </p>
         )}
@@ -111,10 +116,10 @@ export default function DiaryDetailPage() {
                 >
                   {tradeTypeLabel}
                 </span>
-                <span className="text-[18px] font-bold text-gray-900">
+                <span className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
                   {diary.stockName}
                 </span>
-                <span className="text-[12px] text-gray-400">
+                <span className="text-[12px] text-gray-400 dark:text-slate-500">
                   {diary.tickerCode}
                 </span>
               </div>
@@ -131,7 +136,7 @@ export default function DiaryDetailPage() {
                       setDiaryEditContent(diary.content);
                       setIsEditingDiary(true);
                     }}
-                    className="text-gray-300 hover:text-[#0046FF] transition-colors cursor-pointer"
+                    className="text-gray-300 dark:text-slate-600 hover:text-[#0046FF] dark:hover:text-[#4d7cff] transition-colors cursor-pointer"
                   >
                     <Pencil size={15} />
                   </button>
@@ -140,13 +145,13 @@ export default function DiaryDetailPage() {
             </div>
 
             {/* 체결 요약 */}
-            <p className="text-[13px] text-gray-400">
+            <p className="text-[13px] text-gray-400 dark:text-slate-500">
               {diary.quantity}주 · {formatPrice(diary.filledPrice)} ·{" "}
               {formatDateTime(diary.createdAt)}
             </p>
 
             {/* 체결 상세 */}
-            <div className="grid grid-cols-3 divide-x divide-gray-100 border border-gray-100 rounded-xl overflow-hidden">
+            <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-slate-800 border border-gray-100 dark:border-slate-800 rounded-xl overflow-hidden">
               {[
                 { label: "체결수량", value: `${diary.quantity}주` },
                 {
@@ -160,10 +165,12 @@ export default function DiaryDetailPage() {
               ].map(({ label, value }) => (
                 <div
                   key={label}
-                  className="flex flex-col items-center py-3 gap-1"
+                  className="flex flex-col items-center py-3 gap-1 bg-white dark:bg-slate-900"
                 >
-                  <span className="text-[12px] text-gray-400">{label}</span>
-                  <span className="text-[14px] font-semibold text-gray-900">
+                  <span className="text-[12px] text-gray-400 dark:text-slate-500">
+                    {label}
+                  </span>
+                  <span className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">
                     {value}
                   </span>
                 </div>
@@ -183,19 +190,21 @@ export default function DiaryDetailPage() {
 
             {/* 매매 일지 */}
             <div>
-              <p className="text-[14px] text-gray-400 mb-1">매매 일지</p>
+              <p className="text-[14px] font-semibold text-gray-500 dark:text-slate-400 mb-2">
+                매매 일지
+              </p>
               {isEditingDiary ? (
                 <div className="flex flex-col gap-2">
                   <textarea
                     value={diaryEditContent}
                     onChange={(e) => setDiaryEditContent(e.target.value)}
                     rows={5}
-                    className="w-full px-4 py-3 text-[15px] bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors resize-none"
+                    className="w-full px-4 py-3 text-[15px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none focus:border-[#0046FF] transition-colors resize-none"
                   />
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => setIsEditingDiary(false)}
-                      className="px-4 py-1.5 text-[13px] font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="px-4 py-1.5 text-[13px] font-medium text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                     >
                       취소
                     </button>
@@ -213,7 +222,7 @@ export default function DiaryDetailPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-[16px] text-gray-700 leading-relaxed">
+                <p className="text-[15px] text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                   {diary.content}
                 </p>
               )}
@@ -222,82 +231,97 @@ export default function DiaryDetailPage() {
         )}
       </div>
 
-      {/* 댓글 */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
-        <p className="text-[14px] font-semibold text-gray-900">
-          댓글 ({diary?.comments?.length ?? 0})
-        </p>
+      {/* 댓글 섹션 */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 flex flex-col gap-6 shadow-sm">
+        <div className="flex items-center gap-2">
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+            댓글
+          </p>
+          <span className="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 text-[12px] font-bold rounded-full tabular-nums">
+            {diary?.comments?.length ?? 0}
+          </span>
+        </div>
 
         {/* 댓글 목록 */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-5">
           {diary?.comments?.map((comment) => (
-            <div key={comment.commentId} className="flex gap-3">
-              <Avatar name={comment.nickname} src={imageUrlMap.get(comment.nickname) || comment.imageUrl || undefined} size={32} />
-              <div className="flex flex-col gap-0.5 flex-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[13px] font-semibold text-gray-900">
+            <div key={comment.commentId} className="flex gap-3 group">
+              <Avatar
+                name={comment.nickname}
+                src={
+                  imageUrlMap.get(comment.nickname) ||
+                  comment.imageUrl ||
+                  undefined
+                }
+                size={34}
+              />
+              <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-bold text-gray-800 dark:text-gray-200">
                       {comment.nickname}
                     </span>
-                    {comment.isMentor && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                        <Badge name="멘토" color="#FF9900" />
-                      </span>
-                    )}
+                    {comment.isMentor && <Badge name="멘토" color="#FF9900" />}
                   </div>
-                  {user?.nickname === comment.nickname && editingCommentId !== comment.commentId && (
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="basic"
-                        className="text-[11px] px-2 py-0.5"
-                        onClick={() => {
-                          setEditingCommentId(comment.commentId);
-                          setEditInput(comment.content);
-                        }}
-                      >
-                        수정
-                      </Button>
-                      <Button
-                        variant="basic"
-                        className="text-[11px] px-2 py-0.5 border-red-500! text-red-500! hover:bg-red-50!"
-                        onClick={() => deleteComment(comment.commentId)}
-                      >
-                        삭제
-                      </Button>
-                    </div>
-                  )}
+
+                  {/* 수정/삭제 버튼: 다크모드에서 가독성 높은 고스트 버튼 스타일 */}
+                  {user?.nickname === comment.nickname &&
+                    editingCommentId !== comment.commentId && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingCommentId(comment.commentId);
+                            setEditInput(comment.content);
+                          }}
+                          className="text-[11px] font-medium text-gray-400 hover:text-blue-500 dark:text-slate-500 dark:hover:text-blue-400 transition-colors"
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={() => deleteComment(comment.commentId)}
+                          className="text-[11px] font-medium text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    )}
                 </div>
+
                 {editingCommentId === comment.commentId ? (
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex flex-col gap-2 mt-1">
                     <input
                       type="text"
                       value={editInput}
                       onChange={(e) => setEditInput(e.target.value)}
-                      className="flex-1 px-3 py-1.5 text-[13px] bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
+                      autoFocus
+                      className="w-full px-3 py-2 text-[13px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none ring-1 ring-transparent focus:ring-[#0046FF] focus:border-[#0046FF] transition-all"
                     />
-                    <Button
-                      variant="basic"
-                      className="text-[12px] px-2 py-0.5"
-                      onClick={() => {
-                        if (!editInput.trim()) return;
-                        modifyComment(
-                          { commentId: comment.commentId, content: editInput },
-                          { onSuccess: () => setEditingCommentId(null) },
-                        );
-                      }}
-                    >
-                      저장
-                    </Button>
-                    <Button
-                      variant="basic"
-                      className="text-[12px] px-2 py-0.5"
-                      onClick={() => setEditingCommentId(null)}
-                    >
-                      취소
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => setEditingCommentId(null)}
+                        className="px-3 py-1 text-[12px] font-medium text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      >
+                        취소
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!editInput.trim()) return;
+                          modifyComment(
+                            {
+                              commentId: comment.commentId,
+                              content: editInput,
+                            },
+                            { onSuccess: () => setEditingCommentId(null) },
+                          );
+                        }}
+                        className="px-3 py-1 text-[12px] font-bold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        저장
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-[12px] text-gray-700 leading-relaxed">
+                  <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
                     {comment.content}
                   </p>
                 )}
@@ -306,28 +330,42 @@ export default function DiaryDetailPage() {
           ))}
         </div>
 
-        {/* 댓글 입력 */}
-        <div className="flex items-center gap-2">
-          <Avatar name={user?.nickname ?? ""} src={storeUser?.imageUrl || undefined} size={32} />
-          <input
-            type="text"
-            value={commentInput}
-            onChange={(e) => setCommentInput(e.target.value)}
-            placeholder="댓글을 입력하세요..."
-            className="flex-1 px-4 py-2 text-[14px] bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#0046FF] transition-colors"
-          />
-          <button
-            disabled={isPending}
-            onClick={() => {
-              if (!commentInput.trim()) return;
-              postComment(commentInput, {
-                onSuccess: () => setCommentInput(""),
-              });
-            }}
-            className="px-4 py-2 text-[14px] font-semibold text-white bg-[#0046FF] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
-          >
-            등록
-          </button>
+        {/* 댓글 입력창 */}
+        <div className="flex flex-col gap-3 pt-4 border-t border-gray-100 dark:border-slate-800 mt-2">
+          <div className="flex items-center gap-3">
+            <Avatar
+              name={user?.nickname ?? ""}
+              src={storeUser?.imageUrl || undefined}
+              size={32}
+            />
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && commentInput.trim()) {
+                    postComment(commentInput, {
+                      onSuccess: () => setCommentInput(""),
+                    });
+                  }
+                }}
+                placeholder="댓글을 입력하세요..."
+                className="w-full px-4 py-2.5 text-[14px] bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 rounded-2xl outline-none focus:ring-2 focus:ring-[#0046FF]/20 focus:border-[#0046FF] transition-all"
+              />
+              <button
+                disabled={isPending || !commentInput.trim()}
+                onClick={() =>
+                  postComment(commentInput, {
+                    onSuccess: () => setCommentInput(""),
+                  })
+                }
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-[13px] font-bold text-white bg-[#0046FF] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-30 disabled:grayscale"
+              >
+                등록
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
