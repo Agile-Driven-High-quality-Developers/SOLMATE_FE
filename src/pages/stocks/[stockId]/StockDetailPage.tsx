@@ -76,7 +76,10 @@ import type {
   StockQuote,
   StockItemMessage,
   OrderBookData,
+  StockTradeOrder,
+  StockTradeHistory,
 } from "@/api/stockApi";
+import { useUser } from "@/store/authStore";
 
 import StockDetailHeader from "@/components/stocks/StockDetailHeader";
 import StockInfoGrid from "@/components/stocks/StockInfoGrid";
@@ -100,6 +103,7 @@ export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const user = useUser();
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
@@ -150,6 +154,25 @@ export default function StockDetailPage() {
             msg,
           );
         });
+
+        if (user?.userId) {
+          client.subscribe(`/topic/trades/${user.userId}`, (message) => {
+            const order: StockTradeOrder = JSON.parse(message.body);
+            queryClient.setQueryData<StockTradeHistory>(
+              stockQueryKeys.tradeHistory(stockCode),
+              (prev) => {
+                if (!prev) return prev;
+                const exists = prev.orders.some((o) => o.orderId === order.orderId);
+                return {
+                  ...prev,
+                  orders: exists
+                    ? prev.orders.map((o) => o.orderId === order.orderId ? order : o)
+                    : [order, ...prev.orders],
+                };
+              },
+            );
+          });
+        }
       },
       onDisconnect: () => console.log("[STOMP] 종목 상세 연결 끊김"),
       onStompError: (frame) => console.error("[STOMP] 에러:", frame),
@@ -159,7 +182,7 @@ export default function StockDetailPage() {
     return () => {
       client.deactivate();
     };
-  }, [stockCode, queryClient]);
+  }, [stockCode, queryClient, user?.userId]);
 
   // ── 브라우저 탭 제목 실시간 업데이트 ────────────────────────────────────
   useEffect(() => {
