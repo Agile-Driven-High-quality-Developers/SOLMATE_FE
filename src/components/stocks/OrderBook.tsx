@@ -45,7 +45,7 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
       (side === "sell" ? true : !currentInSell);
     const bgColor =
       side === "sell" ? "rgba(59,130,246,0.12)" : "rgba(239,68,68,0.12)";
-    const quantityColor = side === "sell" ? "text-blue-400" : "text-red-400";
+    const quantityColor = side === "sell" ? "text-blue-400 dark:text-blue-500" : "text-red-400 dark:text-red-500";
 
     return (
       <div
@@ -54,8 +54,8 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
         className={`relative flex items-center py-1.5 overflow-hidden ${
           isCurrent
             ? "border-2 rounded z-10 my-px [border-color:#b5b5b5]"
-            : "border-b border-gray-50"
-        } ${onPriceClick ? "cursor-pointer hover:brightness-95" : ""}`}
+            : "border-b border-gray-50 dark:border-slate-800"
+        } ${onPriceClick ? "cursor-pointer hover:brightness-95 dark:hover:brightness-110" : ""}`}
       >
         <div
           className="absolute inset-y-0 right-0"
@@ -81,7 +81,7 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
             ? `${isPositive ? "+" : ""}${changeRate.toFixed(2)}%`
             : `${priceDiff > 0 ? "+" : ""}${priceDiff.toFixed(2)}%`}
         </span>
-        <span className={`relative w-[35%] text-right tabular-nums ${isCurrent ? "text-gray-400" : quantityColor}`}>
+        <span className={`relative w-[35%] text-right tabular-nums ${isCurrent ? "text-gray-400 dark:text-slate-500" : quantityColor}`}>
           {level.quantity.toLocaleString()}
         </span>
       </div>
@@ -90,8 +90,8 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
 
   return (
     <>
-      <div className="bg-white rounded-2xl border border-gray-100 p-4">
-        <h3 className="text-[14px] font-semibold text-gray-900 mb-3">호가</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-4">
+        <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">호가</h3>
         <div className="flex flex-col text-[13px]">
           {sellLevels.slice().reverse().map((level, i) => renderRow(level, i, "sell"))}
           {buyLevels.map((level, i) => renderRow(level, i, "buy"))}
@@ -106,11 +106,11 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
         >
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="relative bg-white rounded-2xl p-5 w-64 shadow-2xl"
+            className="relative bg-white dark:bg-slate-900 rounded-2xl p-5 w-64 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-[13px] text-gray-500 text-center mb-1">주문 가격</p>
-            <p className="text-[18px] font-bold text-gray-900 text-center mb-4">
+            <p className="text-[13px] text-gray-500 dark:text-slate-400 text-center mb-1">주문 가격</p>
+            <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100 text-center mb-4">
               {pendingPrice.toLocaleString()}원
             </p>
             <div className="flex gap-2">
@@ -125,14 +125,14 @@ export default function OrderBook({ orderBook, holdingQuantity = 0, onPriceClick
                 className={`flex-1 py-2.5 rounded-xl text-[14px] font-bold ${
                   hasHolding
                     ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                    : "bg-gray-100 dark:bg-slate-700 text-gray-300 dark:text-slate-500 cursor-not-allowed"
                 }`}
               >
                 매도
               </button>
             </div>
             {!hasHolding && (
-              <p className="text-[11px] text-gray-400 text-center mt-2">
+              <p className="text-[11px] text-gray-400 dark:text-slate-500 text-center mt-2">
                 보유 주식이 없어 매도할 수 없어요
               </p>
             )}
