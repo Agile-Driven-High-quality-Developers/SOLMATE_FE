@@ -27,6 +27,7 @@ export type TourStep = {
 type Props = {
   tourKey: string;
   steps: TourStep[];
+  hidden?: boolean;
 };
 
 // ─── 유틸 ──────────────────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties
 
 // ─── SpotlightTour ─────────────────────────────────────────────────────────────
 
-export default function SpotlightTour({ tourKey, steps }: Props) {
+export default function SpotlightTour({ tourKey, steps, hidden = false }: Props) {
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
   const seenTours = useOnboardingStore((s) => s.seenTours);
   const markTourSeen = useOnboardingStore((s) => s.markTourSeen);
@@ -190,7 +191,7 @@ export default function SpotlightTour({ tourKey, steps }: Props) {
   };
 
   if (hasSeen) {
-    if (!canReplay) return null;
+    if (!canReplay || hidden) return null;
     return (
       <button
         className="animate-float fixed top-4 right-4 z-[999] w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
