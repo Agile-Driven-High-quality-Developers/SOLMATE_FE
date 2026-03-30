@@ -30,7 +30,7 @@ const ACCOUNT_TOUR: TourStep[] = [
   },
   {
     target: "account-return",
-    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />수익률</span>,
+    title: <span className="inline-flex items-center gap-1.5"><TrendingUp size={15} />총 수익률</span>,
     description: "처음 받은 1,000만원 대비 지금까지 얼마나 벌었는지(%) 보여줘요. 빨강이면 수익, 파랑이면 손실이에요.",
     placement: "bottom",
   },
@@ -112,7 +112,7 @@ export default function AccountPage() {
 
         {/* 수익률 */}
         <div className="bg-white rounded-2xl border border-gray-100 px-6 py-5" data-tour="account-return">
-          <p className="text-[13px] text-gray-400 font-medium mb-2">수익률</p>
+          <p className="text-[13px] text-gray-400 font-medium mb-2">총 수익률</p>
           <p className={`text-[22px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
             {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
           </p>

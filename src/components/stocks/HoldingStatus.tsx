@@ -33,7 +33,7 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
                 colored: true,
               },
               {
-                label: "수익률",
+                label: "종목 수익률",
                 value: `${holding.profitRate >= 0 ? "+" : ""}${holding.profitRate.toFixed(2)}%`,
                 colored: true,
               },
