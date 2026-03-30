@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export interface AuthUser {
+  userId: number;
   nickname: string;
   imageUrl?: string;
   provider?: "EMAIL" | "GOOGLE";

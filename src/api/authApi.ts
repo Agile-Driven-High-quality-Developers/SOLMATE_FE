@@ -15,6 +15,7 @@ export interface LoginRequest {
 }
 
 export interface LoginData {
+  userId: number;
   nickname: string;
   accessToken: string;
   refreshToken: string;
@@ -65,5 +66,5 @@ export const authApi = {
 
   /** GET /api/users/me — 내 정보 조회 */
   getMe: () =>
-    fetchClient.get<ApiResponse<{ nickname: string; provider: "EMAIL" | "GOOGLE" }>>("/api/users/me"),
+    fetchClient.get<ApiResponse<{ userId: number; nickname: string; provider: "EMAIL" | "GOOGLE" }>>("/api/users/me"),
 };

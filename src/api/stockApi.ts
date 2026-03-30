@@ -131,6 +131,7 @@ export type TradeOrderResponse = {
   status: string;
 };
 
+
 // ─── Types: 캔들 데이터 ───────────────────────────────────────────────────────
 
 export type CandleData = {
