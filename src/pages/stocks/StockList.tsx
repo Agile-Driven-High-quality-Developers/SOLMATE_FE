@@ -67,12 +67,19 @@ import {
   TrendingDown,
   Hash,
   ClipboardList,
+  Heart,
 } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { useStockStore } from "@/store/stockStore";
 
 import { useMarketIndicesQuery } from "@/api/homeApi";
-import { fetchStocks, parseStockItemMessage } from "@/api/stockApi";
+import {
+  fetchStocks,
+  parseStockItemMessage,
+  useWatchlistQuery,
+  useAddWatchlistMutation,
+  useRemoveWatchlistMutation,
+} from "@/api/stockApi";
 import type { MarketIndexData } from "@/api/homeApi";
 import type { StockItem, StockItemMessage } from "@/api/stockApi";
 import { stompSubscribe } from "@/lib/stompClient";
@@ -160,20 +167,39 @@ function StockRow({
   stock,
   onClick,
   index,
+  isWatched,
+  onToggleWatchlist,
 }: {
   stock: StockItem;
   onClick: () => void;
   index: number;
+  isWatched: boolean;
+  onToggleWatchlist: (e: React.MouseEvent) => void;
 }) {
   return (
     <tr
       className="hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
       onClick={onClick}
     >
-      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
-        {index}
+      <td className="pl-5 pr-1 py-3.5 whitespace-nowrap">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={onToggleWatchlist}
+            className="flex-shrink-0 hover:scale-110 transition-transform"
+          >
+            <Heart
+              size={14}
+              fill={isWatched ? "#0046FF" : "transparent"}
+              stroke={isWatched ? "#0046FF" : "#CBD5E1"}
+              strokeWidth={1.8}
+            />
+          </button>
+          <span className="w-5 text-center text-[13px] text-gray-500 dark:text-slate-400 tabular-nums">
+            {index}
+          </span>
+        </div>
       </td>
-      <td className="px-5 py-3.5 whitespace-nowrap">
+      <td className="pl-3 pr-5 py-3.5 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
           <div>
@@ -226,6 +252,31 @@ export default function StockList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const sectors = (searchParams.get("sector") ?? "").split(",").filter(Boolean);
   const sort = (searchParams.get("sort") ?? "거래량순") as SortType;
+  const watchlistOnly = searchParams.get("watchlist") === "true";
+
+  const { data: watchlistCodes = [] } = useWatchlistQuery();
+  const watchlistSet = new Set(watchlistCodes);
+  const addWatchlist = useAddWatchlistMutation();
+  const removeWatchlist = useRemoveWatchlistMutation();
+
+  const toggleWatchlistOnly = () =>
+    setSearchParams(
+      (p) => {
+        if (watchlistOnly) p.delete("watchlist");
+        else p.set("watchlist", "true");
+        return p;
+      },
+      { replace: true },
+    );
+
+  const handleToggleWatchlist = (e: React.MouseEvent, tickerCode: string) => {
+    e.stopPropagation();
+    if (watchlistSet.has(tickerCode)) {
+      removeWatchlist.mutate(tickerCode);
+    } else {
+      addWatchlist.mutate(tickerCode);
+    }
+  };
 
   const toggleSector = (v: string) =>
     setSearchParams(
@@ -287,6 +338,7 @@ export default function StockList() {
   }, []);
 
   const filtered = stocks
+    .filter((s) => !watchlistOnly || watchlistSet.has(s.tickerCode))
     .filter(
       (s) => sectors.length === 0 || sectors.includes(SECTOR_MAP[s.sectorType]),
     )
@@ -354,23 +406,45 @@ export default function StockList() {
 
       {/* 섹터 탭 */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        {SECTORS.map((s) => {
-          const isActive =
-            s === "전체" ? sectors.length === 0 : sectors.includes(s);
-          return (
-            <button
-              key={s}
-              onClick={() => toggleSector(s)}
-              className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
-                isActive
-                  ? "bg-[#0046FF] text-white"
-                  : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-              }`}
-            >
-              {s}
-            </button>
-          );
-        })}
+        {/* 전체 */}
+        <button
+          onClick={() => {
+            toggleSector("전체");
+            if (watchlistOnly) toggleWatchlistOnly();
+          }}
+          className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+            !watchlistOnly && sectors.length === 0
+              ? "bg-[#0046FF] text-white"
+              : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+          }`}
+        >
+          전체
+        </button>
+        {/* 관심 */}
+        <button
+          onClick={toggleWatchlistOnly}
+          className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+            watchlistOnly
+              ? "bg-[#0046FF] text-white"
+              : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+          }`}
+        >
+          관심
+        </button>
+        {/* 섹터 */}
+        {SECTORS.filter((s) => s !== "전체").map((s) => (
+          <button
+            key={s}
+            onClick={() => toggleSector(s)}
+            className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+              sectors.includes(s)
+                ? "bg-[#0046FF] text-white"
+                : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
+            }`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
 
       <SpotlightTour tourKey="invest" steps={INVEST_TOUR} />
@@ -383,10 +457,13 @@ export default function StockList() {
         <table className="w-full min-w-175">
           <thead data-tour="stock-columns">
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
-                순위
+              <th className="text-left pl-5 pr-1 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-[14px]" />
+                  <span className="w-5 text-center">순위</span>
+                </div>
               </th>
-              <th className="text-left px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="text-left pl-3 pr-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 종목명
               </th>
               <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -413,6 +490,8 @@ export default function StockList() {
                   key={stock.tickerCode}
                   stock={stock}
                   index={idx + 1}
+                  isWatched={watchlistSet.has(stock.tickerCode)}
+                  onToggleWatchlist={(e) => handleToggleWatchlist(e, stock.tickerCode)}
                   onClick={() => {
                     setSelectedStock(stock);
                     navigate(`/invest/${stock.tickerCode}`);
@@ -425,7 +504,9 @@ export default function StockList() {
                   colSpan={7}
                   className="text-center py-12 text-[14px] text-gray-400"
                 >
-                  검색 결과가 없습니다.
+                  {watchlistOnly
+                    ? "관심 종목이 없습니다. ♡ 버튼을 눌러 추가해보세요."
+                    : "검색 결과가 없습니다."}
                 </td>
               </tr>
             )}
