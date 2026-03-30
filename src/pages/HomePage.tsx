@@ -624,7 +624,7 @@ export default function HomePage() {
             <PortfolioCard data={summary} loading={loadingSummary} />
           </div>
           <div data-tour="holdings">
-            <HoldingsTable data={holdings} loading={loadingHoldings} />
+            <HoldingsTable data={holdings.filter((h) => h.quantity > 0)} loading={loadingHoldings} />
           </div>
         </div>
 

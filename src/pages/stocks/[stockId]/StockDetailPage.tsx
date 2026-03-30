@@ -101,6 +101,7 @@ export default function StockDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
 
   const buyMutation = useBuyOrderMutation();
@@ -249,7 +250,14 @@ export default function StockDetailPage() {
             </div>
             {orderBook && (
               <div data-tour="stock-orderbook">
-                <OrderBook orderBook={orderBook} />
+                <OrderBook
+                  orderBook={orderBook}
+                  holdingQuantity={holding?.holdingQuantity ?? 0}
+                  onPriceClick={(price, side) => {
+                    setSelectedPrice(price);
+                    setOrderSide(side);
+                  }}
+                />
               </div>
             )}
           </div>
@@ -260,31 +268,19 @@ export default function StockDetailPage() {
         <TradeOrderModal
           side={orderSide}
           stockName={quote.stockName}
+          tickerCode={stockCode}
           currentPrice={quote.currentPrice}
+          initialPrice={selectedPrice ?? undefined}
           cash={cash ?? 0}
           holdingQuantity={holding?.holdingQuantity ?? 0}
-          onClose={() => setOrderSide(null)}
+          onClose={() => { setOrderSide(null); setSelectedPrice(null); }}
           onConfirm={(params) => {
             setPendingOrder({ ...params, side: orderSide! });
             setOrderSide(null);
+            setSelectedPrice(null);
           }}
         />
       )}
-    {orderSide && (
-      <TradeOrderModal
-        side={orderSide}
-        stockName={quote.stockName}
-        tickerCode={stockCode}
-        currentPrice={quote.currentPrice}
-        cash={cash ?? 0}
-        holdingQuantity={holding?.holdingQuantity ?? 0}
-        onClose={() => setOrderSide(null)}
-        onConfirm={(params) => {
-          setPendingOrder({ ...params, side: orderSide! });
-          setOrderSide(null);
-        }}
-      />
-    )}
 
       {pendingOrder && (
         <TradeConfirmModal
