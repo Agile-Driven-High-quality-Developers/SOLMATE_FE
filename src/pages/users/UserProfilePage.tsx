@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Loader2, ChevronLeft } from "lucide-react";
+import { Loader2, ChevronLeft, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import TradeDiaryTab from "@/components/profile/TradeDiaryTab";
@@ -17,7 +17,8 @@ import {
   useMyMentorQuery,
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
-import { followUser, unfollowUser } from "@/api/userListApi";
+import { followUser, unfollowUser, requestMentoring, cancelMentoring } from "@/api/userListApi";
+import Button from "@/components/ui/Button";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,7 @@ export default function UserProfilePage() {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabId>("diary");
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   const id = Number(userId);
   const { data: profile, isLoading } = useUserProfileQuery(id);
@@ -61,6 +63,8 @@ export default function UserProfilePage() {
 
   const isMentor = myMentor?.hasMentor && myMentor.userId === id;
   const isMentee = myMentees?.mentees.some((m) => m.userId === id);
+  const hasAcceptedMentor = myMentor?.hasMentor ?? false;
+  const mentoringStatus = (profile?.mentoringStatus ?? "NONE") as "NONE" | "PENDING" | "ACCEPTED";
 
   const handleFollow = async () => {
     if (!profile) return;
@@ -75,6 +79,27 @@ export default function UserProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["follows", id, "followers"] });
       queryClient.invalidateQueries({ queryKey: ["follows", "following"] });
     } catch (e) {
+      // 실패 시 무시
+    }
+  };
+
+  const handleMentoringRequest = async () => {
+    try {
+      await requestMentoring(id);
+      queryClient.invalidateQueries({ queryKey: ["users", id] });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
+    } catch {
+      // 실패 시 무시
+    }
+  };
+
+  const handleMentoringCancel = async () => {
+    try {
+      await cancelMentoring(id);
+      queryClient.invalidateQueries({ queryKey: ["users", id] });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
+      setShowCancelModal(false);
+    } catch {
       // 실패 시 무시
     }
   };
@@ -103,6 +128,28 @@ export default function UserProfilePage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
+      {showCancelModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setShowCancelModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 취소</p>
+              <button onClick={() => setShowCancelModal(false)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+                <span className="font-bold text-[#0046FF]">{profile.nickname}</span> 멘토를 취소하시겠어요?
+              </p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">멘토 취소 후에도 다시 신청할 수 있어요.</p>
+            </div>
+            <div className="flex gap-2 px-6 pb-6">
+              <Button variant="invalid" className="flex-1 py-2.5" onClick={() => setShowCancelModal(false)}>닫기</Button>
+              <Button variant="danger" className="flex-1 py-2.5" onClick={handleMentoringCancel}>멘토 취소</Button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 헤더 */}
       <div className="flex items-center gap-3 shrink-0">
         <button onClick={() => navigate(-1)} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
@@ -127,6 +174,10 @@ export default function UserProfilePage() {
             onFollowersClick={() => setFollowModal("followers")}
             onFollowingClick={() => setFollowModal("following")}
             badge={isMentor ? "멘토" : isMentee ? "멘티" : undefined}
+            mentoringStatus={profile.me ? undefined : mentoringStatus}
+            hasAcceptedMentor={hasAcceptedMentor}
+            onMentoringRequest={handleMentoringRequest}
+            onMentoringCancel={() => setShowCancelModal(true)}
           />
           {followModal && (
             <FollowList type={followModal} userId={id} />

@@ -24,6 +24,10 @@ type Props = {
   isFollowing?: boolean;
   onFollowClick?: () => void;
   badge?: "멘토" | "멘티";
+  mentoringStatus?: "NONE" | "PENDING" | "ACCEPTED";
+  hasAcceptedMentor?: boolean;
+  onMentoringRequest?: () => void;
+  onMentoringCancel?: () => void;
 };
 
 function fmtAmount(n: number) {
@@ -49,6 +53,10 @@ export default function ProfileCard({
   isFollowing,
   onFollowClick,
   badge,
+  mentoringStatus,
+  hasAcceptedMentor,
+  onMentoringRequest,
+  onMentoringCancel,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
@@ -156,13 +164,40 @@ export default function ProfileCard({
             </Button> */}
           </>
         ) : (
-          <Button
-            variant={isFollowing ? "invalid" : "primary"}
-            className="w-full"
-            onClick={onFollowClick}
-          >
-            {isFollowing ? "팔로잉" : "팔로우"}
-          </Button>
+          <>
+            <Button
+              variant={isFollowing ? "basic" : "primary"}
+              className="w-full"
+              onClick={onFollowClick}
+            >
+              {isFollowing ? "팔로잉" : "팔로우"}
+            </Button>
+            {mentoringStatus === "ACCEPTED" && (
+              <button
+                onClick={onMentoringCancel}
+                className="w-full py-1.5 rounded-[10px] text-white bg-orange-400 hover:bg-orange-500 transition-colors"
+              >
+                멘토취소
+              </button>
+            )}
+            {mentoringStatus === "PENDING" && (
+              <button
+                disabled
+                className="w-full py-1.5 rounded-[10px] border border-orange-400 text-orange-400 bg-white dark:bg-slate-900 opacity-60 cursor-default"
+              >
+                신청완료
+              </button>
+            )}
+            {mentoringStatus === "NONE" && (
+              <button
+                disabled={hasAcceptedMentor}
+                onClick={onMentoringRequest}
+                className={`w-full py-1.5 rounded-[10px] text-white bg-orange-400 transition-colors ${hasAcceptedMentor ? "opacity-40 cursor-default" : "hover:bg-orange-500"}`}
+              >
+                멘토신청
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

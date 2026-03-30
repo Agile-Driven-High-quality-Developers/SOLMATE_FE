@@ -16,7 +16,8 @@ const USERS_TOUR: TourStep[] = [
     placement: "left",
   },
 ];
-import { Search, Medal, UserPlus, GraduationCap, Crown, Users } from "lucide-react";
+import { useState } from "react";
+import { Search, Medal, UserPlus, GraduationCap, Crown, Users, X } from "lucide-react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -141,10 +142,10 @@ function MentoringButton({
   if (user.mentoringStatus === "ACCEPTED") {
     return (
       <button
-        disabled
-        className="w-full py-1.5 rounded-[10px] text-[12px] text-white bg-orange-400 cursor-default"
+        onClick={() => onCancel(user)}
+        className="w-full py-1.5 rounded-[10px] text-[12px] text-white bg-orange-400 hover:bg-orange-500 transition-colors"
       >
-        멘토
+        멘토취소
       </button>
     );
   }
@@ -308,6 +309,8 @@ export default function UserListPage() {
   const setSortBy = (v: SortBy) =>
     setSearchParams((p) => { v === "returnRate" ? p.delete("sort") : p.set("sort", v); return p; }, { replace: true });
 
+  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(null);
+
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
   const queryClient = useQueryClient();
@@ -359,6 +362,13 @@ export default function UserListPage() {
   }
 
   async function handleMentoringCancel(user: UserItem) {
+    setCancelTargetUser(user);
+  }
+
+  async function confirmMentoringCancel() {
+    if (!cancelTargetUser) return;
+    const user = cancelTargetUser;
+    setCancelTargetUser(null);
     setMentoringStatus(user.userId, "NONE", false);
     try {
       await cancelMentoring(user.userId);
@@ -386,6 +396,28 @@ export default function UserListPage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50 dark:bg-slate-950">
+      {cancelTargetUser && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setCancelTargetUser(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 취소</p>
+              <button onClick={() => setCancelTargetUser(null)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+                <span className="font-bold text-[#0046FF]">{cancelTargetUser.nickname}</span> 멘토를 취소하시겠어요?
+              </p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">멘토 취소 후에도 다시 신청할 수 있어요.</p>
+            </div>
+            <div className="flex gap-2 px-6 pb-6">
+              <Button variant="invalid" className="flex-1 py-2.5" onClick={() => setCancelTargetUser(null)}>닫기</Button>
+              <Button variant="danger" className="flex-1 py-2.5" onClick={confirmMentoringCancel}>멘토 취소</Button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 헤더 */}
       <div className="flex items-center gap-2">
    
