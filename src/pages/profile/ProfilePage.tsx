@@ -24,7 +24,11 @@ import LogoutModal from "@/components/profile/LogoutModal";
 const PROFILE_TOUR: TourStep[] = [
   {
     target: "profile-card",
-    title: <span className="inline-flex items-center gap-1.5"><User size={15} />내 프로필</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <User size={15} />내 프로필
+      </span>
+    ),
     description: "나의 투자 활동 기록이 쌓이는 공간이에요.",
     items: [
       "팔로워·팔로잉 — 서로 구독한 투자자 수",
@@ -34,7 +38,11 @@ const PROFILE_TOUR: TourStep[] = [
   },
   {
     target: "profile-tabs",
-    title: <span className="inline-flex items-center gap-1.5"><FolderOpen size={15} />내 기록 보기</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <FolderOpen size={15} />내 기록 보기
+      </span>
+    ),
     description: "투자 관련 기록을 탭별로 확인할 수 있어요.",
     items: [
       "매매일지 — 거래할 때 남긴 메모 모음",
@@ -59,9 +67,18 @@ export default function ProfilePage() {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") ?? (location.state as { tab?: TabId } | null)?.tab ?? "diary") as TabId;
+  const activeTab = (searchParams.get("tab") ??
+    (location.state as { tab?: TabId } | null)?.tab ??
+    "diary") as TabId;
   const setActiveTab = (v: TabId) =>
-    setSearchParams((p) => { if (v === "diary") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v === "diary") p.delete("tab");
+        else p.set("tab", v);
+        return p;
+      },
+      { replace: true },
+    );
   const [followModal, setFollowModal] = useState<
     "followers" | "following" | null
   >("following");
@@ -91,6 +108,7 @@ export default function ProfilePage() {
       await authApi.logout();
     } finally {
       clearAuth();
+      localStorage.removeItem("autoLogin");
       queryClient.clear();
       navigate("/login");
     }
@@ -124,7 +142,9 @@ export default function ProfilePage() {
       )}
       {/* 헤더 */}
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">내 프로필</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          내 프로필
+        </h1>
       </div>
 
       <div className="flex gap-5 flex-1 min-h-0">
@@ -142,11 +162,16 @@ export default function ProfilePage() {
             totalReturn={summary?.totalReturnAmount ?? 0}
             onEditClick={() => setModal("edit")}
             onLogoutClick={() => setModal("logout")}
-            onDeleteClick={() => setModal("delete")}
             onFollowersClick={() => setFollowModal("followers")}
             onFollowingClick={() => setFollowModal("following")}
           />
           {followModal && <FollowList type={followModal} />}
+          <div
+            className="cursor-pointer text-[12px] text-gray-500 py-2 px-1"
+            onClick={() => setModal("delete")}
+          >
+            회원탈퇴
+          </div>
         </div>
 
         {/* 오른쪽: 탭 + 콘텐츠 */}

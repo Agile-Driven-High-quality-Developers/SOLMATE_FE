@@ -57,19 +57,31 @@ export default function ProfileCard({
       {/* 아바타 + 닉네임 + 이메일 */}
       <div className="flex flex-col items-center text-center mb-4">
         <div className="mb-3">
-          <Avatar name={nickname} src={profileImageUrl ?? undefined} size={80} />
+          <Avatar
+            name={nickname}
+            src={profileImageUrl ?? undefined}
+            size={80}
+          />
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <h2 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">{nickname}</h2>
+          <h2 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
+            {nickname}
+          </h2>
           {badge === "멘토" && (
-            <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">멘토</span>
+            <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+              멘토
+            </span>
           )}
           {badge === "멘티" && (
-            <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">멘티</span>
+            <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+              멘티
+            </span>
           )}
         </div>
         {email && (
-          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">{email}</p>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+            {email}
+          </p>
         )}
       </div>
 
@@ -79,31 +91,49 @@ export default function ProfileCard({
           onClick={onFollowersClick}
           className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{followers}</p>
-          <p className="text-[12px] text-gray-400 dark:text-slate-500">팔로워</p>
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+            {followers}
+          </p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
+            팔로워
+          </p>
         </button>
         <div className="w-px bg-gray-100 dark:bg-slate-800" />
         <button
           onClick={onFollowingClick}
           className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">{following}</p>
-          <p className="text-[12px] text-gray-400 dark:text-slate-500">팔로잉</p>
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+            {following}
+          </p>
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
+            팔로잉
+          </p>
         </button>
       </div>
 
       {/* 수익률 / 총 수익 */}
       <div className="grid grid-cols-2 gap-2 pt-4 border-t border-gray-100 dark:border-slate-800 mb-4">
         <div className="text-center">
-          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">총 수익률</p>
-          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
-            {isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">
+            총 수익률
+          </p>
+          <p
+            className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+          >
+            {isPositive ? "+" : ""}
+            {totalReturnRate.toFixed(2)}%
           </p>
         </div>
         <div className="text-center">
-          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">총 수익</p>
-          <p className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}>
-            {isPositive ? "+" : ""}{fmtAmount(totalReturn)}원
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">
+            총 수익
+          </p>
+          <p
+            className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+          >
+            {isPositive ? "+" : ""}
+            {fmtAmount(totalReturn)}원
           </p>
         </div>
       </div>
@@ -112,18 +142,18 @@ export default function ProfileCard({
       <div className="space-y-2 pt-4 border-t border-gray-100 dark:border-slate-800">
         {isOwnProfile ? (
           <>
-            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onEditClick}>
+            <Button
+              variant="invalid"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={onEditClick}
+            >
               <Settings size={14} />
               프로필 편집
             </Button>
-            <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
+            {/* <Button variant="invalid" className="w-full flex items-center justify-center gap-2" onClick={onLogoutClick}>
               <LogOut size={14} />
               로그아웃
-            </Button>
-            <Button variant="danger" className="w-full flex items-center justify-center gap-2" onClick={onDeleteClick}>
-              <Trash2 size={14} />
-              회원탈퇴
-            </Button>
+            </Button> */}
           </>
         ) : (
           <Button
