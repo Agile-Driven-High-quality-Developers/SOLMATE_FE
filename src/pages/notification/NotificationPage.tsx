@@ -1,4 +1,5 @@
-import { Bell } from "lucide-react";
+import { Bell, X } from "lucide-react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   useNotificationsQuery,
@@ -34,11 +35,22 @@ export default function NotificationPage() {
   const setActiveTab = (v: TabId) =>
     setSearchParams((p) => { if (v === "all") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
 
+  const [alertOpen, setAlertOpen] = useState(false);
+
   const { data: notifications = [] } = useNotificationsQuery();
   const { data: unreadCount } = useUnreadCountQuery();
   const acceptMentor = useAcceptMentorMutation();
   const rejectMentor = useRejectMentorMutation();
   const markRead = useMarkReadMutation();
+
+  const handleAccept = (id: number) => {
+    acceptMentor.mutate(id, {
+      onError: () => {
+        setAlertOpen(true);
+        markRead.mutate(id);
+      },
+    });
+  };
 
   const filtered =
     activeTab === "all"
@@ -49,6 +61,31 @@ export default function NotificationPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
+      {/* 이미 멘토 있음 알림 모달 */}
+      {alertOpen && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setAlertOpen(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 신청 수락 불가</p>
+              <button onClick={() => setAlertOpen(false)} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">이미 멘토가 있습니다.</p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">해당 멘티는 이미 다른 멘토가 배정되어 있어요.</p>
+            </div>
+            <div className="px-6 pb-6">
+              <button
+                onClick={() => setAlertOpen(false)}
+                className="w-full py-2.5 text-[14px] font-semibold text-white bg-[#0046FF] hover:bg-blue-700 rounded-xl transition-colors"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* 헤더 + 탭 (고정) */}
       <div className="flex flex-col gap-4 p-6 pb-4 shrink-0">
         <div className="flex items-center gap-3">
@@ -110,7 +147,7 @@ export default function NotificationPage() {
                 key={item.notificationId}
                 item={item}
                 onRead={(id) => markRead.mutate(id)}
-                onAccept={(id) => acceptMentor.mutate(id)}
+                onAccept={handleAccept}
                 onReject={(id) => rejectMentor.mutate(id)}
               />
             ))
