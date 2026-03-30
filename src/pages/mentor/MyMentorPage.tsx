@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Users, TrendingUp, Loader2, X, GraduationCap, BookOpen } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -83,7 +83,10 @@ function CancelMentorModal({ mentorNickname, onClose, onConfirm }: { mentorNickn
 export default function MyMentorPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<TabId>("portfolio");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") ?? "portfolio") as TabId;
+  const setActiveTab = (v: TabId) =>
+    setSearchParams((p) => { if (v === "portfolio") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Users, TrendingUp, Loader2, ClipboardList } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -62,7 +61,10 @@ function fmtAmount(n: number) {
 
 function MenteeDetail({ menteeId }: { menteeId: number }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabId>("portfolio");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") ?? "portfolio") as TabId;
+  const setActiveTab = (v: TabId) =>
+    setSearchParams((p) => { if (v === "portfolio") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
 
   const { data: mentee, isLoading } = useUserProfileQuery(menteeId);
   const { data: summary } = useAccountSummaryByUserQuery(menteeId);
@@ -205,7 +207,10 @@ function MenteeListItem({
 export default function MyMenteePage() {
   const { data: menteesData, isLoading } = useMyMenteesQuery();
   const mentees = menteesData?.mentees ?? [];
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedId = searchParams.get("mentee") ? Number(searchParams.get("mentee")) : null;
+  const setSelectedId = (id: number) =>
+    setSearchParams((p) => { p.set("mentee", String(id)); return p; }, { replace: true });
 
   const activeMenteeId = selectedId ?? mentees[0]?.userId ?? null;
 

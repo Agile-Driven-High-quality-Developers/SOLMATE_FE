@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, FolderOpen } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 import { useQueryClient } from "@tanstack/react-query";
@@ -58,8 +58,10 @@ export default function ProfilePage() {
   const user = useUser();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const location = useLocation();
-  const initialTab = (location.state as { tab?: TabId } | null)?.tab ?? "diary";
-  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get("tab") ?? (location.state as { tab?: TabId } | null)?.tab ?? "diary") as TabId;
+  const setActiveTab = (v: TabId) =>
+    setSearchParams((p) => { if (v === "diary") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
   const [followModal, setFollowModal] = useState<
     "followers" | "following" | null
   >("following");
