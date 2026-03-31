@@ -6,7 +6,6 @@ import { stompSubscribe } from "@/lib/stompClient";
 import { parseMarketIndicatorMessage, homeQueryKeys } from "@/api/homeApi";
 import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
 import Sidebar from "./Sidebar";
-import Logo from "@/components/ui/Logo";
 import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { useAuthStore, useUser } from "@/store/authStore";
