@@ -42,10 +42,7 @@ worker.port.onmessage = (event) => {
 
 worker.port.start();
 
-/**
- * SharedWorker를 통해 STOMP 토픽을 구독합니다.
- * @returns 구독을 해제하는 cleanup 함수
- */
+
 export function stompSubscribe(
   destination: string,
   callback: messageCallbackType,
@@ -53,7 +50,6 @@ export function stompSubscribe(
   const key = Symbol();
   registry.set(key, { destination, callback });
 
-  // 동일한 destination에 대해 이 탭에서 처음으로 구독하는 것이라면 Worker에 실제 구독 요청(SUBSCRIBE)을 전송
   const currentCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
   if (currentCount === 1) {
     worker.port.postMessage({ type: "SUBSCRIBE", destination });
@@ -61,7 +57,6 @@ export function stompSubscribe(
 
   return () => {
     registry.delete(key);
-    // 이 탭에서 더 이상 해당 destination을 구독하는 컴포넌트가 없으면 Worker에 해제 요청(UNSUBSCRIBE)을 전송
     const remainingCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
     if (remainingCount === 0) {
       worker.port.postMessage({ type: "UNSUBSCRIBE", destination });
@@ -69,7 +64,6 @@ export function stompSubscribe(
   };
 }
 
-// 명시적으로 탭(또는 브라우저)이 닫힐 때 Worker에 연결 해제를 알립니다.
 window.addEventListener("beforeunload", () => {
   worker.port.postMessage({ type: "DISCONNECT" });
   worker.port.close();
