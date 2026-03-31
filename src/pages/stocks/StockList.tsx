@@ -118,11 +118,10 @@ function MarketPanel({
     return (
       <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100 animate-pulse">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="flex-1 px-6 py-5 flex flex-col gap-2">
-            <div className="h-3 bg-gray-100 rounded-full w-16" />
-            <div className="h-7 bg-gray-100 rounded-full w-28" />
-            <div className="h-3 bg-gray-100 rounded-full w-32" />
-            <div className="h-3 bg-gray-100 rounded-full w-24" />
+          <div key={i} className="flex-1 px-3 py-3 md:px-6 md:py-5 flex flex-col gap-2">
+            <div className="h-3 bg-gray-100 rounded-full w-10 md:w-16" />
+            <div className="h-5 md:h-7 bg-gray-100 rounded-full w-16 md:w-28" />
+            <div className="h-3 bg-gray-100 rounded-full w-20 md:w-32" />
           </div>
         ))}
       </div>
@@ -132,27 +131,26 @@ function MarketPanel({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 flex divide-x divide-gray-100 dark:divide-slate-800">
       {data.map((idx) => (
-        <div key={idx.label} className="flex-1 px-6 py-5">
-          <p className="text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-1">
+        <div key={idx.label} className="flex-1 px-3 py-3 md:px-6 md:py-5">
+          <p className="text-[11px] md:text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-0.5 md:mb-1">
             {idx.label}
           </p>
-          <p className="text-[24px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[15px] md:text-[24px] font-bold text-gray-900 dark:text-gray-100">
             {idx.value}
           </p>
-          <div className="flex items-center gap-1 mt-0.5">
+          <div className="flex items-center gap-0.5 md:gap-1 mt-0.5">
             {idx.isPositive ? (
-              <TrendingUp size={12} className="text-red-500" />
+              <TrendingUp size={11} className="text-red-500" />
             ) : (
-              <TrendingDown size={12} className="text-blue-600" />
+              <TrendingDown size={11} className="text-blue-600" />
             )}
             <span
-              className={`text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}
+              className={`text-[10px] md:text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}
             >
-              {idx.change} ({idx.isPositive ? "+" : ""}
-              {idx.changePercent}%)
+              {idx.isPositive ? "+" : ""}{idx.changePercent}%
             </span>
           </div>
-          <p className="text-[12px] text-gray-400 mt-1">
+          <p className="hidden md:block text-[12px] text-gray-400 mt-1">
             고 {idx.high} · 저 {idx.low}
           </p>
         </div>
@@ -214,7 +212,7 @@ function StockRow({
           </div>
         </div>
       </td>
-      <td className="px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
+      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
       <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
@@ -228,10 +226,10 @@ function StockRow({
           {stock.changeRate.toFixed(2)}%
         </span>
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
         {stock.volume?.toLocaleString() ?? "-"}
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
         {stock.total?.toLocaleString() ?? "-"}
       </td>
     </tr>
@@ -356,7 +354,7 @@ export default function StockList() {
     });
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+    <div className="flex flex-col h-full p-3 md:p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
@@ -373,8 +371,8 @@ export default function StockList() {
       </div>
 
       {/* 검색 + 정렬 */}
-      <div className="flex items-center gap-3" data-tour="stock-search">
-        <div className="relative flex-1 max-w-xs">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3" data-tour="stock-search">
+        <div className="relative flex-1 md:max-w-xs">
           <Search
             size={15}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -387,7 +385,7 @@ export default function StockList() {
             className="w-full pl-9 pr-4 py-2 text-[13px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {SORTS.map((s) => (
             <button
               key={s}
@@ -454,7 +452,7 @@ export default function StockList() {
         className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto"
         data-tour="stock-table"
       >
-        <table className="w-full min-w-175">
+        <table className="w-full md:min-w-175">
           <thead data-tour="stock-columns">
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
               <th className="text-left pl-5 pr-1 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -466,7 +464,7 @@ export default function StockList() {
               <th className="text-left pl-3 pr-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 종목명
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 섹터
               </th>
               <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -475,10 +473,10 @@ export default function StockList() {
               <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 등락률
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 거래량
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 시가총액
               </th>
             </tr>

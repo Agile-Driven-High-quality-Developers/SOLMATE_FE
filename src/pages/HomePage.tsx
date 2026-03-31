@@ -184,23 +184,23 @@ function SectionSkeleton({ rows = 3 }: { rows?: number }) {
 
 function MarketIndexCard({ index }: { index: MarketIndexData }) {
   return (
-    <div className="flex-1 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 px-4 py-3">
-      <p className="text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1">
+    <div className="flex-1 min-w-0 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 px-2 sm:px-4 py-3">
+      <p className="text-[10px] sm:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 truncate">
         {index.label}
       </p>
-      <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+      <p className="text-[14px] sm:text-[18px] font-bold text-gray-900 dark:text-gray-100 truncate">
         {index.value}
       </p>
-      <div className="flex items-center gap-1 mt-0.5">
+      <div className="flex items-center gap-0.5 sm:gap-1 mt-0.5 min-w-0">
         {index.isPositive ? (
-          <TrendingUp size={12} className="text-red-500" />
+          <TrendingUp size={10} className="text-red-500 shrink-0" />
         ) : (
-          <TrendingDown size={12} className="text-blue-600" />
+          <TrendingDown size={10} className="text-blue-600 shrink-0" />
         )}
         <ReturnText
           value={`${index.change} (${index.isPositive ? "+" : ""}${index.changePercent}%)`}
           isPositive={index.isPositive}
-          className="text-[12px] font-medium"
+          className="text-[10px] sm:text-[12px] font-medium truncate"
         />
       </div>
     </div>
@@ -672,7 +672,7 @@ export default function HomePage() {
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen whitespace-nowrap">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
