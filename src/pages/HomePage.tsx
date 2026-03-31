@@ -672,7 +672,7 @@ export default function HomePage() {
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen whitespace-nowrap">
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
@@ -689,9 +689,9 @@ export default function HomePage() {
         <MarketIndicesRow data={marketIndices} loading={loadingMarket} />
       </div>
       {/* 메인 콘텐츠 영역 (lg 기준 1열 -> 2열 전환) */}
-      <div className="flex flex-col lg:flex-row gap-5 items-stretch">
+      <div className="flex flex-col min-[1200px]:flex-row gap-5 items-stretch">
         {/* 왼쪽: 포트폴리오 + 보유 종목 (58%) */}
-        <div className="flex flex-col gap-4 w-full lg:basis-[58%] lg:shrink-0">
+        <div className="flex flex-col gap-4 w-full min-[1200px]:basis-[58%] min-[1200px]:shrink-0">
           <div data-tour="portfolio">
             <PortfolioCard data={summary} loading={loadingSummary} />
           </div>

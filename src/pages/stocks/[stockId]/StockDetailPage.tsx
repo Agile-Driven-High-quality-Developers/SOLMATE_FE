@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { BarChart2, ClipboardList, Wallet, BookOpen } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
@@ -123,7 +123,6 @@ type PendingOrder = {
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useUser();
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
