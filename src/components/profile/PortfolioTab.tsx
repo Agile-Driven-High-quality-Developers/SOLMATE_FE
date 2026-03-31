@@ -11,6 +11,7 @@ type Props = {
   holdings: HoldingItem[];
   compact?: boolean;
   showAvgPrice?: boolean;
+  hideReturnStatsOnMobile?: boolean;
 };
 
 function fmt(n: number) {
@@ -26,13 +27,14 @@ export default function PortfolioTab({
   holdings,
   compact = true,
   showAvgPrice = false,
+  hideReturnStatsOnMobile = false,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
   return (
-    <div className="flex flex-col gap-3 h-full">
+    <div className="flex flex-col gap-3 md:h-full">
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+        <div className={`rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 ${hideReturnStatsOnMobile ? "col-span-3 sm:col-span-1" : ""}`}>
           <p className="text-[11px] font-medium text-gray-400 dark:text-slate-500 mb-1">
             총 평가금액
           </p>
@@ -40,7 +42,7 @@ export default function PortfolioTab({
             {fmt(totalEvaluation)}
           </p>
         </div>
-        <div className="rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+        <div className={`rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 ${hideReturnStatsOnMobile ? "hidden sm:block" : ""}`}>
           <p className="text-[11px] font-medium text-gray-400 dark:text-slate-500 mb-1">
             총 수익률
           </p>
@@ -51,7 +53,7 @@ export default function PortfolioTab({
             {totalReturnRate.toFixed(2)}%
           </p>
         </div>
-        <div className="rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
+        <div className={`rounded-xl px-4 py-3 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 ${hideReturnStatsOnMobile ? "hidden sm:block" : ""}`}>
           <p className="text-[11px] font-medium text-gray-400 dark:text-slate-500 mb-1">
             총 수익
           </p>
@@ -64,7 +66,7 @@ export default function PortfolioTab({
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_2fr] gap-3 flex-1 min-h-0">
+      <div className="flex flex-col md:grid md:grid-cols-[1fr_2fr] gap-3 md:flex-1 md:min-h-0">
         <PortfolioChart
           items={portfolio}
           compact={compact}

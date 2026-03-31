@@ -306,7 +306,7 @@ export default function SidebarNav() {
       {/* 1. 모바일 오버레이 (사이드바 열렸을 때 배경 어둡게) */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-35 lg:hidden"
           onClick={close}
         />
       )}
@@ -317,7 +317,7 @@ export default function SidebarNav() {
           // 공통 스타일
           "h-screen bg-white border-r border-gray-100 flex flex-col py-5 shrink-0 overflow-y-auto dark:bg-slate-900 dark:border-slate-800 transition-transform duration-300 ease-in-out",
           // 반응형 핵심 클래스
-          "fixed inset-y-0 left-0 w-64 z-[100] lg:sticky lg:translate-x-0",
+          "fixed inset-y-0 left-0 w-64 z-40 lg:sticky lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >

@@ -278,6 +278,8 @@ export default function GuidePage() {
   );
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const contentRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   // 초기 마운트 시 URL 섹션으로 스크롤
   useEffect(() => {
@@ -323,6 +325,15 @@ export default function GuidePage() {
     return () => container.removeEventListener("scroll", handleScroll);
   }, [setSearchParams]);
 
+  // 활성 탭이 바뀌면 탭 버튼을 가운데로 스크롤
+  useEffect(() => {
+    const nav = navRef.current;
+    const tab = tabRefs.current[activeSection];
+    if (!nav || !tab) return;
+    const scrollLeft = tab.offsetLeft - nav.clientWidth / 2 + tab.clientWidth / 2;
+    nav.scrollTo({ left: scrollLeft, behavior: "smooth" });
+  }, [activeSection]);
+
   const scrollTo = (id: SectionId) => {
     const el = sectionRefs.current[id];
     const container = contentRef.current;
@@ -338,43 +349,49 @@ export default function GuidePage() {
   return (
     <div className="relative h-screen overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* ── 상단 내비게이션 탭 (콘텐츠 위에 절대 위치) ────── */}
-      <div className="absolute top-0 left-0 right-0 z-10 bg-white/60 dark:bg-slate-900/80 backdrop-blur-lg border-b border-white/40 dark:border-slate-800 px-8">
-        <div className="max-w-3xl mx-auto flex items-center gap-1">
-          {SECTIONS.map(({ id, label, icon: Icon }) => {
-            const isActive = activeSection === id;
-            return (
-              <button
-                key={id}
-                onClick={() => scrollTo(id)}
-                className={[
-                  "flex items-center gap-2 px-4 py-3.5 border-b-2 transition-all duration-150 cursor-pointer whitespace-nowrap",
-                  isActive
-                    ? "border-[#0046FF] text-[#0046FF]"
-                    : "border-transparent text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-slate-300",
-                ].join(" ")}
-              >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span
+      <div className="absolute top-0 left-0 right-0 z-10 bg-white/60 dark:bg-slate-900/80 backdrop-blur-lg border-b border-white/40 dark:border-slate-800">
+        <div
+          ref={navRef}
+          className="overflow-x-auto scrollbar-hide md:px-8"
+        >
+          <div className="max-w-3xl md:mx-auto flex items-center gap-1 px-2 md:px-0 w-max md:w-auto">
+            {SECTIONS.map(({ id, label, icon: Icon }) => {
+              const isActive = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  ref={(el) => { tabRefs.current[id] = el; }}
+                  onClick={() => scrollTo(id)}
                   className={[
-                    "text-[13px]",
-                    isActive ? "font-semibold" : "font-medium",
+                    "flex items-center gap-2 px-4 py-3.5 border-b-2 transition-all duration-150 cursor-pointer whitespace-nowrap",
+                    isActive
+                      ? "border-[#0046FF] text-[#0046FF]"
+                      : "border-transparent text-gray-400 hover:text-gray-700 dark:text-slate-500 dark:hover:text-slate-300",
                   ].join(" ")}
                 >
-                  {label}
-                </span>
-              </button>
-            );
-          })}
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span
+                    className={[
+                      "text-[13px]",
+                      isActive ? "font-semibold" : "font-medium",
+                    ].join(" ")}
+                  >
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* ── 메인 콘텐츠 (탭바 뒤로 스크롤됨) ──────────────── */}
       <div
         ref={contentRef}
-        className="h-full overflow-y-auto px-8 pb-8"
+        className="h-full overflow-y-auto px-4 pb-8 md:px-8"
         style={{ paddingTop: NAV_HEIGHT + 32 }}
       >
-        <div className="max-w-3xl mx-auto space-y-16">
+        <div className="max-w-3xl mx-auto space-y-16 break-keep">
           {/* ══ 1. 서비스 소개 ══════════════════════════════ */}
           <section
             ref={(el) => {
@@ -384,7 +401,7 @@ export default function GuidePage() {
           >
             {/* 히어로 배너 */}
             <div
-              className="rounded-2xl p-8 mb-8 text-white relative overflow-hidden"
+              className="rounded-2xl p-5 md:p-8 mb-8 text-white relative overflow-hidden"
               style={{
                 background:
                   "linear-gradient(135deg, #1437C8 0%, #0046FF 60%, #3B6FFF 100%)",
@@ -423,7 +440,7 @@ export default function GuidePage() {
               투자자와 함께 성장할 수 있습니다.
             </p>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {SERVICE_FEATURES.map((feat) => {
                 const Icon = feat.icon;
                 return (
@@ -545,7 +562,7 @@ export default function GuidePage() {
             </p>
 
             {/* 수익/손실 예시 카드 */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div className="bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <ArrowUpRight className="w-4 h-4 text-red-500" />
@@ -584,7 +601,7 @@ export default function GuidePage() {
             <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
               대표적인 투자 전략
             </h3>
-            <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
               {INVEST_STRATEGIES.map((s) => {
                 const Icon = s.icon;
                 return (

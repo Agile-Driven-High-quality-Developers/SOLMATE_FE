@@ -77,17 +77,17 @@ export default function TradeDiaryTab({ items }: Props) {
               <p className="text-[12px] font-semibold text-gray-400 dark:text-slate-500 px-1 mb-1">
                 {dateLabel}
               </p>
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-50 dark:divide-slate-800 shadow-sm">
                 {groupItems.map((item) => {
                   const isBuy = item.tradeType === "BUY";
                   const isPositive = item.profit > 0;
                   return (
                     <div
                       key={item.diaryId}
-                      className="flex items-center justify-between gap-4 px-5 py-4"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-5 py-4"
                     >
                       {/* 좌측: 종목 정보 */}
-                      <div className="flex items-center gap-3 w-52 shrink-0">
+                      <div className="flex items-center gap-3 sm:w-52 sm:shrink-0">
                         <Avatar
                           name={item.stockName}
                           src={logoMap.get(item.stockName)}
@@ -114,7 +114,7 @@ export default function TradeDiaryTab({ items }: Props) {
                       </div>
 
                       {/* 우측: 내용 + 수익 */}
-                      <div className="flex flex-1 items-start justify-between gap-4 min-w-0">
+                      <div className="flex sm:flex-1 items-start justify-between gap-4 min-w-0">
                         <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2 flex-1 min-w-0">
                           {item.content}
                         </p>

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/Avatar";
 import type { TradeHistoryItem } from "@/api/tradeApi";
+import ScrollHintOverlay from "@/components/ui/ScrollHintOverlay";
 
 type Props = {
   items: TradeHistoryItem[];
@@ -17,8 +18,8 @@ export default function TradeHistoryTab({ items }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-slate-800">
-      <table className="w-full">
+    <ScrollHintOverlay className="rounded-xl border border-gray-100 dark:border-slate-800" hintVisibility="flex md:hidden">
+      <table className="w-full whitespace-nowrap">
         <thead className="bg-gray-50 dark:bg-slate-800">
           <tr className="text-[12px] text-gray-400 dark:text-slate-500">
             <th className="text-left px-4 py-3 font-semibold">종목</th>
@@ -102,6 +103,6 @@ export default function TradeHistoryTab({ items }: Props) {
           })}
         </tbody>
       </table>
-    </div>
+    </ScrollHintOverlay>
   );
 }

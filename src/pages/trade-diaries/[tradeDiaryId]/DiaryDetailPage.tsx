@@ -339,7 +339,12 @@ export default function DiaryDetailPage() {
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && commentInput.trim()) {
+                  // 한글 입력 중 엔터 키 중복 실행 방지 (isComposing 체크)
+                  if (
+                    e.key === "Enter" &&
+                    !e.nativeEvent.isComposing &&
+                    commentInput.trim()
+                  ) {
                     postComment(commentInput, {
                       onSuccess: () => setCommentInput(""),
                     });

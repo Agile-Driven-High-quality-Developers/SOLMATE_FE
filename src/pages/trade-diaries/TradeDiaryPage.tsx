@@ -70,10 +70,10 @@ function DiaryCard({
   return (
     <div
       onClick={onClick}
-      className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
     >
-      {/* 왼쪽: 종목 정보 */}
-      <div className="flex items-center gap-3 w-52 shrink-0">
+      {/* 종목 정보 */}
+      <div className="flex items-center gap-3 sm:w-52 sm:shrink-0">
         <Avatar name={item.stockName} src={logoUrl} size={40} />
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -85,18 +85,16 @@ function DiaryCard({
               color={isBuy ? "#FF4444" : "#0046FF"}
             />
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[12px] text-gray-400">
-              {item.quantity}주 · {item.filledPrice?.toLocaleString()}원
-            </span>
-          </div>
+          <span className="text-[12px] text-gray-400">
+            {item.quantity}주 · {item.filledPrice?.toLocaleString()}원
+          </span>
           <span className="text-[12px] text-gray-400">
             {formatTime(item.createdAt)}
           </span>
         </div>
       </div>
 
-      {/* 오른쪽: 일지 내용 + 수익 */}
+      {/* 일지 내용 + 수익 */}
       <div className="flex flex-1 items-start justify-between gap-4 min-w-0">
         <div className="flex flex-col gap-1 flex-1 min-w-0">
           <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">
@@ -139,7 +137,7 @@ export default function TradeDiaryPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
-      <div className="px-6 pt-6 pb-4 shrink-0">
+      <div className="px-4 pt-4 pb-3 md:px-6 md:pt-6 md:pb-4 shrink-0">
         <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
           매매일지
         </h1>
@@ -149,7 +147,7 @@ export default function TradeDiaryPage() {
       </div>
 
       {/* 검색 */}
-      <div className="px-6 pb-4 shrink-0">
+      <div className="px-4 pb-3 md:px-6 md:pb-4 shrink-0">
         <div className="relative">
           <Search
             size={15}
@@ -168,7 +166,7 @@ export default function TradeDiaryPage() {
       <SpotlightTour tourKey="diary" steps={DIARY_TOUR} />
       {/* 리스트 */}
       <div
-        className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-5"
+        className="flex-1 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6 flex flex-col gap-5"
         data-tour="diary-list"
       >
         {isLoading && (
@@ -199,7 +197,7 @@ export default function TradeDiaryPage() {
             </p>
 
             {/* 카드 묶음 */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-100 dark:divide-slate-800">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden divide-y divide-gray-50 dark:divide-slate-800 shadow-sm">
               {items.map((item) => (
                 <DiaryCard
                   key={item.diaryId}

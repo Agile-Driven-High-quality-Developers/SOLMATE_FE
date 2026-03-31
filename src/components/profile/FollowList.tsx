@@ -12,6 +12,7 @@ import {
 type Props = {
   type: "followers" | "following";
   userId?: number;
+  className?: string;
 };
 
 const LABEL = { followers: "팔로워", following: "팔로잉" };
@@ -20,7 +21,7 @@ const EMPTY_LABEL = {
   following: "팔로잉이 없습니다.",
 };
 
-export default function FollowList({ type, userId }: Props) {
+export default function FollowList({ type, userId, className = "" }: Props) {
   const navigate = useNavigate();
   const { data: me } = useMyProfileQuery();
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -59,7 +60,7 @@ export default function FollowList({ type, userId }: Props) {
   }, [query]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-3 flex-1 overflow-y-auto">
+    <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-3 flex-1 overflow-y-auto ${className}`}>
       <p className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 px-4 pt-4 pb-2">
         {LABEL[type]}
       </p>

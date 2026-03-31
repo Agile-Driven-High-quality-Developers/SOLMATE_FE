@@ -411,7 +411,7 @@ export default function MenteeTradeDiaryTab({ items }: Props) {
                         {/* 오른쪽: 수익률 (매도 시만) */}
                         {!isBuy && (
                           <span
-                            className={`text-[15px] font-bold shrink-0 tabular-nums ${
+                            className={`text-[14px] font-bold shrink-0 tabular-nums ${
                               isPositive
                                 ? "text-red-500"
                                 : isNegative
