@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   Users,
-  TrendingUp,
   Loader2,
   X,
   GraduationCap,
