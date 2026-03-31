@@ -129,7 +129,7 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
     if (hasSeen || !step) return;
     setTooltipVisible(false);
 
-    const ids: ReturnType<typeof window.setTimeout>[] = [];
+    const ids: number[] = [];
 
     ids.push(
       window.setTimeout(() => {

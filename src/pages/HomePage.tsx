@@ -360,8 +360,9 @@ function HoldingsTable({
         </p>
       ) : (
         <div className="overflow-y-auto flex-1 min-h-0 scrollbar-hide">
-          <table className="w-full">
-            <thead className="sticky top-0 bg-white dark:bg-slate-900 z-10">
+          <table className="w-full border-collapse">
+            {/* 🖥 데스크탑 헤더 (sm 이상에서만 표시) */}
+            <thead className="hidden sm:table-header-group sticky top-0 bg-white dark:bg-slate-900 z-10">
               <tr className="bg-gray-50 dark:bg-slate-800">
                 <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   종목
@@ -376,10 +377,11 @@ function HoldingsTable({
                   평가손익
                 </th>
                 <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
-                  종목 수익률
+                  수익률
                 </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
               {data.map((stock) => {
                 const isPositive = stock.returnRate >= 0;
@@ -387,40 +389,69 @@ function HoldingsTable({
                   <tr
                     key={stock.tickerCode}
                     onClick={() => navigate(`/invest/${stock.tickerCode}`)}
-                    className="hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    className="flex flex-col sm:table-row relative hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   >
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-2.5">
+                    {/* 1. 종목명 (모바일: 좌측 상단 / 데스크탑: 1열) */}
+                    <td className="px-5 py-4 sm:py-3 sm:table-cell">
+                      <div className="flex items-center gap-3">
                         <Avatar
                           name={stock.stockName}
                           src={stock.stockLogo || undefined}
-                          size={28}
+                          size={32}
                           color={getAvatarColor(stock.stockName)}
                         />
-                        <div>
-                          <span className="text-[14px] font-medium text-gray-900 dark:text-gray-100">
+                        <div className="min-w-0">
+                          <span className="text-[15px] sm:text-[14px] font-bold sm:font-medium text-gray-900 dark:text-gray-100 block truncate">
                             {stock.stockName}
                           </span>
-                          <p className="text-[11px] text-gray-400 dark:text-slate-500">
-                            {stock.tickerCode}
+                          <p className="text-[12px] sm:text-[11px] text-gray-400 dark:text-slate-500">
+                            {stock.tickerCode}{" "}
+                            <span className="sm:hidden">
+                              · {stock.quantity}주
+                            </span>
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400">
+
+                    {/* 2. 보유량 (모바일: 숨김 / 데스크탑: 2열) */}
+                    <td className="hidden sm:table-cell px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400">
                       {stock.quantity}주
                     </td>
-                    <td className="px-4 py-3 text-right text-[14px] text-gray-800 dark:text-gray-200 font-medium">
-                      {stock.evaluation.toLocaleString()}원
+
+                    {/* 3. 평가금액 (모바일: 좌측 하단 / 데스크탑: 3열) */}
+                    <td className="px-5 pb-5 sm:p-0 sm:px-4 sm:py-3 sm:table-cell sm:text-right">
+                      <div className="flex flex-col sm:block">
+                        <span className="sm:hidden text-[11px] text-gray-400 mb-0.5">
+                          평가금액
+                        </span>
+                        <span className="text-[14px] font-medium text-gray-800 dark:text-gray-200">
+                          {stock.evaluation.toLocaleString()}원
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <ReturnText
-                        value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
-                        isPositive={isPositive}
-                        className="text-[14px] font-medium"
-                      />
+
+                    {/* 4. 평가손익 (모바일: 우측 하단 고정 / 데스크탑: 4열) */}
+                    <td className="absolute right-5 bottom-4 sm:static sm:table-cell sm:px-4 sm:py-3 sm:text-right">
+                      <div className="flex flex-col items-end sm:block">
+                        {/* 모바일에서는 여기서 수익률(%)도 같이 보여줌 */}
+                        <div className="sm:hidden mb-0.5">
+                          <ReturnText
+                            value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
+                            isPositive={isPositive}
+                            className="text-[16px] font-bold"
+                          />
+                        </div>
+                        <ReturnText
+                          value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
+                          isPositive={isPositive}
+                          className="text-[13px] sm:text-[14px] font-medium"
+                        />
+                      </div>
                     </td>
-                    <td className="px-5 py-3 text-right">
+
+                    {/* 5. 수익률 (모바일: 숨김 (4번에서 처리) / 데스크탑: 5열) */}
+                    <td className="hidden sm:table-cell px-5 py-3 text-right">
                       <ReturnText
                         value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
                         isPositive={isPositive}
@@ -641,7 +672,7 @@ export default function HomePage() {
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen whitespace-nowrap">
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
@@ -653,16 +684,14 @@ export default function HomePage() {
           </p>
         </div>
       </div>
-
       {/* 시장 지수 */}
       <div data-tour="market-indices">
         <MarketIndicesRow data={marketIndices} loading={loadingMarket} />
       </div>
-
-      {/* 메인 콘텐츠 */}
-      <div className="flex gap-5 items-stretch">
-        {/* 왼쪽: 포트폴리오 + 보유 종목 */}
-        <div className="flex flex-col gap-4" style={{ flex: "0 0 58%" }}>
+      {/* 메인 콘텐츠 영역 (lg 기준 1열 -> 2열 전환) */}
+      <div className="flex flex-col min-[1200px]:flex-row gap-5 items-stretch">
+        {/* 왼쪽: 포트폴리오 + 보유 종목 (58%) */}
+        <div className="flex flex-col gap-4 w-full min-[1200px]:basis-[58%] min-[1200px]:shrink-0">
           <div data-tour="portfolio">
             <PortfolioCard data={summary} loading={loadingSummary} />
           </div>
@@ -674,7 +703,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 오른쪽: TOP 투자자 + 인기 종목 */}
+        {/* 오른쪽: TOP 투자자 + 인기 종목 (남은 공간) */}
         <div className="flex flex-col gap-4 flex-1 min-w-0">
           <div data-tour="top-investors">
             <TopInvestors data={allUsers} loading={loadingUsers} />
@@ -685,6 +714,6 @@ export default function HomePage() {
         </div>
       </div>
       <SpotlightTour tourKey="home" steps={HOME_TOUR} />
-    </div>
+    </div> // 최상단 div 닫기
   );
 }
