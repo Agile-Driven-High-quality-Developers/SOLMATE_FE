@@ -206,7 +206,13 @@ export default function StockDetailPage() {
     if (!quote) return;
     const rate = quote.changeRate;
     document.title = `${quote.currentPrice.toLocaleString()}원 ${rate > 0 ? "+" : ""}${rate.toFixed(2)}% | ${quote.stockName}`;
+    return () => {
+      document.title = "SOLMATE";
+    };
+  }, [quote]);
 
+  useEffect(() => {
+    if (!quote?.stockLogo) return;
     const setFavicon = (href: string) => {
       const existing = document.querySelector("link[rel='icon']");
       if (existing) existing.remove();
@@ -215,14 +221,11 @@ export default function StockDetailPage() {
       link.href = href;
       document.head.appendChild(link);
     };
-
-    if (quote.stockLogo) setFavicon(quote.stockLogo);
-
+    setFavicon(quote.stockLogo);
     return () => {
-      document.title = "SOLMATE";
       setFavicon("/solmate_logo.png");
     };
-  }, [quote]);
+  }, [quote?.stockLogo]);
 
   if (isLoading) {
     return (
