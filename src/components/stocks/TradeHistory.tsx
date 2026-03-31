@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import type { StockTradeOrder } from "@/api/stockApi";
 import { useCancelOrderMutation } from "@/api/stockApi";
 import Button from "@/components/ui/Button";
+import ScrollHintOverlay from "@/components/ui/ScrollHintOverlay";
 
 function formatAmount(amount: number): string {
   if (amount >= 100_000_000) return `${(amount / 100_000_000).toFixed(1)}억원`;
@@ -29,10 +30,12 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
   return (
     <>
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5">
-      <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <h3 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100 mb-4">
         거래 내역
       </h3>
-      <table className="w-full">
+      <ScrollHintOverlay>
+      <table className="w-full min-w-120">
+
         <thead>
           <tr className="border-b border-gray-100 dark:border-slate-800">
             <th className="text-left py-3 pl-4 pr-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -119,6 +122,7 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
           )}
         </tbody>
       </table>
+      </ScrollHintOverlay>
     </div>
 
     {confirmOrderId !== null && (

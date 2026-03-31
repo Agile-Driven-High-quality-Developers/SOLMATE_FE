@@ -60,7 +60,6 @@ const INITIAL_VISIBLE_CANDLES: Record<PeriodType, number> = {
 
 const LOAD_MORE_STEP = 365;
 const MAX_LIMIT = 365 * 20;
-const CHART_HEIGHT = 350;
 
 const UP_COLOR = "#F04452";
 const DOWN_COLOR = "#3B7DEB";
@@ -436,7 +435,7 @@ export default function StockChart({ stockCode }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 dark:bg-slate-900 dark:border-slate-900">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-5 pt-4 pb-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between px-5 pt-4 pb-3 gap-2">
         <span className="text-[13px] font-semibold text-gray-700 dark:text-gray-100">
           주가 차트
         </span>
@@ -445,7 +444,7 @@ export default function StockChart({ stockCode }: Props) {
             <button
               key={value}
               onClick={() => handlePeriodChange(value)}
-              className={`px-2.5 py-1 text-[12px] font-medium rounded-md transition-colors ${
+              className={`whitespace-nowrap px-2 py-1 text-[11px] md:text-[12px] md:px-2.5 font-medium rounded-md transition-colors shrink-0 ${
                 period === value
                   ? "text-[#0046FF] bg-blue-50 dark:bg-slate-700 dark:text-blue-400"
                   : "text-gray-400 hover:text-gray-500 hover:bg-gray-50 dark:hover:bg-slate-700 dark:hover:text-slate-300"
@@ -458,7 +457,7 @@ export default function StockChart({ stockCode }: Props) {
       </div>
 
       {/* 차트 영역 */}
-      <div className="relative" style={{ height: CHART_HEIGHT }}>
+      <div className="relative h-[220px] md:h-[350px]">
         {isPending && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 rounded-b-2xl">
             <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
@@ -467,7 +466,7 @@ export default function StockChart({ stockCode }: Props) {
 
         {/* OHLCV 오버레이 */}
         {ohlcv && (
-          <div className="absolute top-2 left-2 z-10 flex items-center gap-3 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-[11px] shadow-sm border border-gray-100 dark:border-slate-700 pointer-events-none">
+          <div className="absolute top-2 left-2 right-2 z-10 flex items-center gap-2 overflow-x-auto bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg px-2 py-1.5 text-[10px] md:text-[11px] md:gap-3 md:px-3 shadow-sm border border-gray-100 dark:border-slate-700 pointer-events-none">
             <span className="text-gray-400 dark:text-slate-500">시가</span>
             <span className={ohlcv.isUp ? "text-[#F04452]" : "text-[#3B7DEB]"}>
               {ohlcv.open.toLocaleString()}

@@ -28,8 +28,8 @@ const USERS_TOUR: TourStep[] = [
     placement: "left",
   },
 ];
-import { useState } from "react";
-import { Search, Medal, UserPlus, GraduationCap, Crown, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Search, Medal, UserPlus, GraduationCap, Crown, X, ChevronsLeftRight } from "lucide-react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -193,11 +193,15 @@ function ReturnCells({
 
   return (
     <>
-      <td className={`px-6 py-3.5 text-right font-semibold text-[13px] tabular-nums ${color}`}>
+      <td
+        className={`px-6 py-3.5 text-right font-semibold text-[14px] tabular-nums whitespace-nowrap ${color}`}
+      >
         {prefix}
         {Math.abs(rate).toFixed(2)}%
       </td>
-      <td className={`px-6 py-3.5 text-[13px] font-medium text-right ${color}`}>
+      <td
+        className={`px-6 py-3.5 text-[14px] font-medium text-right whitespace-nowrap ${color}`}
+      >
         {prefix}
         {(amount / 10000).toFixed(0)}만원
       </td>
@@ -249,7 +253,7 @@ function UserRow({
       </td>
 
       {/* 투자자 */}
-      <td className="px-4 py-3.5">
+      <td className="px-4 py-3.5 whitespace-nowrap">
         <div
           className="flex items-center gap-2.5 cursor-pointer hover:opacity-70 transition-opacity w-fit"
           onClick={() =>
@@ -274,7 +278,7 @@ function UserRow({
       </td>
 
       {/* 팔로워 */}
-      <td className="px-6 py-3.5 text-[13px] text-gray-500 text-right">
+      <td className="px-6 py-3.5 text-[14px] text-gray-500 text-right whitespace-nowrap">
         {user.followerCount.toLocaleString()}명
       </td>
 
@@ -283,7 +287,7 @@ function UserRow({
 
       {/* 팔로우 */}
       <td
-        className="px-6 py-3.5 text-center"
+        className="hidden md:table-cell px-6 py-3.5 text-center"
         data-tour={isFirstNonMe ? "users-follow" : undefined}
       >
         <FollowButton user={user} onToggle={onFollowToggle} />
@@ -291,7 +295,7 @@ function UserRow({
 
       {/* 멘토 */}
       <td
-        className="px-6 py-3.5 text-center"
+        className="px-6 py-3.5 text-center hidden md:table-cell"
         data-tour={isFirstNonMe ? "users-mentor" : undefined}
       >
         <MentoringButton
@@ -331,8 +335,23 @@ export default function UserListPage() {
       { replace: true },
     );
 
-  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(null);
-  const [pendingCancelTargetUser, setPendingCancelTargetUser] = useState<UserItem | null>(null);
+  const [showHint, setShowHint] = useState(true);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = tableScrollRef.current;
+    if (!el) return;
+    const isMobile = window.innerWidth < 500;
+    if (!isMobile) return;
+    const timer = setTimeout(() => setShowHint(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(
+    null,
+  );
+  const [pendingCancelTargetUser, setPendingCancelTargetUser] =
+    useState<UserItem | null>(null);
 
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
@@ -584,8 +603,8 @@ export default function UserListPage() {
       {/* 랭킹 테이블 */}
       <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden min-h-0">
         {/* 검색 + 정렬 */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
-          <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 w-52">
+        <div className="flex flex-col min-[500px]:flex-row min-[500px]:items-center min-[500px]:justify-between gap-2 px-4 py-3 border-b border-gray-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-3 py-2 min-[500px]:w-52">
             <Search
               size={14}
               className="text-gray-400 dark:text-slate-500 shrink-0"
@@ -593,7 +612,7 @@ export default function UserListPage() {
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="투자자 검색..."
+              placeholder="투자자 검색"
               className="text-[13px] text-gray-700 dark:text-gray-300 bg-transparent outline-none w-full placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
           </div>
@@ -614,7 +633,23 @@ export default function UserListPage() {
             ))}
           </div>
         </div>
-        <div className="overflow-y-auto flex-1">
+        <div
+          className="overflow-y-auto overflow-x-auto flex-1 relative"
+          ref={tableScrollRef}
+          onScroll={() => setShowHint(false)}
+          onClick={() => setShowHint(false)}
+        >
+          {showHint && (
+            <div className="min-[500px]:hidden absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/10 dark:bg-slate-900/10 backdrop-blur-[2px] rounded-xl cursor-pointer">
+              <ChevronsLeftRight
+                size={22}
+                className="text-gray-400 dark:text-slate-400"
+              />
+              <p className="text-[13px] font-medium text-gray-500 dark:text-slate-400">
+                좌우로 스크롤 해보세요
+              </p>
+            </div>
+          )}
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
@@ -633,10 +668,10 @@ export default function UserListPage() {
                 <th className="text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-32">
                   총 수익
                 </th>
-                <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
+                <th className="hidden md:table-cell text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
                   팔로우
                 </th>
-                <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
+                <th className="hidden md:table-cell text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
                   멘토
                 </th>
               </tr>
@@ -666,11 +701,11 @@ export default function UserListPage() {
                       <td className="px-4 py-4">
                         <div className="h-3 bg-gray-100 rounded-full w-16 ml-auto" />
                       </td>
-                      <td className="px-3 py-4">
-                        <div className="h-7 bg-gray-100 rounded-lg w-16 ml-auto" />
+                      <td className="hidden md:table-cell px-3 py-4">
+                        <div className="h-7 bg-gray-100 dark:bg-slate-800 rounded-lg w-16 ml-auto" />
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="h-7 bg-gray-100 rounded-lg w-18 ml-auto" />
+                      <td className="hidden md:table-cell px-5 py-4">
+                        <div className="h-7 bg-gray-100 dark:bg-slate-800 rounded-lg w-18 ml-auto" />
                       </td>
                     </tr>
                   ))

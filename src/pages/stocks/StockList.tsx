@@ -210,9 +210,10 @@ function StockRow({
           </span>
         </div>
       </td>
-      <td className="pl-4 pr-6 py-3.5 whitespace-nowrap">
-        <div className="flex items-center gap-3">
-          <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
+      <td className="pl-2 pr-2 md:pl-3 md:pr-5 py-3.5 whitespace-nowrap">
+        <div className="flex items-center gap-2 md:gap-3">
+          <span className="md:hidden"><Avatar name={stock.stockName} src={stock.stockLogo} size={28} /></span>
+          <span className="hidden md:inline-flex"><Avatar name={stock.stockName} src={stock.stockLogo} size={34} /></span>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-[14px] font-semibold text-gray-900 dark:text-gray-100">
@@ -481,7 +482,7 @@ export default function StockList() {
                   <span className="w-5 text-center">순위</span>
                 </div>
               </th>
-              <th className="text-left pl-4 pr-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="text-left pl-2 pr-2 md:pl-3 md:pr-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 종목명
               </th>
               <th className="hidden md:table-cell text-left px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">

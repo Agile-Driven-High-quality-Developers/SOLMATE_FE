@@ -357,7 +357,7 @@ export default function DiaryMiniChart({
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-1">
-      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+      <div className="flex flex-col gap-1.5 px-4 pt-3 pb-2">
         <span className="text-[12px] font-semibold text-gray-500 dark:text-slate-400">
           체결 시점 차트
         </span>
@@ -370,7 +370,7 @@ export default function DiaryMiniChart({
                 key={value}
                 disabled={disabled}
                 onClick={() => !disabled && handlePeriodChange(value)}
-                className={`px-2 py-1 text-[11px] font-medium rounded-md transition-colors ${
+                className={`whitespace-nowrap shrink-0 px-2 py-1 text-[11px] font-medium rounded-md transition-colors ${
                   disabled
                     ? "text-gray-200 dark:text-slate-700 cursor-not-allowed"
                     : period === value

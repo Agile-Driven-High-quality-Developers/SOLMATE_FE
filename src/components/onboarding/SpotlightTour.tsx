@@ -49,7 +49,10 @@ function getDisplayRect(rect: DOMRect): DOMRect {
   };
 }
 
-function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties {
+function getTooltipPos(
+  rect: DOMRect,
+  placement: Placement,
+): React.CSSProperties {
   const TOOLTIP_EST_HEIGHT = 320;
   const clampedLeft = Math.min(
     Math.max(16, rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2),
@@ -64,12 +67,18 @@ function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties
       // 아래 공간이 부족하면 위로 뒤집기
       if (spaceBelow < TOOLTIP_EST_HEIGHT && spaceAbove > spaceBelow) {
         return {
-          top: Math.max(16, rect.top - SPOT_PADDING - TOOLTIP_GAP - TOOLTIP_EST_HEIGHT),
+          top: Math.max(
+            16,
+            rect.top - SPOT_PADDING - TOOLTIP_GAP - TOOLTIP_EST_HEIGHT,
+          ),
           left: clampedLeft,
         };
       }
       return {
-        top: Math.min(rect.bottom + SPOT_PADDING + TOOLTIP_GAP, vh - TOOLTIP_EST_HEIGHT - 16),
+        top: Math.min(
+          rect.bottom + SPOT_PADDING + TOOLTIP_GAP,
+          vh - TOOLTIP_EST_HEIGHT - 16,
+        ),
         left: clampedLeft,
       };
     }
@@ -79,18 +88,30 @@ function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties
       // 위 공간이 부족하면 아래로 뒤집기
       if (spaceAbove < TOOLTIP_EST_HEIGHT && spaceBelow > spaceAbove) {
         return {
-          top: Math.min(rect.bottom + SPOT_PADDING + TOOLTIP_GAP, vh - TOOLTIP_EST_HEIGHT - 16),
+          top: Math.min(
+            rect.bottom + SPOT_PADDING + TOOLTIP_GAP,
+            vh - TOOLTIP_EST_HEIGHT - 16,
+          ),
           left: clampedLeft,
         };
       }
       return {
-        top: Math.max(16, rect.top - SPOT_PADDING - TOOLTIP_GAP - TOOLTIP_EST_HEIGHT),
+        top: Math.max(
+          16,
+          rect.top - SPOT_PADDING - TOOLTIP_GAP - TOOLTIP_EST_HEIGHT,
+        ),
         left: clampedLeft,
       };
     }
     case "right":
       return {
-        top: Math.max(16, Math.min(rect.top + rect.height / 2 - 65, vh - TOOLTIP_EST_HEIGHT - 16)),
+        top: Math.max(
+          16,
+          Math.min(
+            rect.top + rect.height / 2 - 65,
+            vh - TOOLTIP_EST_HEIGHT - 16,
+          ),
+        ),
         left: Math.min(
           rect.right + SPOT_PADDING + TOOLTIP_GAP,
           window.innerWidth - TOOLTIP_WIDTH - 16,
@@ -99,7 +120,13 @@ function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties
     case "left": {
       const rawLeft = rect.left - TOOLTIP_WIDTH - SPOT_PADDING - TOOLTIP_GAP;
       return {
-        top: Math.max(16, Math.min(rect.top + rect.height / 2 - 65, vh - TOOLTIP_EST_HEIGHT - 16)),
+        top: Math.max(
+          16,
+          Math.min(
+            rect.top + rect.height / 2 - 65,
+            vh - TOOLTIP_EST_HEIGHT - 16,
+          ),
+        ),
         left: Math.max(16, rawLeft),
       };
     }
@@ -108,7 +135,11 @@ function getTooltipPos(rect: DOMRect, placement: Placement): React.CSSProperties
 
 // ─── SpotlightTour ─────────────────────────────────────────────────────────────
 
-export default function SpotlightTour({ tourKey, steps, hidden = false }: Props) {
+export default function SpotlightTour({
+  tourKey,
+  steps,
+  hidden = false,
+}: Props) {
   const hasSeenOnboarding = useOnboardingStore((s) => s.hasSeenOnboarding);
   const seenTours = useOnboardingStore((s) => s.seenTours);
   const markTourSeen = useOnboardingStore((s) => s.markTourSeen);
@@ -133,7 +164,9 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
 
     ids.push(
       window.setTimeout(() => {
-        const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
+        const el = document.querySelector<HTMLElement>(
+          `[data-tour="${step.target}"]`,
+        );
         if (!el) {
           if (stepIdx < steps.length - 1) setStepIdx((s) => s + 1);
           else markTourSeen(tourKey);
@@ -162,7 +195,9 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
   useEffect(() => {
     if (hasSeen || !step) return;
     const updateRect = () => {
-      const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
+      const el = document.querySelector<HTMLElement>(
+        `[data-tour="${step.target}"]`,
+      );
       if (el) setRect(el.getBoundingClientRect());
     };
     // 스크롤·리사이즈 시 하이라이트가 요소를 따라가도록 실시간 업데이트
@@ -194,7 +229,7 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
     if (!canReplay || hidden) return null;
     return (
       <button
-        className="animate-float fixed top-4 right-4 z-[999] w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
+        className="animate-float fixed top-16 right-4 lg:top-4 z-99 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
         onClick={handleReplay}
         title="가이드 다시보기"
       >
@@ -211,7 +246,10 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
   return (
     <>
       {/* ── 오버레이 + 하이라이트 홀 ── */}
-      <div className="fixed inset-0" style={{ zIndex: 51, pointerEvents: "none" }}>
+      <div
+        className="fixed inset-0"
+        style={{ zIndex: 51, pointerEvents: "none" }}
+      >
         <svg
           width="100%"
           height="100%"
@@ -270,7 +308,9 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
               <div
                 key={i}
                 className="flex-1 transition-colors duration-300"
-                style={{ backgroundColor: i <= stepIdx ? "#0046FF" : "#E5E7EB" }}
+                style={{
+                  backgroundColor: i <= stepIdx ? "#0046FF" : "#E5E7EB",
+                }}
               />
             ))}
           </div>
@@ -297,13 +337,23 @@ export default function SpotlightTour({ tourKey, steps, hidden = false }: Props)
             {step.items && (
               <ul className="mb-2 flex flex-col gap-1.5">
                 {step.items.map((item, i) => (
-                  <li key={i} className="flex items-center gap-2 text-[13px] text-gray-700">
+                  <li
+                    key={i}
+                    className="flex items-center gap-2 text-[13px] text-gray-700"
+                  >
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#0046FF] inline-block" />
                     <span className="leading-snug">
-                      {typeof item === "string" ? item : (
+                      {typeof item === "string" ? (
+                        item
+                      ) : (
                         <>
-                          <span className="font-semibold" style={{ color: item.labelColor }}>{item.label}</span>
-                          {" "}{item.text}
+                          <span
+                            className="font-semibold"
+                            style={{ color: item.labelColor }}
+                          >
+                            {item.label}
+                          </span>{" "}
+                          {item.text}
                         </>
                       )}
                     </span>

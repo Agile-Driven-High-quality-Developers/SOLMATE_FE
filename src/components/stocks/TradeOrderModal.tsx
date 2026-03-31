@@ -140,19 +140,22 @@ export default function TradeOrderModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:p-4">
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md z-10 shadow-2xl border border-transparent dark:border-slate-800">
+      <div className="relative bg-white dark:bg-slate-900 rounded-t-2xl md:rounded-2xl p-5 md:p-6 w-full md:max-w-md z-10 shadow-2xl border border-transparent dark:border-slate-800 overflow-y-auto max-h-[92dvh] md:max-h-[90vh]">
+        {/* 모바일 드래그 핸들 */}
+        <div className="md:hidden w-10 h-1 bg-gray-200 dark:bg-slate-700 rounded-full mx-auto mb-4" />
+
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-5">
           <div>
             <div className="flex items-center gap-2">
               <span
-                className={`text-[13px] font-bold px-1.5 py-0.5 rounded ${isBuy ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"}`}
+                className={`text-[14px] font-bold px-1.5 py-0.5 rounded ${isBuy ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"}`}
               >
                 {isBuy ? "매수" : "매도"}
               </span>
@@ -284,7 +287,7 @@ export default function TradeOrderModal({
             tradeDateTime={new Date().toISOString()}
             tradeType={isBuy ? "BUY" : "SELL"}
             filledPrice={currentPrice}
-            chartHeight={80}
+            chartHeight={60}
           />
         </div>
 
@@ -306,7 +309,7 @@ export default function TradeOrderModal({
               e.target.value.length <= 500 && setDiary(e.target.value)
             }
             placeholder="매수/매도 전략을 기록하세요 (필수)"
-            rows={4}
+            rows={3}
             className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none leading-relaxed"
           />
           {!diary.trim() && qty > 0 && (

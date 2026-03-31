@@ -70,7 +70,7 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
     <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 h-full ${compact ? "p-3" : "p-6"}`}>
       <h2 className={`font-bold text-gray-900 dark:text-gray-100 ${compact ? "text-[13px] mb-3" : "text-[16px] mb-5"}`}>종목 비중</h2>
       <div className="flex flex-col items-center gap-4">
-        <div className={`relative ${compact ? "w-36 h-36" : "w-56 h-56"}`}>
+        <div className="relative w-50 h-50">
           <Doughnut data={chartData} options={options as never} />
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {hovered ? (

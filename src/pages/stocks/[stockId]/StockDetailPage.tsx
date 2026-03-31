@@ -127,6 +127,15 @@ export default function StockDetailPage() {
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+  const [activeTab, setActiveTab] = useState<"info" | "history">("info");
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
   const [errorToast, setErrorToast] = useState<string | null>(null);
 
   const showErrorToast = (msg: string) => {
@@ -261,36 +270,16 @@ export default function StockDetailPage() {
 
   return (
     <>
-      <div className="flex flex-col p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+      <div className="flex flex-col p-4 md:p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
         <StockDetailHeader stock={headerStock} />
 
-        <div className="flex gap-5 items-start">
-          {/* 왼쪽 */}
-          <div className="flex flex-col gap-5 flex-1 min-w-0">
+        {isMobile ? (
+          /* ── 모바일 레이아웃 ── */
+          <div className="flex flex-col gap-5">
             <div data-tour="stock-chart">
               <StockChart stockCode={stockCode} />
             </div>
 
-            <div data-tour="stock-info">
-              <StockInfoGrid quote={quote} />
-            </div>
-
-            <TradeHistory
-              tickerCode={stockCode}
-              orders={tradeHistory?.orders ?? []}
-            />
-          </div>
-
-          {/* 오른쪽 */}
-          <div className="w-60 shrink-0 flex flex-col gap-4">
-            <div data-tour="stock-holding">
-              <HoldingStatus
-                holding={holding}
-                cash={cash}
-                onBuy={() => setOrderSide("buy")}
-                onSell={() => setOrderSide("sell")}
-              />
-            </div>
             {orderBook && (
               <div data-tour="stock-orderbook">
                 <OrderBook
@@ -303,8 +292,97 @@ export default function StockDetailPage() {
                 />
               </div>
             )}
+
+            <div data-tour="stock-holding">
+              <HoldingStatus
+                holding={holding}
+                cash={cash}
+                onBuy={() => setOrderSide("buy")}
+                onSell={() => setOrderSide("sell")}
+              />
+            </div>
+
+            {/* 탭: 종목정보 / 거래내역 */}
+            <div>
+              <div className="flex border-b border-gray-200 dark:border-slate-700 mb-4">
+                <button
+                  onClick={() => setActiveTab("info")}
+                  className={`flex-1 py-2.5 text-[13px] font-semibold transition-colors ${
+                    activeTab === "info"
+                      ? "text-[#0046FF] border-b-2 border-[#0046FF]"
+                      : "text-gray-400 dark:text-slate-500"
+                  }`}
+                >
+                  종목정보
+                </button>
+                <button
+                  onClick={() => setActiveTab("history")}
+                  className={`flex-1 py-2.5 text-[13px] font-semibold transition-colors ${
+                    activeTab === "history"
+                      ? "text-[#0046FF] border-b-2 border-[#0046FF]"
+                      : "text-gray-400 dark:text-slate-500"
+                  }`}
+                >
+                  거래내역
+                </button>
+              </div>
+              {activeTab === "info" && (
+                <div data-tour="stock-info">
+                  <StockInfoGrid quote={quote} />
+                </div>
+              )}
+              {activeTab === "history" && (
+                <TradeHistory
+                  tickerCode={stockCode}
+                  orders={tradeHistory?.orders ?? []}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          /* ── 데스크탑 레이아웃 ── */
+          <div className="flex flex-row gap-5 items-start">
+            {/* 왼쪽 */}
+            <div className="flex flex-col gap-5 flex-1 min-w-0">
+              <div data-tour="stock-chart">
+                <StockChart stockCode={stockCode} />
+              </div>
+
+              <div data-tour="stock-info">
+                <StockInfoGrid quote={quote} />
+              </div>
+
+              <TradeHistory
+                tickerCode={stockCode}
+                orders={tradeHistory?.orders ?? []}
+              />
+            </div>
+
+            {/* 오른쪽 */}
+            <div className="w-60 shrink-0 flex flex-col gap-4">
+              <div data-tour="stock-holding">
+                <HoldingStatus
+                  holding={holding}
+                  cash={cash}
+                  onBuy={() => setOrderSide("buy")}
+                  onSell={() => setOrderSide("sell")}
+                />
+              </div>
+              {orderBook && (
+                <div data-tour="stock-orderbook">
+                  <OrderBook
+                    orderBook={orderBook}
+                    holdingQuantity={holding?.holdingQuantity ?? 0}
+                    onPriceClick={(price, side) => {
+                      setSelectedPrice(price);
+                      setOrderSide(side);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {orderSide && (

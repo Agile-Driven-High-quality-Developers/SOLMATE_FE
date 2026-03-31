@@ -33,9 +33,10 @@ export default function TradeConfirmModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl p-5 w-full max-w-sm z-10 shadow-2xl text-center">
+      <div className="relative bg-white dark:bg-slate-900 rounded-t-2xl md:rounded-2xl p-5 w-full md:max-w-sm z-10 shadow-2xl text-center">
+        <div className="md:hidden w-10 h-1 bg-gray-200 dark:bg-slate-700 rounded-full mx-auto mb-4" />
         <AlertCircle size={32} className={`mx-auto mb-3 ${accent.icon}`} />
         <h3 className="text-[16px] font-bold text-gray-900 dark:text-gray-100 mb-4">주문 확인</h3>
 

@@ -139,7 +139,7 @@ export default function UserProfilePage() {
   }
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
+    <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen md:h-screen md:overflow-hidden bg-gray-50 dark:bg-slate-950">
       {showPendingCancelModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setShowPendingCancelModal(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -192,9 +192,9 @@ export default function UserProfilePage() {
         <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">{profile.nickname}</h1>
       </div>
 
-      <div className="flex gap-5 flex-1 min-h-0">
+      <div className="flex flex-col md:flex-row gap-5 flex-1 md:min-h-0">
         {/* 왼쪽: 프로필 카드 + 팔로워/팔로잉 목록 */}
-        <div className="w-64 shrink-0 overflow-y-auto h-full flex flex-col">
+        <div className="w-full md:w-64 md:shrink-0 md:overflow-y-auto md:h-full flex flex-col">
           <ProfileCard
             isOwnProfile={false}
             isFollowing={profile.following}
@@ -215,30 +215,58 @@ export default function UserProfilePage() {
             onPendingCancelRequest={() => setShowPendingCancelModal(true)}
           />
           {followModal && (
-            <FollowList type={followModal} userId={id} />
+            <FollowList type={followModal} userId={id} className="max-h-64 md:max-h-none md:flex-1" />
           )}
         </div>
 
-        {/* 오른쪽: 탭 + 콘텐츠 */}
-        <div className="flex-1 min-w-0 min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col">
-          <UnderlineTabBar
-            tabs={[...TABS]}
-            activeId={activeTab}
-            onChange={(id) => setActiveTab(id as TabId)}
+        {/* 모바일 전용: 포트폴리오 섹션 (탭에서 분리) */}
+        <div className="md:hidden">
+          <PortfolioTab
+            totalEvaluation={summary?.totalEvaluation ?? 0}
+            totalReturnRate={summary?.totalReturnRate ?? 0}
+            totalReturnAmount={summary?.totalReturnAmount ?? 0}
+            portfolio={summary?.holdingsRatio ?? []}
+            holdings={holdings}
+            compact={false}
+            showAvgPrice={false}
           />
-          <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
+        </div>
+
+        {/* 오른쪽: 탭 + 콘텐츠 */}
+        <div className="flex-1 min-w-0 md:min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col">
+          {/* 데스크탑: 포트폴리오 포함 전체 탭 */}
+          <div className="hidden md:block">
+            <UnderlineTabBar
+              tabs={[...TABS]}
+              activeId={activeTab}
+              onChange={(id) => setActiveTab(id as TabId)}
+            />
+          </div>
+          {/* 모바일: 매매일지 + 매매내역만 */}
+          <div className="md:hidden">
+            <UnderlineTabBar
+              tabs={TABS.filter((t) => t.id !== "portfolio")}
+              activeId={activeTab === "portfolio" ? "diary" : activeTab}
+              onChange={(id) => setActiveTab(id as TabId)}
+            />
+          </div>
+          <div className={`p-5 flex-1 md:min-h-0 ${activeTab === "portfolio" ? "md:overflow-hidden overflow-y-auto" : "overflow-y-auto"}`}>
             {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
+            {/* 모바일에서 activeTab이 portfolio인 경우 diary 콘텐츠로 폴백 */}
+            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} /></div>}
             {activeTab === "portfolio" && (
-              <PortfolioTab
-                totalEvaluation={summary?.totalEvaluation ?? 0}
-                totalReturnRate={summary?.totalReturnRate ?? 0}
-                totalReturnAmount={summary?.totalReturnAmount ?? 0}
-                portfolio={summary?.holdingsRatio ?? []}
-                holdings={holdings}
-                compact={false}
-                showAvgPrice={false}
-              />
+              <div className="hidden md:block h-full">
+                <PortfolioTab
+                  totalEvaluation={summary?.totalEvaluation ?? 0}
+                  totalReturnRate={summary?.totalReturnRate ?? 0}
+                  totalReturnAmount={summary?.totalReturnAmount ?? 0}
+                  portfolio={summary?.holdingsRatio ?? []}
+                  holdings={holdings}
+                  compact={false}
+                  showAvgPrice={false}
+                />
+              </div>
             )}
           </div>
         </div>

@@ -1,13 +1,25 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Users, TrendingUp, Loader2, X, GraduationCap, BookOpen } from "lucide-react";
+import {
+  Users,
+  TrendingUp,
+  Loader2,
+  X,
+  GraduationCap,
+  BookOpen,
+} from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
 const MENTOR_TOUR: TourStep[] = [
   {
     target: "mentor-card",
-    title: <span className="inline-flex items-center gap-1.5"><GraduationCap size={15} />나의 멘토</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <GraduationCap size={15} />
+        나의 멘토
+      </span>
+    ),
     description: "멘토로 등록한 투자자의 정보예요.",
     items: [
       "멘토의 수익률·수익을 한눈에 볼 수 있어요",
@@ -18,7 +30,12 @@ const MENTOR_TOUR: TourStep[] = [
   },
   {
     target: "mentor-tabs",
-    title: <span className="inline-flex items-center gap-1.5"><BookOpen size={15} />멘토의 투자 기록</span>,
+    title: (
+      <span className="inline-flex items-center gap-1.5">
+        <BookOpen size={15} />
+        멘토의 투자 기록
+      </span>
+    ),
     description: "멘토가 어떻게 투자하는지 직접 확인할 수 있어요.",
     items: [
       "매매일지 — 멘토가 거래할 때 남긴 메모",
@@ -34,7 +51,13 @@ import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
 import MentorTradeDiaryTab from "@/components/profile/MentorTradeDiaryTab";
 import TradeHistoryTab from "@/components/profile/TradeHistoryTab";
 import PortfolioTab from "@/components/profile/PortfolioTab";
-import { useMyMentorQuery, useUserProfileQuery, useMentorHoldingsQuery, useMentorDiariesQuery, useMentorTradeHistoryQuery } from "@/api/mentorApi";
+import {
+  useMyMentorQuery,
+  useUserProfileQuery,
+  useMentorHoldingsQuery,
+  useMentorDiariesQuery,
+  useMentorTradeHistoryQuery,
+} from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 import { cancelMentoring } from "@/api/userListApi";
 import { useQueryClient } from "@tanstack/react-query";
@@ -57,23 +80,55 @@ function fmtAmount(n: number) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-function CancelMentorModal({ mentorNickname, onClose, onConfirm }: { mentorNickname: string; onClose: () => void; onConfirm: () => void }) {
+function CancelMentorModal({
+  mentorNickname,
+  onClose,
+  onConfirm,
+}: {
+  mentorNickname: string;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-slate-900 rounded-2xl w-90 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">멘토 취소</p>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
+          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+            멘토 취소
+          </p>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+          >
             <X size={18} />
           </button>
         </div>
         <div className="px-6 py-6">
-          <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1"><span className="font-bold text-[#0046FF]">{mentorNickname}</span> 멘토를 취소하시겠어요?</p>
-          <p className="text-[13px] text-gray-400 dark:text-slate-500">멘토 취소 후에도 다시 신청할 수 있어요.</p>
+          <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+            <span className="font-bold text-[#0046FF]">{mentorNickname}</span>{" "}
+            멘토를 취소하시겠어요?
+          </p>
+          <p className="text-[13px] text-gray-400 dark:text-slate-500">
+            멘토 취소 후에도 다시 신청할 수 있어요.
+          </p>
         </div>
         <div className="flex gap-2 px-6 pb-6">
-          <Button variant="invalid" className="flex-1 py-2.5" onClick={onClose}>취소</Button>
-          <Button variant="danger" className="flex-1 py-2.5" onClick={onConfirm}>멘토 취소</Button>
+          <Button variant="invalid" className="flex-1 py-2.5" onClick={onClose}>
+            취소
+          </Button>
+          <Button
+            variant="danger"
+            className="flex-1 py-2.5"
+            onClick={onConfirm}
+          >
+            멘토 취소
+          </Button>
         </div>
       </div>
     </div>
@@ -86,7 +141,14 @@ export default function MyMentorPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") ?? "portfolio") as TabId;
   const setActiveTab = (v: TabId) =>
-    setSearchParams((p) => { if (v === "portfolio") p.delete("tab"); else p.set("tab", v); return p; }, { replace: true });
+    setSearchParams(
+      (p) => {
+        if (v === "portfolio") p.delete("tab");
+        else p.set("tab", v);
+        return p;
+      },
+      { replace: true },
+    );
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -97,23 +159,26 @@ export default function MyMentorPage() {
 
   const { data: myMentor, isLoading: loadingMyMentor } = useMyMentorQuery();
   const mentorId = myMentor?.hasMentor ? (myMentor.userId ?? 0) : 0;
-  const { data: mentor, isLoading: loadingMentor } = useUserProfileQuery(mentorId);
+  const { data: mentor, isLoading: loadingMentor } =
+    useUserProfileQuery(mentorId);
   const { data: summary } = useAccountSummaryByUserQuery(mentorId);
   const { data: holdingsRaw = [] } = useMentorHoldingsQuery(mentorId);
   const { data: diaries = [] } = useMentorDiariesQuery(mentorId);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(mentorId);
 
-  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
-    tickerCode: h.tickerCode,
-    stockName: h.stockName,
-    stockLogo: h.stockLogo,
-    quantity: h.quantity,
-    averageBuyPrice: 0,
-    currentPrice: h.currentPrice,
-    evaluationAmount: h.evaluation,
-    profitRate: h.returnRate,
-    profitAmount: h.returnAmount,
-  }));
+  const holdings = holdingsRaw
+    .filter((h) => h.quantity > 0)
+    .map((h) => ({
+      tickerCode: h.tickerCode,
+      stockName: h.stockName,
+      stockLogo: h.stockLogo,
+      quantity: h.quantity,
+      averageBuyPrice: 0,
+      currentPrice: h.currentPrice,
+      evaluationAmount: h.evaluation,
+      profitRate: h.returnRate,
+      profitAmount: h.returnAmount,
+    }));
 
   if (loadingMyMentor || loadingMentor) {
     return (
@@ -125,13 +190,15 @@ export default function MyMentorPage() {
 
   if (!mentor) {
     return (
-      <div className="flex flex-col h-screen p-6 gap-5 bg-gray-50 dark:bg-slate-950">
+      <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen bg-gray-50 dark:bg-slate-950">
         {toast && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
             {toast}
           </div>
         )}
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">나의 멘토</h1>
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          나의 멘토
+        </h1>
         <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400 dark:text-slate-500">
           아직 멘토가 없습니다.
         </div>
@@ -142,7 +209,7 @@ export default function MyMentorPage() {
   const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
+    <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen md:h-screen md:overflow-hidden bg-gray-50 dark:bg-slate-950">
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
           {toast}
@@ -166,50 +233,79 @@ export default function MyMentorPage() {
         />
       )}
       {/* 헤더 */}
-      <div>
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">나의 멘토</h1>
+      <div className="shrink-0">
+        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          나의 멘토
+        </h1>
       </div>
 
       {/* 멘토 카드 */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-6 py-4 shrink-0" data-tour="mentor-card">
-        <div className="flex items-center gap-4">
+      <div
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-5 py-4 shrink-0"
+        data-tour="mentor-card"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           {/* 아바타 + 닉네임 + 통계 */}
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar name={mentor.nickname} src={mentor.imageUrl || undefined} size={52} />
-            <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Avatar
+              name={mentor.nickname}
+              src={mentor.imageUrl || undefined}
+              size={52}
+            />
+            <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-bold text-gray-900 dark:text-gray-100">{mentor.nickname}</span>
-                <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">멘토</span>
+                <span className="text-[16px] font-bold text-gray-900 dark:text-gray-100">
+                  {mentor.nickname}
+                </span>
+                <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
+                  멘토
+                </span>
               </div>
-              <div className="flex items-center gap-4 text-[13px] text-gray-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-gray-500">
                 <div className="flex items-center gap-1">
                   <Users size={12} className="text-gray-400" />
                   <span>팔로워</span>
-                  <span className="font-semibold text-gray-700 ml-0.5">{mentor.followerCount.toLocaleString()}명</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300 ml-0.5">
+                    {mentor.followerCount.toLocaleString()}명
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <TrendingUp size={12} className="text-gray-400" />
                   <span>총 수익률</span>
-                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
+                  <span
+                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                  >
+                    {isPositive ? "+" : ""}
+                    {(summary?.totalReturnRate ?? 0).toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
-                  <span className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}>
-                    {isPositive ? "+" : ""}{fmtAmount(summary?.totalReturnAmount ?? 0)}
+                  <span
+                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                  >
+                    {isPositive ? "+" : ""}
+                    {fmtAmount(summary?.totalReturnAmount ?? 0)}
                   </span>
                 </div>
+                <div className=""></div>
               </div>
             </div>
           </div>
 
           {/* 버튼 */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Button variant="basic" className="px-4 py-2 text-[13px]" onClick={() => navigate(`/users/${mentor.userId}`)}>
+          <div className="flex items-center gap-2 sm:shrink-0">
+            <Button
+              variant="basic"
+              className="flex-1 sm:flex-none px-4 py-2 text-[13px]"
+              onClick={() => navigate(`/users/${mentor.userId}`)}
+            >
               프로필 보기
             </Button>
-            <Button variant="danger" className="px-4 py-2 text-[13px] flex items-center gap-1.5" onClick={() => setShowCancelModal(true)}>
+            <Button
+              variant="danger"
+              className="flex-1 sm:flex-none px-4 py-2 text-[13px] flex items-center justify-center gap-1.5"
+              onClick={() => setShowCancelModal(true)}
+            >
               <Users size={13} />
               멘토 취소
             </Button>
@@ -218,17 +314,22 @@ export default function MyMentorPage() {
       </div>
 
       {/* 탭 + 콘텐츠 */}
-      <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col" data-tour="mentor-tabs">
+      <div
+        className="flex-1 md:min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col"
+        data-tour="mentor-tabs"
+      >
         <UnderlineTabBar
           tabs={[...TABS]}
           activeId={activeTab}
           onChange={(id) => setActiveTab(id as TabId)}
         />
-        <div className={`p-5 flex-1 min-h-0 ${activeTab !== "portfolio" ? "overflow-y-auto" : "overflow-hidden"}`}>
-          {activeTab === "diary" && (
-            <MentorTradeDiaryTab items={diaries} />
+        <div
+          className={`p-5 flex-1 md:min-h-0 ${activeTab === "portfolio" ? "md:overflow-hidden overflow-y-auto" : "overflow-y-auto"}`}
+        >
+          {activeTab === "diary" && <MentorTradeDiaryTab items={diaries} />}
+          {activeTab === "history" && (
+            <TradeHistoryTab items={tradeHistories} />
           )}
-          {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
           {activeTab === "portfolio" && (
             <PortfolioTab
               totalEvaluation={summary?.totalEvaluation ?? 0}
@@ -238,6 +339,7 @@ export default function MyMentorPage() {
               holdings={holdings}
               compact={false}
               showAvgPrice={false}
+              hideReturnStatsOnMobile
             />
           )}
         </div>
