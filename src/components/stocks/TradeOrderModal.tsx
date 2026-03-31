@@ -114,6 +114,7 @@ export default function TradeOrderModal({
   const [limitPriceAdjusted, setLimitPriceAdjusted] = useState(false);
   const [quantity, setQuantity] = useState("");
   const [diary, setDiary] = useState("");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const execPrice =
     orderType === "MARKET" ? currentPrice : Number(limitPrice) || 0;
@@ -124,6 +125,19 @@ export default function TradeOrderModal({
     qty > 0 &&
     diary.trim().length > 0 &&
     (orderType === "MARKET" || execPrice > 0);
+
+  const handleSubmit = () => {
+    if (isBuy && totalAmount > cash) {
+      setValidationError("잔액이 부족합니다. 주문 금액을 확인해 주세요.");
+      return;
+    }
+    if (!isBuy && qty > holdingQuantity) {
+      setValidationError("보유 수량이 부족합니다. 주문 수량을 확인해 주세요.");
+      return;
+    }
+    setValidationError(null);
+    onConfirm({ orderType, price: execPrice, quantity: qty, diary });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -305,6 +319,14 @@ export default function TradeOrderModal({
 
         <SpotlightTour tourKey="trade-order" steps={TRADE_ORDER_TOUR} />
 
+        {/* 유효성 에러 메시지 */}
+        {validationError && (
+          <p className="flex items-center gap-1.5 text-[12px] font-semibold text-red-500 bg-red-50 dark:bg-red-500/10 rounded-xl px-4 py-2.5 mb-3">
+            <AlertCircle size={14} />
+            {validationError}
+          </p>
+        )}
+
         {/* 하단 버튼 */}
         <div className="flex gap-3">
           <button
@@ -315,9 +337,7 @@ export default function TradeOrderModal({
           </button>
           <button
             disabled={!canSubmit}
-            onClick={() =>
-              onConfirm({ orderType, price: execPrice, quantity: qty, diary })
-            }
+            onClick={handleSubmit}
             className={`flex-[1.5] py-3.5 rounded-xl text-[14px] font-bold text-white transition-all disabled:opacity-30 disabled:grayscale ${accent.bg}`}
           >
             {isBuy ? "매수하기" : "매도하기"}
