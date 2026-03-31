@@ -1,3 +1,4 @@
+import React from "react";
 import { Bell, Users, Zap, CheckCircle, XCircle } from "lucide-react";
 import type { NotificationItem } from "@/api/notificationApi";
 
@@ -68,6 +69,25 @@ function getIconConfig(type: NotificationItem["notificationType"]): IconConfig {
   }
 }
 
+function formatNotificationContent(content: string): React.ReactNode {
+  const parts = content.split(/(\[[^\]]+\]|[^\s]+님|[^\s]+을\(를\))/g);
+  return parts.map((part, i) => {
+    if (/^\[[^\]]+\]$/.test(part)) {
+      const inner = part.slice(1, -1);
+      return <React.Fragment key={i}>[<strong>{inner}</strong>]</React.Fragment>;
+    }
+    if (/^[^\s]+님$/.test(part)) {
+      const name = part.slice(0, -1);
+      return <React.Fragment key={i}><strong>{name}</strong>님</React.Fragment>;
+    }
+    if (/^[^\s]+을\(를\)$/.test(part)) {
+      const word = part.slice(0, -4);
+      return <React.Fragment key={i}><strong>{word}</strong>을(를)</React.Fragment>;
+    }
+    return part;
+  });
+}
+
 export default function NotificationCard({ item, onRead, onAccept, onReject }: Props) {
   const { bg, icon, badgeText, badgeClass } = getIconConfig(item.notificationType);
   const isUnread = !item.isRead;
@@ -110,7 +130,7 @@ export default function NotificationCard({ item, onRead, onAccept, onReject }: P
 
           {/* 메시지 */}
           <p className={`text-[14px] font-medium mt-1.5 ${isUnread ? "text-gray-800 dark:text-gray-200" : "text-gray-500 dark:text-slate-400"}`}>
-            {item.content}
+            {formatNotificationContent(item.content)}
           </p>
 
           {/* 멘토 신청 액션 버튼 */}
