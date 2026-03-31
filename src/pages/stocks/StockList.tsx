@@ -86,6 +86,15 @@ import { stompSubscribe } from "@/lib/stompClient";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+function formatMarketCap(cap: number): string {
+  if (cap >= 10000) {
+    const cho = Math.floor(cap / 10000);
+    const eok = cap % 10000;
+    return eok > 0 ? `${cho}조 ${eok.toLocaleString()}억원` : `${cho}조원`;
+  }
+  return `${cap.toLocaleString()}억원`;
+}
+
 const SECTOR_MAP: Record<string, string> = {
   CONSTRUCTION: "건설",
   CONSUMER_DISCRETIONARY: "경기소비재",
@@ -183,8 +192,8 @@ function StockRow({
       className="hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
       onClick={onClick}
     >
-      <td className="pl-5 pr-1 py-3.5 whitespace-nowrap">
-        <div className="flex items-center gap-1.5">
+      <td className="pl-6 pr-4 py-3.5 whitespace-nowrap">
+        <div className="flex items-center gap-3">
           <button
             onClick={onToggleWatchlist}
             className="flex-shrink-0 hover:scale-110 transition-transform"
@@ -201,7 +210,7 @@ function StockRow({
           </span>
         </div>
       </td>
-      <td className="pl-3 pr-5 py-3.5 whitespace-nowrap">
+      <td className="pl-4 pr-6 py-3.5 whitespace-nowrap">
         <div className="flex items-center gap-3">
           <Avatar name={stock.stockName} src={stock.stockLogo} size={34} />
           <div>
@@ -216,12 +225,12 @@ function StockRow({
           </div>
         </div>
       </td>
-      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
+      <td className="hidden md:table-cell px-6 py-3.5 text-left text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
-      <td className="pr-4 pl-2 py-3.5 text-right whitespace-nowrap">
+      <td className="px-6 py-3.5 text-right whitespace-nowrap">
         <p className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
-          {stock.currentPrice.toLocaleString()}
+          {stock.currentPrice.toLocaleString()}원
         </p>
         <p
           className={`md:hidden text-[12px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
@@ -230,7 +239,7 @@ function StockRow({
           {stock.changeRate.toFixed(2)}%
         </p>
       </td>
-      <td className="hidden md:table-cell px-4 py-3.5 text-center whitespace-nowrap">
+      <td className="hidden md:table-cell px-6 py-3.5 text-right whitespace-nowrap">
         <span
           className={`text-[13px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
         >
@@ -238,11 +247,11 @@ function StockRow({
           {stock.changeRate.toFixed(2)}%
         </span>
       </td>
-      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
-        {stock.volume?.toLocaleString() ?? "-"}
+      <td className="hidden md:table-cell px-6 py-3.5 text-right text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+        {stock.volume != null ? `${stock.volume.toLocaleString()}주` : "-"}
       </td>
-      <td className="hidden md:table-cell px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
-        {stock.total?.toLocaleString() ?? "-"}
+      <td className="hidden md:table-cell pl-6 pr-8 py-3.5 text-right text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+        {stock.total != null ? formatMarketCap(stock.total) : "-"}
       </td>
     </tr>
   );
@@ -405,11 +414,10 @@ export default function StockList() {
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`px-2.5 py-1 rounded-full text-[12px] font-medium transition-colors ${
-                sort === s
+              className={`px-2.5 py-1 rounded-full text-[12px] font-medium transition-colors ${sort === s
                   ? "bg-[#0046FF] text-white"
                   : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-              }`}
+                }`}
             >
               {s}
             </button>
@@ -425,22 +433,20 @@ export default function StockList() {
             toggleSector("전체");
             if (watchlistOnly) toggleWatchlistOnly();
           }}
-          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
-            !watchlistOnly && sectors.length === 0
+          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${!watchlistOnly && sectors.length === 0
               ? "bg-[#0046FF] text-white"
               : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-          }`}
+            }`}
         >
           전체
         </button>
         {/* 관심 */}
         <button
           onClick={toggleWatchlistOnly}
-          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
-            watchlistOnly
+          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${watchlistOnly
               ? "bg-[#0046FF] text-white"
               : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-          }`}
+            }`}
         >
           관심
         </button>
@@ -449,11 +455,10 @@ export default function StockList() {
           <button
             key={s}
             onClick={() => toggleSector(s)}
-            className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
-              sectors.includes(s)
+            className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${sectors.includes(s)
                 ? "bg-[#0046FF] text-white"
                 : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
-            }`}
+              }`}
           >
             {s}
           </button>
@@ -470,28 +475,28 @@ export default function StockList() {
         <table className="w-full md:min-w-175">
           <thead data-tour="stock-columns">
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-              <th className="text-left pl-5 pr-1 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
-                <div className="flex items-center gap-1.5">
+              <th className="text-left pl-6 pr-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+                <div className="flex items-center gap-3">
                   <span className="w-3.5" />
                   <span className="w-5 text-center">순위</span>
                 </div>
               </th>
-              <th className="text-left pl-3 pr-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="text-left pl-4 pr-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 종목명
               </th>
-              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-left px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 섹터
               </th>
-              <th className="text-right pr-4 pl-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 현재가
               </th>
-              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 등락률
               </th>
-              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 거래량
               </th>
-              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-right pl-6 pr-8 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 시가총액
               </th>
             </tr>

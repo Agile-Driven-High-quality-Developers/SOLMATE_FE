@@ -1,16 +1,16 @@
 import type { StockQuote } from "@/api/stockApi";
 
 function formatVolume(vol: number): string {
-  if (vol >= 100_000_000) return `${(vol / 100_000_000).toFixed(1)}억`;
-  if (vol >= 10_000) return `${Math.round(vol / 10_000).toLocaleString()}만`;
-  return vol.toLocaleString();
+  return `${vol.toLocaleString()}주`;
 }
 
 function formatMarketCap(cap: number): string {
-  if (cap >= 1_000_000_000_000)
-    return `${(cap / 1_000_000_000_000).toFixed(1)}조원`;
-  if (cap >= 100_000_000) return `${(cap / 100_000_000).toFixed(1)}억원`;
-  return `${cap.toLocaleString()}원`;
+  if (cap >= 10000) {
+    const cho = Math.floor(cap / 10000);
+    const eok = cap % 10000;
+    return eok > 0 ? `${cho}조 ${eok.toLocaleString()}억원` : `${cho}조원`;
+  }
+  return `${cap.toLocaleString()}억원`;
 }
 
 interface Props {
