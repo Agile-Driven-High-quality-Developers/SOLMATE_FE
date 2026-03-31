@@ -128,6 +128,12 @@ export default function StockDetailPage() {
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
   const [pendingOrder, setPendingOrder] = useState<PendingOrder | null>(null);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
+
+  const showErrorToast = (msg: string) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 3500);
+  };
 
   const buyMutation = useBuyOrderMutation();
   const sellMutation = useSellOrderMutation();
@@ -359,11 +365,29 @@ export default function StockDetailPage() {
                 });
                 setPendingOrder(null);
               },
+              onError: (err: unknown) => {
+                setPendingOrder(null);
+                const code = (err as { data?: { code?: string } })?.data?.code;
+                if (code === "INSUFFICIENT_CASH") {
+                  showErrorToast("잔액이 부족합니다. 주문 금액을 확인해 주세요.");
+                } else if (code === "INSUFFICIENT_HOLDINGS") {
+                  showErrorToast("보유 수량이 부족합니다. 주문 수량을 확인해 주세요.");
+                } else {
+                  showErrorToast("주문에 실패했습니다. 다시 시도해 주세요.");
+                }
+              },
             });
           }}
         />
       )}
       <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} hidden={!!orderSide || !!pendingOrder} />
+
+      {errorToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 bg-red-500 text-white text-[13px] font-semibold px-5 py-3 rounded-xl shadow-lg animate-fade-in">
+          <span>⚠️</span>
+          {errorToast}
+        </div>
+      )}
     </>
   );
 }
