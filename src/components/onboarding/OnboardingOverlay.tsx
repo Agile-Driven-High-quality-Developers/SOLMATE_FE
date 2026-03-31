@@ -62,7 +62,7 @@ export default function OnboardingOverlay() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-white px-6 py-10">
+    <div className="fixed inset-0 z-110 flex flex-col items-center justify-between bg-white px-6 py-10">
       {/* 상단: 건너뛰기 */}
       <div className="w-full flex justify-end">
         <button
