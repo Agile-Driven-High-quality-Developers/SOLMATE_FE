@@ -128,7 +128,7 @@ function NavItem({
         {/* 레이블 */}
         <span
           className={[
-            "text-[15px] flex-1 transition-all duration-150",
+            "text-[16px] flex-1 transition-all duration-150",
             isActive ? "font-semibold" : "font-normal",
           ].join(" ")}
         >
@@ -137,7 +137,7 @@ function NavItem({
 
         {/* 알림 뱃지 */}
         {item.badge != null && item.badge > 0 && (
-          <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[12px] font-bold flex items-center justify-center leading-none">
+          <span className="min-w-4.5 h-[18px] px-1 rounded-full bg-red-500 text-white text-[12px] font-semibold flex items-center justify-center leading-none">
             {item.badge > 99 ? "99+" : item.badge}
           </span>
         )}
@@ -176,7 +176,7 @@ function UserProfile({
             </p>
             <p
               className={[
-                "text-[13px] font-medium mt-px",
+                "text-[12px] font-medium mt-px",
                 isPositive
                   ? "text-red-500"
                   : isNegative
@@ -215,7 +215,7 @@ function UserProfile({
       {onLogout && (
         <button
           onClick={onLogout}
-          className="flex items-center gap-1.5 text-[13px] text-gray-400 hover:text-gray-600 transition-colors py-1 cursor-pointer dark:text-slate-500 dark:hover:text-slate-300"
+          className="flex items-center gap-1.5 text-[12px] text-gray-400 hover:text-gray-600 transition-colors py-1 cursor-pointer dark:text-slate-500 dark:hover:text-slate-300"
         >
           <LogOut className="w-3.5 h-3.5" />
           로그아웃

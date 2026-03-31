@@ -51,31 +51,31 @@ export default function TradeHistoryTab({ items }: Props) {
                       src={item.stockLogo}
                       size={28}
                     />
-                    <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">
+                    <span className="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
                       {item.stockName}
                     </span>
                   </div>
                 </td>
                 <td
-                  className={`px-3 py-3 text-center text-[13px] font-semibold ${isBuy ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                  className={`px-3 py-3 text-center text-[12px] font-semibold ${isBuy ? "text-[#F04452]" : "text-[#0046FF]"}`}
                 >
                   {isBuy ? "매수" : "매도"}
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] text-gray-600 dark:text-slate-400">
+                <td className="px-3 py-3 text-right text-[12px] text-gray-600 dark:text-slate-400">
                   {item.quantity}주
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] font-medium text-gray-800 dark:text-gray-200">
+                <td className="px-3 py-3 text-right text-[12px] font-medium text-gray-800 dark:text-gray-200">
                   {item.price.toLocaleString()}원
                 </td>
-                <td className="px-3 py-3 text-right text-[13px] text-gray-600 dark:text-slate-400">
+                <td className="px-3 py-3 text-right text-[12px] text-gray-600 dark:text-slate-400">
                   {item.amount.toLocaleString()}원
                 </td>
                 <td className="px-3 py-3 text-right">
                   {item.profitAmount != null ? (
                     <div
-                      className={`flex flex-col items-end ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                      className={`flex flex-col items-end ${isPositive ? "text-[#F04452]" : "text-[#0046FF]"}`}
                     >
-                      <span className="text-[13px] font-bold">
+                      <span className="text-[12px] font-semibold">
                         {isPositive ? "+" : ""}
                         {item.profitAmount.toLocaleString()}원
                       </span>

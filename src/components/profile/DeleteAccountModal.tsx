@@ -51,7 +51,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
       >
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             회원탈퇴
           </p>
           <button
@@ -68,7 +68,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
                 정말 탈퇴하시겠어요?
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 탈퇴 후 계정 정보는 영구적으로 삭제돼요.
               </p>
             </div>
@@ -77,7 +77,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }: Props) {
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
                 탈퇴 전 본인 확인이 필요해요
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 비밀번호를 입력하면 계정이 영구적으로 삭제돼요.
               </p>
             </div>

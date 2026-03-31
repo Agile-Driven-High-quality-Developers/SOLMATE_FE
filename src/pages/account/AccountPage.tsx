@@ -90,39 +90,39 @@ export default function AccountPage() {
   return (
     <div className="flex flex-col h-full p-4 md:p-6 gap-4 md:gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       <div>
-        <h1 className="text-[20px] md:text-[22px] font-bold text-gray-900 dark:text-gray-100">내 계좌</h1>
-        <p className="text-[12px] md:text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">나의 투자 현황을 한눈에 확인하세요</p>
+        <h1 className="text-[20px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">내 계좌</h1>
+        <p className="text-[12px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-0.5">나의 투자 현황을 한눈에 확인하세요</p>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-[2fr_1fr_1fr_1fr] gap-3 md:gap-4 items-stretch">
 
         {/* 보유 총 자산 */}
         <div className="col-span-3 md:col-span-1 bg-[#0046FF] rounded-2xl px-4 md:px-6 py-4 md:py-5 text-white" data-tour="account-total">
-          <p className="text-[12px] md:text-[13px] font-medium opacity-80 mb-1 md:mb-2">보유 총 자산</p>
-          <p className="text-[22px] md:text-[28px] font-bold">{fmt(summary?.totalAsset ?? 0)}</p>
-          <p className={`text-[11px] md:text-[13px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-200"}`}>
+          <p className="text-[12px] md:text-[12px] font-medium opacity-80 mb-1 md:mb-2">보유 총 자산</p>
+          <p className="text-[22px] md:text-[28px] font-semibold">{fmt(summary?.totalAsset ?? 0)}</p>
+          <p className={`text-[11px] md:text-[12px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-200"}`}>
             {isPositive ? "+" : ""}{fmt(summary?.totalReturnAmount ?? 0)} ({isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%)
           </p>
         </div>
 
         {/* 주문 가능 금액 */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-cash">
-          <p className="text-[10px] md:text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">주문 가능</p>
-          <p className="text-[15px] md:text-[22px] font-bold text-gray-900 dark:text-gray-100">{fmt(summary?.cash ?? 0)}</p>
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">주문 가능</p>
+          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">{fmt(summary?.cash ?? 0)}</p>
           <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">원금 {fmt(summary?.initialCash ?? 0)}</p>
         </div>
 
         {/* 보유 종목 */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-holdings-count">
-          <p className="text-[10px] md:text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">보유 종목</p>
-          <p className="text-[15px] md:text-[22px] font-bold text-gray-900 dark:text-gray-100">{summary?.holdingsCount ?? 0}개</p>
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">보유 종목</p>
+          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">{summary?.holdingsCount ?? 0}개</p>
           <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">평가 {fmt(summary?.totalEvaluation ?? 0)}</p>
         </div>
 
         {/* 수익률 */}
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-return">
-          <p className="text-[10px] md:text-[13px] text-gray-400 font-medium mb-1 md:mb-2">총 수익률</p>
-          <p className={`text-[15px] md:text-[22px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+          <p className="text-[10px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-2">총 수익률</p>
+          <p className={`text-[16px] md:text-[22px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
             {isPositive ? "+" : ""}{(summary?.totalReturnRate ?? 0).toFixed(2)}%
           </p>
           <p className={`text-[10px] md:text-[12px] mt-1 font-medium ${isPositive ? "text-red-400" : "text-blue-400"}`}>

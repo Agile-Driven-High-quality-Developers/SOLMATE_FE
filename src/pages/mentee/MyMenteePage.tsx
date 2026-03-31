@@ -128,14 +128,14 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
             />
             <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                   {mentee.nickname}
                 </span>
                 <span className="text-[11px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 px-2 py-0.5 rounded-full">
                   멘티
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-gray-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-gray-500">
                 <div className="flex items-center gap-1">
                   <Users size={12} className="text-gray-400" />
                   <span>팔로워</span>
@@ -146,7 +146,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
                 <div className="flex items-center gap-1">
                   <span>총 수익률</span>
                   <span
-                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {(summary?.totalReturnRate ?? 0).toFixed(2)}%
@@ -155,7 +155,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
                   <span
-                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {fmtAmount(summary?.totalReturnAmount ?? 0)}
@@ -166,7 +166,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
           </div>
           <Button
             variant="basic"
-            className="sm:shrink-0 px-4 py-2 text-[13px]"
+            className="sm:shrink-0 px-4 py-2 text-[12px]"
             onClick={() => navigate(`/users/${mentee.userId}`)}
           >
             프로필 보기
@@ -249,7 +249,7 @@ function MenteeListItem({
         size={36}
       />
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate">
+        <p className="text-[12px] font-semibold text-gray-900 dark:text-gray-100 truncate">
           {profile?.nickname}
         </p>
         <p
@@ -295,11 +295,11 @@ export default function MyMenteePage() {
     <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen md:h-screen md:overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="flex items-baseline gap-2 shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           나의 멘티
         </h1>
         {mentees.length > 0 && (
-          <span className="text-[13px] text-gray-400 dark:text-slate-500">
+          <span className="text-[12px] text-gray-400 dark:text-slate-500">
             총 {mentees.length}명의 멘티
           </span>
         )}

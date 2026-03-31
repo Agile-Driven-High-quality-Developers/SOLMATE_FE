@@ -139,7 +139,7 @@ export default function EditProfileModal({
       >
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             프로필 편집
           </p>
           <button
@@ -219,7 +219,7 @@ export default function EditProfileModal({
               />
               <Button
                 variant="basic"
-                className="px-3 text-[13px] whitespace-nowrap"
+                className="px-3 text-[12px] whitespace-nowrap"
                 onClick={handleCheckNickname}
                 disabled={checking}
               >

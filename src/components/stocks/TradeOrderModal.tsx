@@ -155,11 +155,11 @@ export default function TradeOrderModal({
           <div>
             <div className="flex items-center gap-2">
               <span
-                className={`text-[14px] font-bold px-1.5 py-0.5 rounded ${isBuy ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"}`}
+                className={`text-[14px] font-semibold px-1.5 py-0.5 rounded ${isBuy ? "bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400" : "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"}`}
               >
                 {isBuy ? "매수" : "매도"}
               </span>
-              <h3 className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+              <h3 className="text-[18px] font-semibold text-gray-900 dark:text-gray-100">
                 {stockName}
               </h3>
             </div>
@@ -188,7 +188,7 @@ export default function TradeOrderModal({
               주문 가능금액
             </span>
             <span
-              className={`text-[14px] font-bold tabular-nums ${accent.text}`}
+              className={`text-[14px] font-semibold tabular-nums ${accent.text}`}
             >
               {cash.toLocaleString()}원
             </span>
@@ -204,7 +204,7 @@ export default function TradeOrderModal({
             <button
               key={t}
               onClick={() => setOrderType(t)}
-              className={`flex-1 py-2 rounded-lg text-[13px] font-bold transition-all ${
+              className={`flex-1 py-2 rounded-lg text-[12px] font-semibold transition-all ${
                 orderType === t
                   ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm"
                   : "text-gray-400 dark:text-slate-500 hover:text-gray-500"
@@ -222,7 +222,7 @@ export default function TradeOrderModal({
               주문가격
             </label>
             {orderType === "MARKET" ? (
-              <div className="w-full px-4 py-2.5 rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/80 text-[13px] text-gray-400 dark:text-slate-500 tabular-nums">
+              <div className="w-full px-4 py-2.5 rounded-xl border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/80 text-[12px] text-gray-400 dark:text-slate-500 tabular-nums">
                 {currentPrice.toLocaleString()}
               </div>
             ) : (
@@ -245,7 +245,7 @@ export default function TradeOrderModal({
                       setLimitPriceAdjusted(false);
                     }
                   }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[12px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
                 />
                 {limitPriceAdjusted && (
                   <p className="text-[11px] text-blue-500 mt-1 ml-1">
@@ -265,7 +265,7 @@ export default function TradeOrderModal({
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               placeholder="0"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[12px] text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all tabular-nums"
             />
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function TradeOrderModal({
           <p className="text-[11px] text-gray-400 dark:text-slate-500">
             최대 {maxQty}주 {isBuy ? "매수" : "매도"} 가능
           </p>
-          <p className="text-[13px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[12px] font-semibold text-gray-900 dark:text-gray-100">
             총 {qty > 0 ? totalAmount.toLocaleString() : "0"}원
           </p>
         </div>
@@ -294,7 +294,7 @@ export default function TradeOrderModal({
         {/* 매매일지 */}
         <div className="mb-5" data-tour="trade-order-diary">
           <div className="flex items-center justify-between mb-1.5 px-1">
-            <label className="text-[13px] font-bold text-gray-700 dark:text-gray-200">
+            <label className="text-[12px] font-semibold text-gray-700 dark:text-gray-200">
               매매일지 <span className="text-red-500">*</span>
             </label>
             <span
@@ -310,7 +310,7 @@ export default function TradeOrderModal({
             }
             placeholder="매수/매도 전략을 기록하세요 (필수)"
             rows={3}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[13px] text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none leading-relaxed"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[12px] text-gray-900 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none leading-relaxed"
           />
           {!diary.trim() && qty > 0 && (
             <p className="text-[11px] text-red-500 mt-1.5 flex items-center gap-1 ml-1">
@@ -334,14 +334,14 @@ export default function TradeOrderModal({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3.5 rounded-xl text-[14px] font-bold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
+            className="flex-1 py-3.5 rounded-xl text-[14px] font-semibold text-gray-500 dark:text-slate-400 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
           >
             취소
           </button>
           <button
             disabled={!canSubmit}
             onClick={handleSubmit}
-            className={`flex-[1.5] py-3.5 rounded-xl text-[14px] font-bold text-white transition-all disabled:opacity-30 disabled:grayscale ${accent.bg}`}
+            className={`flex-[1.5] py-3.5 rounded-xl text-[14px] font-semibold text-white transition-all disabled:opacity-30 disabled:grayscale ${accent.bg}`}
           >
             {isBuy ? "매수하기" : "매도하기"}
           </button>

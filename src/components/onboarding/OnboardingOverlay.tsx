@@ -92,7 +92,7 @@ export default function OnboardingOverlay() {
         </span>
 
         {/* 제목 */}
-        <h2 className="text-2xl font-bold text-gray-900 whitespace-pre-line leading-snug mb-3">
+        <h2 className="text-2xl font-semibold text-gray-900 whitespace-pre-line leading-snug mb-3">
           {slide.title}
         </h2>
 

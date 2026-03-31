@@ -16,7 +16,7 @@ const TABS = [
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-10">
-      <h2 className="text-[18px] font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">
+      <h2 className="text-[18px] font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">
         {title}
       </h2>
       <div className="flex flex-wrap gap-4 items-start">{children}</div>
@@ -195,7 +195,7 @@ export default function ComponentsPage() {
 
   return (
     <div className="p-8 max-w-4xl">
-      <h1 className="text-[24px] font-bold text-gray-900 mb-1">컴포넌트 테스트</h1>
+      <h1 className="text-[24px] font-semibold text-gray-900 mb-1">컴포넌트 테스트</h1>
       <p className="text-[14px] text-gray-400 mb-6">공통 UI 컴포넌트 모음</p>
       <div className="mb-8">
         <TabBar tabs={TABS} activeId={activeTab} onChange={setActiveTab} />

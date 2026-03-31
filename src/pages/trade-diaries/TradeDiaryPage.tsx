@@ -77,12 +77,12 @@ function DiaryCard({
         <Avatar name={item.stockName} src={logoUrl} size={40} />
         <div className="flex flex-col gap-0.5 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+            <span className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
               {item.stockName}
             </span>
             <Badge
               name={isBuy ? "매수" : "매도"}
-              color={isBuy ? "#FF4444" : "#0046FF"}
+              color={isBuy ? "#F04452" : "#0046FF"}
             />
           </div>
           <span className="text-[12px] text-gray-400">
@@ -108,8 +108,8 @@ function DiaryCard({
         </div>
         {!isBuy && (
           <span
-            className={`text-[15px] font-bold shrink-0 ${
-              isPositive ? "text-[#FF4444]" : "text-[#0046FF]"
+            className={`text-[16px] font-semibold shrink-0 ${
+              isPositive ? "text-[#F04452]" : "text-[#0046FF]"
             }`}
           >
             {isPositive ? "+" : ""}
@@ -138,10 +138,10 @@ export default function TradeDiaryPage() {
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-950">
       {/* 헤더 */}
       <div className="px-4 pt-4 pb-3 md:px-6 md:pt-6 md:pb-4 shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           매매일지
         </h1>
-        <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+        <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-0.5">
           나의 매매 기록을 확인하세요
         </p>
       </div>
@@ -182,8 +182,8 @@ export default function TradeDiaryPage() {
 
         {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center flex-1 gap-2 text-gray-400">
-            <p className="text-[15px] font-medium">매매일지가 없어요</p>
-            <p className="text-[13px]">
+            <p className="text-[16px] font-medium">매매일지가 없어요</p>
+            <p className="text-[12px]">
               {search ? "검색 결과가 없습니다." : "아직 작성된 일지가 없어요."}
             </p>
           </div>

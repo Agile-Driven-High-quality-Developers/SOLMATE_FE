@@ -68,7 +68,7 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
 
   return (
     <div className={`bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 h-full ${compact ? "p-3" : "p-6"}`}>
-      <h2 className={`font-bold text-gray-900 dark:text-gray-100 ${compact ? "text-[13px] mb-3" : "text-[16px] mb-5"}`}>종목 비중</h2>
+      <h2 className={`font-semibold text-gray-900 dark:text-gray-100 ${compact ? "text-[12px] mb-3" : "text-[16px] mb-5"}`}>종목 비중</h2>
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-50 h-50">
           <Doughnut data={chartData} options={options as never} />
@@ -76,12 +76,12 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
             {hovered ? (
               <>
                 <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400 dark:text-slate-400`}>{hovered.stockName}</p>
-                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900 dark:text-gray-100`}>{hovered.ratio}%</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-semibold text-gray-900 dark:text-gray-100`}>{hovered.ratio}%</p>
               </>
             ) : (
               <>
                 <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400 dark:text-slate-400`}>총 평가금액</p>
-                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-bold text-gray-900 dark:text-gray-100`}>{fmt(totalEvaluation)}</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-semibold text-gray-900 dark:text-gray-100`}>{fmt(totalEvaluation)}</p>
               </>
             )}
           </div>
@@ -95,9 +95,9 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
                   className={`${compact ? "w-2 h-2" : "w-2.5 h-2.5"} rounded-full shrink-0`}
                   style={{ backgroundColor: COLORS[idx % COLORS.length] }}
                 />
-                <span className={`${compact ? "text-[11px]" : "text-[13px]"} text-gray-700 dark:text-gray-300`}>{item.stockName}</span>
+                <span className={`${compact ? "text-[11px]" : "text-[12px]"} text-gray-700 dark:text-gray-300`}>{item.stockName}</span>
               </div>
-              <span className={`${compact ? "text-[11px]" : "text-[13px]"} font-medium text-gray-500 dark:text-slate-400`}>{item.ratio}%</span>
+              <span className={`${compact ? "text-[11px]" : "text-[12px]"} font-medium text-gray-500 dark:text-slate-400`}>{item.ratio}%</span>
             </div>
           ))}
         </div>

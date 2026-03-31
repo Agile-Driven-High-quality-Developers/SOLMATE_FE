@@ -248,7 +248,7 @@ function UserRow({
         ) : rank === 3 ? (
           <Medal size={20} className="mx-auto text-amber-600" />
         ) : (
-          <span className="text-[14px] font-bold text-gray-400">{rank}</span>
+          <span className="text-[14px] font-semibold text-gray-400">{rank}</span>
         )}
       </td>
 
@@ -467,7 +467,7 @@ export default function UserListPage() {
   });
 
   return (
-    <div className="flex flex-col h-screen p-6 gap-4 overflow-hidden bg-gray-50 dark:bg-slate-950">
+    <div className="flex flex-col h-screen p-4 md:p-6 gap-4 overflow-hidden bg-gray-50 dark:bg-slate-950">
       {cancelTargetUser && (
         <div
           className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40"
@@ -478,7 +478,7 @@ export default function UserListPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+              <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                 멘토 취소
               </p>
               <button
@@ -490,12 +490,12 @@ export default function UserListPage() {
             </div>
             <div className="px-6 py-6">
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-                <span className="font-bold text-[#0046FF]">
+                <span className="font-semibold text-[#0046FF]">
                   {cancelTargetUser.nickname}
                 </span>{" "}
                 멘토를 취소하시겠어요?
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 멘토 취소 후에도 다시 신청할 수 있어요.
               </p>
             </div>
@@ -528,7 +528,7 @@ export default function UserListPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+              <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                 신청 취소
               </p>
               <button
@@ -540,12 +540,12 @@ export default function UserListPage() {
             </div>
             <div className="px-6 py-6">
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-                <span className="font-bold text-[#0046FF]">
+                <span className="font-semibold text-[#0046FF]">
                   {pendingCancelTargetUser.nickname}
                 </span>{" "}
                 멘토 신청을 취소하시겠어요?
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 취소 후에도 다시 신청할 수 있어요.
               </p>
             </div>
@@ -571,7 +571,7 @@ export default function UserListPage() {
       {/* 헤더 */}
       <div className="flex items-center gap-2">
         <div>
-          <h1 className="text-[20px] font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100">
             유저 목록
           </h1>
           <p className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -613,7 +613,7 @@ export default function UserListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="투자자 검색"
-              className="text-[13px] text-gray-700 dark:text-gray-300 bg-transparent outline-none w-full placeholder:text-gray-400 dark:placeholder:text-slate-500"
+              className="text-[12px] text-gray-700 dark:text-gray-300 bg-transparent outline-none w-full placeholder:text-gray-400 dark:placeholder:text-slate-500"
             />
           </div>
           <div className="flex items-center gap-1.5">
@@ -645,7 +645,7 @@ export default function UserListPage() {
                 size={22}
                 className="text-gray-400 dark:text-slate-400"
               />
-              <p className="text-[13px] font-medium text-gray-500 dark:text-slate-400">
+              <p className="text-[12px] font-medium text-gray-500 dark:text-slate-400">
                 좌우로 스크롤 해보세요
               </p>
             </div>

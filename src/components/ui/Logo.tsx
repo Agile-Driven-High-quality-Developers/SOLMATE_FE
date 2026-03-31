@@ -17,7 +17,7 @@ export default function Logo({
         />
       </div>
       <div className="min-w-0">
-        <p className="text-[18px] font-bold text-gray-900 leading-tight truncate dark:text-gray-100">
+        <p className="text-[18px] font-semibold text-gray-900 leading-tight truncate dark:text-gray-100">
           {appName}
         </p>
         <p className="text-[12px] text-gray-400 mt-px truncate dark:text-slate-500">

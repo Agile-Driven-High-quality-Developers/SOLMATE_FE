@@ -31,8 +31,8 @@ export default function Input({
         ].join(" ")}
         {...props}
       />
-      {error && <p className="text-[13px] text-red-500">{error}</p>}
-      {hint && !error && <p className="text-[13px] text-green-600">{hint}</p>}
+      {error && <p className="text-[12px] text-red-500">{error}</p>}
+      {hint && !error && <p className="text-[12px] text-green-600">{hint}</p>}
     </div>
   );
 }

@@ -436,7 +436,7 @@ export default function StockChart({ stockCode }: Props) {
     <div className="bg-white rounded-2xl border border-gray-100 dark:bg-slate-900 dark:border-slate-900">
       {/* 헤더 */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between px-5 pt-4 pb-3 gap-2">
-        <span className="text-[13px] font-semibold text-gray-700 dark:text-gray-100">
+        <span className="text-[12px] font-semibold text-gray-700 dark:text-gray-100">
           주가 차트
         </span>
         <div className="flex items-center gap-0.5">

@@ -142,7 +142,7 @@ export default function ProfilePage() {
       )}
       {/* 헤더 */}
       <div className="shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           내 프로필
         </h1>
       </div>

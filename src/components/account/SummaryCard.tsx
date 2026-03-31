@@ -23,11 +23,11 @@ export default function SummaryCard({
         isBlue ? "bg-[#0046FF] text-white" : "bg-white border border-gray-100"
       }`}
     >
-      <p className={`text-[13px] font-medium mb-2 ${isBlue ? "opacity-80" : "text-gray-400"}`}>
+      <p className={`text-[12px] font-medium mb-2 ${isBlue ? "opacity-80" : "text-gray-400"}`}>
         {label}
       </p>
       <p
-        className={`font-bold ${isBlue ? "text-[28px]" : "text-[22px]"} ${
+        className={`font-semibold ${isBlue ? "text-[28px]" : "text-[22px]"} ${
           valueColor ?? (isBlue ? "text-white" : "text-gray-900")
         }`}
       >

@@ -45,7 +45,7 @@ export default function StockInfoGrid({ quote }: Props) {
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5">
-      <h3 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <h3 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100 mb-4">
         종목 정보
       </h3>
       <div className="grid grid-cols-3 gap-px bg-gray-100 dark:bg-slate-800 rounded-xl overflow-hidden">
@@ -55,7 +55,7 @@ export default function StockInfoGrid({ quote }: Props) {
               {label}
             </p>
             <p
-              className={`text-[11px] md:text-[15px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis break-keep ${color || "text-gray-900 dark:text-gray-100"}`}
+              className={`text-[11px] md:text-[16px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis break-keep ${color || "text-gray-900 dark:text-gray-100"}`}
             >
               {value}
             </p>
