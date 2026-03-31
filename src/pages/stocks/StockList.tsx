@@ -118,7 +118,10 @@ function MarketPanel({
     return (
       <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100 animate-pulse">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="flex-1 px-3 py-3 md:px-6 md:py-5 flex flex-col gap-2">
+          <div
+            key={i}
+            className="flex-1 px-3 py-3 md:px-6 md:py-5 flex flex-col gap-2"
+          >
             <div className="h-3 bg-gray-100 rounded-full w-10 md:w-16" />
             <div className="h-5 md:h-7 bg-gray-100 rounded-full w-16 md:w-28" />
             <div className="h-3 bg-gray-100 rounded-full w-20 md:w-32" />
@@ -147,7 +150,8 @@ function MarketPanel({
             <span
               className={`text-[10px] md:text-[12px] font-medium ${idx.isPositive ? "text-red-500" : "text-blue-600"}`}
             >
-              {idx.isPositive ? "+" : ""}{idx.changePercent}%
+              {idx.isPositive ? "+" : ""}
+              {idx.changePercent}%
             </span>
           </div>
           <p className="hidden md:block text-[12px] text-gray-400 mt-1">
@@ -215,10 +219,18 @@ function StockRow({
       <td className="hidden md:table-cell px-4 py-3.5 text-center text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
-      <td className="px-4 py-3.5 text-center text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
-        {stock.currentPrice.toLocaleString()}
+      <td className="pr-4 pl-2 py-3.5 text-right whitespace-nowrap">
+        <p className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+          {stock.currentPrice.toLocaleString()}
+        </p>
+        <p
+          className={`md:hidden text-[12px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
+        >
+          {stock.changeRate > 0 ? "+" : ""}
+          {stock.changeRate.toFixed(2)}%
+        </p>
       </td>
-      <td className="px-4 py-3.5 text-center whitespace-nowrap">
+      <td className="hidden md:table-cell px-4 py-3.5 text-center whitespace-nowrap">
         <span
           className={`text-[13px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
         >
@@ -354,7 +366,7 @@ export default function StockList() {
     });
 
   return (
-    <div className="flex flex-col h-full p-3 md:p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+    <div className="flex flex-col h-full p-3 md:p-6 gap-3 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div>
         <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
@@ -371,7 +383,10 @@ export default function StockList() {
       </div>
 
       {/* 검색 + 정렬 */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3" data-tour="stock-search">
+      <div
+        className="flex flex-col gap-5 md:flex-row items-stretch md:items-center md:gap-3"
+        data-tour="stock-search"
+      >
         <div className="relative flex-1 md:max-w-xs">
           <Search
             size={15}
@@ -385,12 +400,12 @@ export default function StockList() {
             className="w-full pl-9 pr-4 py-2 text-[13px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
           />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap">
           {SORTS.map((s) => (
             <button
               key={s}
               onClick={() => setSort(s)}
-              className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-[12px] font-medium transition-colors ${
                 sort === s
                   ? "bg-[#0046FF] text-white"
                   : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
@@ -403,14 +418,14 @@ export default function StockList() {
       </div>
 
       {/* 섹터 탭 */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
         {/* 전체 */}
         <button
           onClick={() => {
             toggleSector("전체");
             if (watchlistOnly) toggleWatchlistOnly();
           }}
-          className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
             !watchlistOnly && sectors.length === 0
               ? "bg-[#0046FF] text-white"
               : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
@@ -421,7 +436,7 @@ export default function StockList() {
         {/* 관심 */}
         <button
           onClick={toggleWatchlistOnly}
-          className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+          className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
             watchlistOnly
               ? "bg-[#0046FF] text-white"
               : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
@@ -434,7 +449,7 @@ export default function StockList() {
           <button
             key={s}
             onClick={() => toggleSector(s)}
-            className={`px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors ${
+            className={`px-2.5 py-1 rounded-full text-[12px] font-medium whitespace-nowrap transition-colors ${
               sectors.includes(s)
                 ? "bg-[#0046FF] text-white"
                 : "bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
@@ -449,7 +464,7 @@ export default function StockList() {
 
       {/* 종목 테이블 */}
       <div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 md:overflow-x-auto"
         data-tour="stock-table"
       >
         <table className="w-full md:min-w-175">
@@ -457,7 +472,7 @@ export default function StockList() {
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
               <th className="text-left pl-5 pr-1 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-[14px]" />
+                  <span className="w-3.5" />
                   <span className="w-5 text-center">순위</span>
                 </div>
               </th>
@@ -467,10 +482,10 @@ export default function StockList() {
               <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 섹터
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="text-right pr-4 pl-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 현재가
               </th>
-              <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 등락률
               </th>
               <th className="hidden md:table-cell text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
@@ -489,7 +504,9 @@ export default function StockList() {
                   stock={stock}
                   index={idx + 1}
                   isWatched={watchlistSet.has(stock.tickerCode)}
-                  onToggleWatchlist={(e) => handleToggleWatchlist(e, stock.tickerCode)}
+                  onToggleWatchlist={(e) =>
+                    handleToggleWatchlist(e, stock.tickerCode)
+                  }
                   onClick={() => {
                     setSelectedStock(stock);
                     navigate(`/invest/${stock.tickerCode}`);
