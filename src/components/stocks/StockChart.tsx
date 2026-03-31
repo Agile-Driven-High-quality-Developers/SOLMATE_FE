@@ -7,8 +7,9 @@ import {
   type UTCTimestamp,
   type IChartApi,
 } from "lightweight-charts";
-import { useCandleQuery, type PeriodType } from "@/api/stockApi";
+import { useCandleQuery, type CandleData, type PeriodType } from "@/api/stockApi";
 import { useThemeStore } from "@/store/themeStore";
+import { stompSubscribe } from "@/lib/stompClient";
 
 // --- 증권사 표준 색상 정의 ---
 const COLORS = {
@@ -112,6 +113,8 @@ export default function StockChart({ stockCode }: Props) {
   const volumeSeriesRef = useRef<any>(null);
   const loadingMoreRef = useRef(false);
   const isInitialLoadRef = useRef(true);
+  const lastRestCandleRef = useRef<CandleData | null>(null);
+  const firstDailyVolumeRef = useRef<number | null>(null);
 
   const isMinute = MINUTE_PERIODS.has(period);
   const { data: candles, isPending } = useCandleQuery(stockCode, period, limit);
@@ -336,11 +339,99 @@ export default function StockChart({ stockCode }: Props) {
       isInitialLoadRef.current = false;
     }
     loadingMoreRef.current = false;
+
+    // 주/월/년봉 STOMP 집계를 위해 마지막 REST 봉 저장
+    if (!isMinute && sorted.length > 0) {
+      lastRestCandleRef.current = sorted[sorted.length - 1];
+      firstDailyVolumeRef.current = null; // 기간 전환 또는 새 데이터 로드 시 리셋
+    }
   }, [candles, isMinute, period]);
 
   useEffect(() => {
     updateData();
   }, [updateData]);
+
+  // 분봉 실시간 구독
+  useEffect(() => {
+    if (!MINUTE_PERIODS.has(period) || !stockCode) return;
+
+    const unsub = stompSubscribe(
+      `/topic/stocks/${stockCode}/candle/${period}min`,
+      (message) => {
+        const candle: CandleData = JSON.parse(message.body);
+        const chartTime = toChartTime(candle.time, true);
+
+        candleSeriesRef.current?.update({
+          time: chartTime,
+          open: candle.open,
+          high: candle.high,
+          low: candle.low,
+          close: candle.close,
+        });
+        volumeSeriesRef.current?.update({
+          time: chartTime,
+          value: candle.volume,
+          color: candle.close >= candle.open ? UP_COLOR : DOWN_COLOR,
+        });
+      },
+    );
+
+    return unsub;
+  }, [period, stockCode]);
+
+  // 일/주/월/년봉 실시간 구독 (1day 토픽으로 통합)
+  useEffect(() => {
+    if (MINUTE_PERIODS.has(period) || !stockCode) return;
+
+    const unsub = stompSubscribe(
+      `/topic/stocks/${stockCode}/candle/1day`,
+      (message) => {
+        const daily: CandleData = JSON.parse(message.body);
+
+        if (period === "day") {
+          const chartTime = toChartTime(daily.time, false);
+          candleSeriesRef.current?.update({
+            time: chartTime,
+            open: daily.open,
+            high: daily.high,
+            low: daily.low,
+            close: daily.close,
+          });
+          volumeSeriesRef.current?.update({
+            time: chartTime,
+            value: daily.volume,
+            color: daily.close >= daily.open ? UP_COLOR : DOWN_COLOR,
+          });
+          return;
+        }
+
+        // 주/월/년봉: 마지막 REST 봉에 오늘 일봉 데이터를 합산
+        const base = lastRestCandleRef.current;
+        if (!base) return;
+
+        if (firstDailyVolumeRef.current === null) {
+          firstDailyVolumeRef.current = daily.volume;
+        }
+        const volumeDelta = daily.volume - firstDailyVolumeRef.current;
+
+        const chartTime = toChartTime(base.time, false);
+        candleSeriesRef.current?.update({
+          time: chartTime,
+          open: base.open,
+          high: Math.max(base.high, daily.high),
+          low: Math.min(base.low, daily.low),
+          close: daily.close,
+        });
+        volumeSeriesRef.current?.update({
+          time: chartTime,
+          value: base.volume + volumeDelta,
+          color: daily.close >= base.open ? UP_COLOR : DOWN_COLOR,
+        });
+      },
+    );
+
+    return unsub;
+  }, [period, stockCode]);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 dark:bg-slate-900 dark:border-slate-900">
