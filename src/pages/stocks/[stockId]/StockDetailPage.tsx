@@ -138,7 +138,6 @@ export default function StockDetailPage() {
   const { data: tradeHistory } = useStockTradeHistoryQuery(stockCode);
   const { data: orderBook } = useOrderBookQuery(stockCode);
 
-  // ── 실시간 연결 (공유 워커를 통한 자동 구독/해제) ────
   useEffect(() => {
     if (!stockCode) return;
 
@@ -198,7 +197,6 @@ export default function StockDetailPage() {
     };
   }, [stockCode, queryClient, user?.userId]);
 
-  // ── 브라우저 탭 제목 실시간 업데이트 ────────────────────────────────────
   useEffect(() => {
     if (!quote) return;
     const rate = quote.changeRate;

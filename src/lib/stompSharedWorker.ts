@@ -4,8 +4,8 @@
 import { Client, type StompSubscription, type IMessage } from "@stomp/stompjs";
 
 const connectedPorts = new Set<MessagePort>();
+const portLastSeen = new Map<MessagePort, number>();
 
-// destination별 구독 정보 및 해당 구독을 요청한 포트들
 const topicSubscriptions = new Map<
   string,
   {
@@ -17,7 +17,6 @@ const topicSubscriptions = new Map<
 let stompClient: Client | null = null;
 let wsConnectionCount = 0; // WebSocket 연결 생성 횟수
 
-// 활성화된 STOMP 연결이 필요한지 확인 후 연결/해제
 function checkConnectionRequired(wsUrl?: string) {
   const needsConnection = connectedPorts.size > 0;
 
@@ -25,7 +24,6 @@ function checkConnectionRequired(wsUrl?: string) {
     wsConnectionCount++;
     console.log(`[STOMP Worker] ✅ WebSocket 연결 생성: 총 ${wsConnectionCount}회 (연결된 탭 수: ${connectedPorts.size})`);
 
-    // http(s) -> ws(s) 프로토콜 변환
     let brokerURL = wsUrl;
     if (wsUrl.startsWith("http")) {
       brokerURL = wsUrl.replace(/^http/, "ws");
@@ -42,7 +40,6 @@ function checkConnectionRequired(wsUrl?: string) {
       onConnect: () => {
         console.log("[STOMP Worker] 연결 성공");
         
-        // 재연결된 경우 기존 목적지(topic)들을 모두 다시 STOMP 구독
         for (const [destination, info] of topicSubscriptions.entries()) {
           info.stompSub = stompClient!.subscribe(destination, (message) => {
             broadcastToSubscribers(destination, { body: message.body });
@@ -66,7 +63,6 @@ function checkConnectionRequired(wsUrl?: string) {
     stompClient.deactivate();
     stompClient = null;
     
-    // 초기화 상태
     for (const info of topicSubscriptions.values()) {
       info.stompSub = null;
     }
@@ -77,7 +73,6 @@ function broadcastToSubscribers(destination: string, message: { body: string }) 
   const info = topicSubscriptions.get(destination);
   if (!info) return;
 
-  // 구독 중인 포트들에게만 브로드캐스트
   const payload = {
     type: "STOMP_MESSAGE",
     destination,
@@ -89,27 +84,31 @@ function broadcastToSubscribers(destination: string, message: { body: string }) 
       port.postMessage(payload);
     } catch (e) {
       console.error("[STOMP Worker] 브로드캐스트 실패 - 포트가 닫혔을 수 있습니다:", e);
-      info.subscriberPorts.delete(port);
+      handlePortClose(port);
     }
   }
 }
 
-// 타입스크립트에게 이 파일이 SharedWorker임을 알립니다.
 declare const self: SharedWorkerGlobalScope;
 
-// 탭으로부터 커넥션 요청(onconnect)이 들어왔을 때
 self.onconnect = (e: MessageEvent) => {
   const port = e.ports[0];
   connectedPorts.add(port);
   console.log(`[STOMP Worker] 🔌 탭 연결됨 (현재 연결된 탭 수: ${connectedPorts.size})`);
 
+  portLastSeen.set(port, Date.now());
+
   port.onmessage = (event) => {
     const data = event.data;
     if (!data) return;
 
+    portLastSeen.set(port, Date.now());
+
     switch (data.type) {
+      case "PING": {
+        break;
+      }
       case "INIT": {
-        // 클라이언트가 초기화 시 백엔드 URL을 전달
         checkConnectionRequired(data.wsUrl);
         break;
       }
@@ -125,7 +124,6 @@ self.onconnect = (e: MessageEvent) => {
         const subInfo = topicSubscriptions.get(dest)!;
         subInfo.subscriberPorts.add(port);
 
-        // STOMP 서버에 연동되어 있지만 구독이 안 된 상태라면 구독 수행
         if (stompClient?.connected && !subInfo.stompSub) {
           subInfo.stompSub = stompClient.subscribe(dest, (message: IMessage) => {
             broadcastToSubscribers(dest, { body: message.body });
@@ -139,7 +137,6 @@ self.onconnect = (e: MessageEvent) => {
         if (subInfo) {
           subInfo.subscriberPorts.delete(port);
 
-          // 이 포트를 제외하고 더 이상 구독자가 없다면 STOMP 구독 해제
           if (subInfo.subscriberPorts.size === 0) {
             if (subInfo.stompSub) {
               subInfo.stompSub.unsubscribe();
@@ -150,7 +147,6 @@ self.onconnect = (e: MessageEvent) => {
         break;
       }
       case "DISCONNECT": {
-        // 명시적인 해제 요청 시 바로 포트 제거
         handlePortClose(port);
         break;
       }
@@ -161,10 +157,11 @@ self.onconnect = (e: MessageEvent) => {
 };
 
 function handlePortClose(port: MessagePort) {
+  if (!connectedPorts.has(port)) return;
   connectedPorts.delete(port);
+  portLastSeen.delete(port);
   console.log(`[STOMP Worker] ❌ 탭 연결 해제됨 (남은 탭 수: ${connectedPorts.size})`);
-  
-  // 모든 해당 포트의 구독 해제
+
   for (const [dest, info] of topicSubscriptions.entries()) {
     info.subscriberPorts.delete(port);
     if (info.subscriberPorts.size === 0) {
@@ -175,6 +172,19 @@ function handlePortClose(port: MessagePort) {
     }
   }
 
-  // 더 이상 어떤 포트(탭)도 연결되어 있지 않으면 전체 STOMP 연결 해제
   checkConnectionRequired();
 }
+
+const PING_TIMEOUT_MS = 15000;
+const DEAD_PORT_CHECK_INTERVAL_MS = 10000;
+
+setInterval(() => {
+  const now = Date.now();
+  for (const port of connectedPorts) {
+    const last = portLastSeen.get(port) ?? 0;
+    if (now - last > PING_TIMEOUT_MS) {
+      console.log("[STOMP Worker] 응답 없는 포트 감지 - 정리합니다.");
+      handlePortClose(port);
+    }
+  }
+}, DEAD_PORT_CHECK_INTERVAL_MS);

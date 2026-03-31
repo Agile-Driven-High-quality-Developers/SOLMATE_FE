@@ -1,25 +1,22 @@
-// src/lib/stompClient.ts
-// 앱 전체에서 단 하나의 공유된 STOMP 연결(SharedWorker)을 사용합니다.
 import type { messageCallbackType, IMessage } from "@stomp/stompjs";
 
-// SharedWorker 인스턴스 생성 (Vite 모듈 워커 사용)
 const worker = new SharedWorker(new URL("./stompSharedWorker.ts", import.meta.url), { type: "module", name: "solmate-stomp-worker" });
 
-// VITE_API_BASE_URL 환경변수 사용
 const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
 
-// 초기화: 백엔드 웹소켓 URL 전송
 worker.port.postMessage({ type: "INIT", wsUrl });
+
+setInterval(() => {
+  worker.port.postMessage({ type: "PING" });
+}, 5000);
 
 type SubscriptionEntry = {
   destination: string;
   callback: messageCallbackType;
 };
 
-// 탭 내부의 구독 콜백 리스트
 const registry = new Map<symbol, SubscriptionEntry>();
 
-// 워커에서 STOMP 메시지 수신 시 처리
 worker.port.onmessage = (event) => {
   const data = event.data;
   if (!data) return;
@@ -27,9 +24,7 @@ worker.port.onmessage = (event) => {
   if (data.type === "STOMP_MESSAGE") {
     const destination = data.destination;
     registry.forEach((entry) => {
-      // 탭 내부에서 해당 destination을 구독 중인 모든 콜백 실행
       if (entry.destination === destination) {
-        // 호환성을 위해 IMessage 객체를 흉내냅니다
         const mockMessage: IMessage = {
           body: data.body,
           ack: () => {},
