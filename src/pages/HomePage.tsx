@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -105,8 +106,12 @@ import {
   fetchAccountSummaryByUser,
 } from "@/api/accountSummaryApi";
 import type { AccountSummaryData } from "@/api/accountSummaryApi";
-import { useStocksQuery } from "@/api/stockApi";
-import type { StockItem } from "@/api/stockApi";
+import {
+  fetchStocks,
+  parseStockItemMessage,
+} from "@/api/stockApi";
+import type { StockItem, StockItemMessage } from "@/api/stockApi";
+import { stompSubscribe } from "@/lib/stompClient";
 
 // ─── 날짜 ─────────────────────────────────────────────────────────────────────
 
@@ -667,7 +672,42 @@ export default function HomePage() {
     useHoldingsQuery();
   const { data: userListData, isLoading: loadingUsers } =
     useUserListInfiniteQuery();
-  const { data: stocks = [], isLoading: loadingStocks } = useStocksQuery();
+  const [stocks, setStocks] = useState<StockItem[]>([]);
+  const [loadingStocks, setLoadingStocks] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cleanupFns: Array<() => void> = [];
+
+    fetchStocks().then((initialStocks) => {
+      if (cancelled) return;
+      setStocks(initialStocks);
+      setLoadingStocks(false);
+
+      initialStocks.forEach(({ tickerCode }) => {
+        const cleanup = stompSubscribe(
+          `/topic/stocks/${tickerCode}/quote`,
+          (message) => {
+            const msg: StockItemMessage = JSON.parse(message.body);
+            const updated = parseStockItemMessage(msg);
+            setStocks((prev) =>
+              prev.map((item) =>
+                item.tickerCode === updated.tickerCode
+                  ? { ...item, ...updated }
+                  : item,
+              ),
+            );
+          },
+        );
+        cleanupFns.push(cleanup);
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      cleanupFns.forEach((fn) => fn());
+    };
+  }, []);
 
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
