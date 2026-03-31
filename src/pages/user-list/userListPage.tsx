@@ -81,7 +81,6 @@ function getAvatarColor(name: string): string {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
 
-// ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
 
 function FollowButton({
   user,

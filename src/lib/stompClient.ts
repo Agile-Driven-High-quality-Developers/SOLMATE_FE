@@ -1,55 +1,70 @@
-// src/lib/stompClient.ts
-// 앱 전체에서 단 하나의 STOMP 연결을 공유합니다.
-// SockJS 협상(info 요청 + WebSocket 업그레이드)은 최초 1회만 발생합니다.
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import type { StompSubscription, messageCallbackType } from "@stomp/stompjs";
+import type { messageCallbackType, IMessage } from "@stomp/stompjs";
+
+const worker = new SharedWorker(new URL("./stompSharedWorker.ts", import.meta.url), { type: "module", name: "solmate-stomp-worker" });
+
+const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+
+worker.port.postMessage({ type: "INIT", wsUrl });
+
+setInterval(() => {
+  worker.port.postMessage({ type: "PING" });
+}, 5000);
 
 type SubscriptionEntry = {
   destination: string;
   callback: messageCallbackType;
-  subscription?: StompSubscription;
 };
 
 const registry = new Map<symbol, SubscriptionEntry>();
 
-const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+worker.port.onmessage = (event) => {
+  const data = event.data;
+  if (!data) return;
 
-const sharedClient = new Client({
-  webSocketFactory: () => new SockJS(wsUrl),
-  reconnectDelay: 5000,
-  onConnect: () => {
-    // 재연결 시 모든 구독을 자동으로 복구합니다
+  if (data.type === "STOMP_MESSAGE") {
+    const destination = data.destination;
     registry.forEach((entry) => {
-      entry.subscription = sharedClient.subscribe(
-        entry.destination,
-        entry.callback,
-      );
+      if (entry.destination === destination) {
+        const mockMessage: IMessage = {
+          body: data.body,
+          ack: () => {},
+          nack: () => {},
+          command: "MESSAGE",
+          headers: { destination },
+          isBinaryBody: false,
+          binaryBody: new Uint8Array(),
+        };
+        entry.callback(mockMessage);
+      }
     });
-  },
-});
+  }
+};
 
-sharedClient.activate();
+worker.port.start();
 
-/**
- * STOMP 토픽을 구독합니다.
- * @returns 구독을 해제하는 cleanup 함수
- */
+
 export function stompSubscribe(
   destination: string,
   callback: messageCallbackType,
 ): () => void {
   const key = Symbol();
-  const entry: SubscriptionEntry = { destination, callback };
-  registry.set(key, entry);
+  registry.set(key, { destination, callback });
 
-  if (sharedClient.connected) {
-    entry.subscription = sharedClient.subscribe(destination, callback);
+  const currentCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
+  if (currentCount === 1) {
+    worker.port.postMessage({ type: "SUBSCRIBE", destination });
   }
-  // 미연결 상태면 onConnect에서 자동 구독됩니다
 
   return () => {
-    entry.subscription?.unsubscribe();
     registry.delete(key);
+    const remainingCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
+    if (remainingCount === 0) {
+      worker.port.postMessage({ type: "UNSUBSCRIBE", destination });
+    }
   };
 }
+
+window.addEventListener("beforeunload", () => {
+  worker.port.postMessage({ type: "DISCONNECT" });
+  worker.port.close();
+});
