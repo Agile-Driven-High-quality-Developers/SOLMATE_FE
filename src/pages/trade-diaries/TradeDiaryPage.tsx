@@ -1,6 +1,6 @@
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { Search, PenLine } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";

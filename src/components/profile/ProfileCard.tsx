@@ -1,4 +1,4 @@
-import { Settings, LogOut, Trash2 } from "lucide-react";
+import { Settings } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 
@@ -48,8 +48,7 @@ export default function ProfileCard({
   onFollowingClick,
   isOwnProfile = true,
   onEditClick,
-  onLogoutClick,
-  onDeleteClick,
+
   isFollowing,
   onFollowClick,
   badge,

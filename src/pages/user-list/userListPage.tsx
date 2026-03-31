@@ -82,11 +82,7 @@ function getAvatarColor(name: string): string {
 
 // ─── Podium ───────────────────────────────────────────────────────────────────
 
-const PODIUM_CONFIG = {
-  1: { barHeight: "h-24", barBg: "bg-yellow-400" },
-  2: { barHeight: "h-16", barBg: "bg-gray-400" },
-  3: { barHeight: "h-12", barBg: "bg-orange-400" },
-} as const;
+
 
 // ─── Follow / Mentoring Buttons ───────────────────────────────────────────────
 

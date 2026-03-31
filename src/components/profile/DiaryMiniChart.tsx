@@ -70,11 +70,7 @@ function toBusinessDay(dateStr: string) {
   return { year, month, day };
 }
 
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+
 
 interface Props {
   tickerCode: string;

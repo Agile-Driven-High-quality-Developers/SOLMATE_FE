@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, AlertCircle, Wallet, Tag, Hash, PenLine } from "lucide-react";
 import { adjustToTickSize, getTickSize } from "@/lib/tickSize";
-import Button from "@/components/ui/Button";
+// import Button from "@/components/ui/Button";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 import DiaryMiniChart from "@/components/profile/DiaryMiniChart";

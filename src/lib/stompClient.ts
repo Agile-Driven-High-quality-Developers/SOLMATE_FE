@@ -1,38 +1,54 @@
 // src/lib/stompClient.ts
-// 앱 전체에서 단 하나의 STOMP 연결을 공유합니다.
-// SockJS 협상(info 요청 + WebSocket 업그레이드)은 최초 1회만 발생합니다.
-import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import type { StompSubscription, messageCallbackType } from "@stomp/stompjs";
+// 앱 전체에서 단 하나의 공유된 STOMP 연결(SharedWorker)을 사용합니다.
+import type { messageCallbackType, IMessage } from "@stomp/stompjs";
+
+// SharedWorker 인스턴스 생성 (Vite 모듈 워커 사용)
+const worker = new SharedWorker(new URL("./stompSharedWorker.ts", import.meta.url), { type: "module", name: "solmate-stomp-worker" });
+
+// VITE_API_BASE_URL 환경변수 사용
+const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+
+// 초기화: 백엔드 웹소켓 URL 전송
+worker.port.postMessage({ type: "INIT", wsUrl });
 
 type SubscriptionEntry = {
   destination: string;
   callback: messageCallbackType;
-  subscription?: StompSubscription;
 };
 
+// 탭 내부의 구독 콜백 리스트
 const registry = new Map<symbol, SubscriptionEntry>();
 
-const wsUrl = (import.meta.env.VITE_API_BASE_URL ?? "") + "/ws";
+// 워커에서 STOMP 메시지 수신 시 처리
+worker.port.onmessage = (event) => {
+  const data = event.data;
+  if (!data) return;
 
-const sharedClient = new Client({
-  webSocketFactory: () => new SockJS(wsUrl),
-  reconnectDelay: 5000,
-  onConnect: () => {
-    // 재연결 시 모든 구독을 자동으로 복구합니다
+  if (data.type === "STOMP_MESSAGE") {
+    const destination = data.destination;
     registry.forEach((entry) => {
-      entry.subscription = sharedClient.subscribe(
-        entry.destination,
-        entry.callback,
-      );
+      // 탭 내부에서 해당 destination을 구독 중인 모든 콜백 실행
+      if (entry.destination === destination) {
+        // 호환성을 위해 IMessage 객체를 흉내냅니다
+        const mockMessage: IMessage = {
+          body: data.body,
+          ack: () => {},
+          nack: () => {},
+          command: "MESSAGE",
+          headers: { destination },
+          isBinaryBody: false,
+          binaryBody: new Uint8Array(),
+        };
+        entry.callback(mockMessage);
+      }
     });
-  },
-});
+  }
+};
 
-sharedClient.activate();
+worker.port.start();
 
 /**
- * STOMP 토픽을 구독합니다.
+ * SharedWorker를 통해 STOMP 토픽을 구독합니다.
  * @returns 구독을 해제하는 cleanup 함수
  */
 export function stompSubscribe(
@@ -40,16 +56,26 @@ export function stompSubscribe(
   callback: messageCallbackType,
 ): () => void {
   const key = Symbol();
-  const entry: SubscriptionEntry = { destination, callback };
-  registry.set(key, entry);
+  registry.set(key, { destination, callback });
 
-  if (sharedClient.connected) {
-    entry.subscription = sharedClient.subscribe(destination, callback);
+  // 동일한 destination에 대해 이 탭에서 처음으로 구독하는 것이라면 Worker에 실제 구독 요청(SUBSCRIBE)을 전송
+  const currentCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
+  if (currentCount === 1) {
+    worker.port.postMessage({ type: "SUBSCRIBE", destination });
   }
-  // 미연결 상태면 onConnect에서 자동 구독됩니다
 
   return () => {
-    entry.subscription?.unsubscribe();
     registry.delete(key);
+    // 이 탭에서 더 이상 해당 destination을 구독하는 컴포넌트가 없으면 Worker에 해제 요청(UNSUBSCRIBE)을 전송
+    const remainingCount = Array.from(registry.values()).filter(e => e.destination === destination).length;
+    if (remainingCount === 0) {
+      worker.port.postMessage({ type: "UNSUBSCRIBE", destination });
+    }
   };
 }
+
+// 명시적으로 탭(또는 브라우저)이 닫힐 때 Worker에 연결 해제를 알립니다.
+window.addEventListener("beforeunload", () => {
+  worker.port.postMessage({ type: "DISCONNECT" });
+  worker.port.close();
+});

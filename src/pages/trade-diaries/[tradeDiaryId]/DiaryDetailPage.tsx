@@ -8,17 +8,14 @@ import {
   useModifyCommentMutation,
   useDeleteCommentMutation,
 } from "@/api/tradeDiaryApi";
-import Button from "@/components/ui/Button";
+// import Button from "@/components/ui/Button";
 import Avatar from "@/components/ui/Avatar";
 import { useUser, useAuthStore } from "@/store/authStore";
 import Badge from "@/components/ui/Badge";
 import { useUserListQuery } from "@/api/userListApi";
 import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
-function formatProfitRate(rate: number) {
-  const sign = rate >= 0 ? "+" : "";
-  return `${sign}${rate.toFixed(2)}%`;
-}
+
 
 function formatDateTime(createdAt: string) {
   const date = new Date(createdAt);
