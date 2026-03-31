@@ -8,14 +8,12 @@ import {
   useModifyCommentMutation,
   useDeleteCommentMutation,
 } from "@/api/tradeDiaryApi";
-// import Button from "@/components/ui/Button";
 import Avatar from "@/components/ui/Avatar";
 import { useUser, useAuthStore } from "@/store/authStore";
+
 import Badge from "@/components/ui/Badge";
 import { useUserListQuery } from "@/api/userListApi";
 import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
-
-
 
 function formatDateTime(createdAt: string) {
   const date = new Date(createdAt);

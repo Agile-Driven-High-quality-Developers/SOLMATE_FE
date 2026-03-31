@@ -28,6 +28,7 @@ type Props = {
   hasAcceptedMentor?: boolean;
   onMentoringRequest?: () => void;
   onMentoringCancel?: () => void;
+  onPendingCancelRequest?: () => void;
 };
 
 function fmtAmount(n: number) {
@@ -48,7 +49,8 @@ export default function ProfileCard({
   onFollowingClick,
   isOwnProfile = true,
   onEditClick,
-
+  onLogoutClick: _onLogoutClick,
+  onDeleteClick: _onDeleteClick,
   isFollowing,
   onFollowClick,
   badge,
@@ -56,6 +58,7 @@ export default function ProfileCard({
   hasAcceptedMentor,
   onMentoringRequest,
   onMentoringCancel,
+  onPendingCancelRequest,
 }: Props) {
   const isPositive = totalReturnRate >= 0;
 
@@ -181,8 +184,8 @@ export default function ProfileCard({
             )}
             {mentoringStatus === "PENDING" && (
               <button
-                disabled
-                className="w-full py-1.5 rounded-[10px] border border-orange-400 text-orange-400 bg-white dark:bg-slate-900 opacity-60 cursor-default"
+                onClick={onPendingCancelRequest}
+                className="w-full py-1.5 rounded-[10px] border border-orange-400 text-orange-400 bg-white dark:bg-slate-900 hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors"
               >
                 신청완료
               </button>

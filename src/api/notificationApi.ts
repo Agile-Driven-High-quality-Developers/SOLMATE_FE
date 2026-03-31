@@ -24,6 +24,7 @@ export type NotificationItem = {
   isRead: boolean;
   actUrl: string;
   createdAt: string;
+  eventType?: "CREATE" | "DELETE";
 };
 
 export type NotificationCountResponse = {
@@ -96,6 +97,14 @@ export function useNotificationSubscription(userId: number | undefined) {
 
     const unsub = stompSubscribe(`/topic/notifications/${userId}`, (message) => {
       const item: NotificationItem = JSON.parse(message.body);
+
+      if (item.eventType === "DELETE") {
+        queryClient.setQueryData<NotificationItem[]>(
+          notificationQueryKeys.list,
+          (prev) => prev ? prev.filter((n) => n.notificationId !== item.notificationId) : prev,
+        );
+        return;
+      }
 
       queryClient.setQueryData<NotificationItem[]>(
         notificationQueryKeys.list,

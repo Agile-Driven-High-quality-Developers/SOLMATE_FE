@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X, AlertCircle, Wallet, Tag, Hash, PenLine } from "lucide-react";
 import { adjustToTickSize, getTickSize } from "@/lib/tickSize";
-// import Button from "@/components/ui/Button";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
@@ -233,7 +232,8 @@ export default function TradeOrderModal({
                 />
                 {limitPriceAdjusted && (
                   <p className="text-[11px] text-blue-500 mt-1 ml-1">
-                    호가 단위({getTickSize(Number(limitPrice)).toLocaleString()}원)에 맞게 자동 보정됐어요.
+                    호가 단위({getTickSize(Number(limitPrice)).toLocaleString()}
+                    원)에 맞게 자동 보정됐어요.
                   </p>
                 )}
               </>

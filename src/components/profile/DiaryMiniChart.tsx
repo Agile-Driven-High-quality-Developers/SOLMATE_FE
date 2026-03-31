@@ -71,7 +71,6 @@ function toBusinessDay(dateStr: string) {
 }
 
 
-
 interface Props {
   tickerCode: string;
   tradeDate: string; // "YYYY-MM-DD"

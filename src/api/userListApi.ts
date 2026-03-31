@@ -51,6 +51,10 @@ export async function cancelMentoring(mentorUserId: number): Promise<void> {
   await fetchClient.delete(`/api/mentor-requests/${mentorUserId}`);
 }
 
+export async function cancelPendingMentoring(mentorUserId: number): Promise<void> {
+  await fetchClient.delete(`/api/mentor-requests/${mentorUserId}/pending`);
+}
+
 // ─── Cache Updater ────────────────────────────────────────────────────────────
 
 export function useUserListCacheUpdate() {

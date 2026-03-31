@@ -122,7 +122,6 @@ type PendingOrder = {
 
 export default function StockDetailPage() {
   const { stockCode = "" } = useParams<{ stockCode: string }>();
-  // const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useUser();
   const [orderSide, setOrderSide] = useState<OrderSide | null>(null);
