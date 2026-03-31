@@ -44,11 +44,11 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
               },
             ].map(({ label, value, colored }) => (
               <div key={label} className="flex justify-between items-center">
-                <span className="text-[13px] text-gray-400 dark:text-slate-500">
+                <span className="text-[12px] text-gray-400 dark:text-slate-500">
                   {label}
                 </span>
                 <span
-                  className={`text-[13px] font-medium ${
+                  className={`text-[12px] font-medium ${
                     colored
                       ? isPositive
                         ? "text-red-500"
@@ -62,17 +62,17 @@ export default function HoldingStatus({ holding, cash, onBuy, onSell }: Props) {
             ))}
           </div>
         ) : (
-          <p className="text-[13px] text-gray-400 dark:text-slate-500">
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
             보유 종목 없음
           </p>
         )}
       </div>
 
       <div className="border-t border-gray-100 dark:border-slate-800 pt-3">
-        <p className="text-[13px] text-gray-400 dark:text-slate-500 mb-1">
+        <p className="text-[12px] text-gray-400 dark:text-slate-500 mb-1">
           주문 가능 금액
         </p>
-        <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+        <p className="text-[18px] font-semibold text-gray-900 dark:text-gray-100">
           {cash != null ? `${cash.toLocaleString()}원` : "-"}
         </p>
       </div>

@@ -79,14 +79,14 @@ export default function HoldingList({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col md:h-full">
       <div className="px-5 py-4 border-b border-gray-100 dark:border-slate-800 shrink-0">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
           보유 종목
         </h2>
       </div>
 
       {/* 모바일: 가로 스크롤 카드 */}
       {items.length === 0 ? (
-        <div className="md:hidden py-8 text-center text-[13px] text-gray-400 dark:text-slate-500">
+        <div className="md:hidden py-8 text-center text-[12px] text-gray-400 dark:text-slate-500">
           보유 종목이 없습니다.
         </div>
       ) : (
@@ -102,7 +102,7 @@ export default function HoldingList({
                 >
                   <div className="flex items-center gap-1.5 mb-2 min-w-0">
                     <Avatar name={item.stockName} src={item.stockLogo} size={20} />
-                    <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100 truncate">
+                    <p className="text-[12px] font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {item.stockName}
                     </p>
                   </div>
@@ -112,7 +112,7 @@ export default function HoldingList({
                   <ReturnText
                     value={`${isPositive ? "+" : ""}${item.profitRate.toFixed(2)}%`}
                     isPositive={isPositive}
-                    className="text-[13px] font-bold whitespace-nowrap"
+                    className="text-[12px] font-semibold whitespace-nowrap"
                   />
                 </div>
               );
@@ -158,7 +158,7 @@ export default function HoldingList({
               <tr>
                 <td
                   colSpan={6}
-                  className="text-center py-10 text-[13px] text-gray-400 dark:text-slate-500"
+                  className="text-center py-10 text-[12px] text-gray-400 dark:text-slate-500"
                 >
                   보유 종목이 없습니다.
                 </td>
@@ -181,7 +181,7 @@ export default function HoldingList({
                           size={32}
                         />
                         <div className="min-w-0">
-                          <p className="text-[15px] sm:text-[14px] font-bold sm:font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <p className="text-[16px] sm:text-[14px] font-semibold sm:font-medium text-gray-900 dark:text-gray-100 truncate">
                             {item.stockName}
                           </p>
                           <p className="text-[12px] sm:text-[11px] text-gray-400 dark:text-slate-500">
@@ -202,7 +202,7 @@ export default function HoldingList({
 
                     {/* 평균단가 (데스크탑만) */}
                     {showAvgPrice && (
-                      <td className="hidden sm:table-cell px-4 py-3 text-right text-[13px] text-gray-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-4 py-3 text-right text-[12px] text-gray-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
                         {item.averageBuyPrice.toLocaleString()}원
                       </td>
                     )}
@@ -230,7 +230,7 @@ export default function HoldingList({
                         <ReturnText
                           value={`${isPositive ? "+" : ""}${item.profitRate.toFixed(2)}%`}
                           isPositive={isPositive}
-                          className="text-[16px] sm:text-[13px] font-bold sm:font-semibold tabular-nums"
+                          className="text-[16px] sm:text-[12px] font-semibold sm:font-semibold tabular-nums"
                         />
                         <ReturnText
                           value={`${isPositive ? "+" : ""}${fmt(item.profitAmount)}`}
@@ -248,7 +248,7 @@ export default function HoldingList({
             <tr ref={sentinelRef}>
               <td colSpan={6}>
                 {isLoading && (
-                  <div className="py-4 text-center text-[13px] text-gray-400 dark:text-slate-500">
+                  <div className="py-4 text-center text-[12px] text-gray-400 dark:text-slate-500">
                     불러오는 중...
                   </div>
                 )}

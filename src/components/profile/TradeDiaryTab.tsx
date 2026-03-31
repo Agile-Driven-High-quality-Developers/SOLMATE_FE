@@ -95,12 +95,12 @@ export default function TradeDiaryTab({ items }: Props) {
                         />
                         <div className="flex flex-col gap-0.5 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+                            <span className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                               {item.stockName}
                             </span>
                             <Badge
                               name={isBuy ? "매수" : "매도"}
-                              color={isBuy ? "#FF4444" : "#0046FF"}
+                              color={isBuy ? "#F04452" : "#0046FF"}
                             />
                           </div>
                           <span className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -120,7 +120,7 @@ export default function TradeDiaryTab({ items }: Props) {
                         </p>
                         {!isBuy && (
                           <span
-                            className={`text-[15px] font-bold shrink-0 ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+                            className={`text-[16px] font-semibold shrink-0 ${isPositive ? "text-[#F04452]" : "text-[#0046FF]"}`}
                           >
                             {isPositive ? "+" : ""}
                             {item.profit?.toLocaleString()}원

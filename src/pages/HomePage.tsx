@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 const HOME_TOUR: TourStep[] = [
   {
@@ -65,6 +66,7 @@ const HOME_TOUR: TourStep[] = [
   },
   {
     target: "nav-guide",
+    beforeShow: () => useSidebarStore.getState().open(),
     title: (
       <span className="inline-flex items-center gap-1.5">
         <BookOpen size={15} />
@@ -193,7 +195,7 @@ function MarketIndexCard({ index }: { index: MarketIndexData }) {
       <p className="text-[10px] sm:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 truncate">
         {index.label}
       </p>
-      <p className="text-[14px] sm:text-[18px] font-bold text-gray-900 dark:text-gray-100 truncate">
+      <p className="text-[14px] sm:text-[18px] font-semibold text-gray-900 dark:text-gray-100 truncate">
         {index.value}
       </p>
       <div className="flex items-center gap-0.5 sm:gap-1 mt-0.5 min-w-0">
@@ -292,10 +294,10 @@ function PortfolioCard({
           </div>
         ) : (
           <>
-            <p className="text-white/70 text-[13px] font-medium mb-1">
+            <p className="text-white/70 text-[12px] font-medium mb-1">
               총 평가자산
             </p>
-            <p className="text-white text-[32px] font-bold leading-tight">
+            <p className="text-white text-[32px] font-semibold leading-tight">
               {fmt(data.totalAsset)}
             </p>
             <p
@@ -346,12 +348,12 @@ function HoldingsTable({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden flex flex-col flex-1 min-h-0">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800 shrink-0">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
           보유 종목
         </h2>
         <button
           onClick={() => navigate("/account")}
-          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+          className="flex items-center gap-0.5 text-[12px] text-[#0046FF] hover:opacity-70 transition-opacity"
         >
           내 계좌 <ChevronRight size={14} />
         </button>
@@ -360,7 +362,7 @@ function HoldingsTable({
       {loading ? (
         <SectionSkeleton rows={data.length} />
       ) : data.length === 0 ? (
-        <p className="text-[13px] text-gray-400 text-center py-8">
+        <p className="text-[12px] text-gray-400 text-center py-8">
           보유 종목이 없습니다.
         </p>
       ) : (
@@ -406,7 +408,7 @@ function HoldingsTable({
                           color={getAvatarColor(stock.stockName)}
                         />
                         <div className="min-w-0">
-                          <span className="text-[15px] sm:text-[14px] font-bold sm:font-medium text-gray-900 dark:text-gray-100 block truncate">
+                          <span className="text-[16px] sm:text-[14px] font-semibold sm:font-medium text-gray-900 dark:text-gray-100 block truncate">
                             {stock.stockName}
                           </span>
                           <p className="text-[12px] sm:text-[11px] text-gray-400 dark:text-slate-500">
@@ -444,13 +446,13 @@ function HoldingsTable({
                           <ReturnText
                             value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
                             isPositive={isPositive}
-                            className="text-[16px] font-bold"
+                            className="text-[16px] font-semibold"
                           />
                         </div>
                         <ReturnText
                           value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
                           isPositive={isPositive}
-                          className="text-[13px] sm:text-[14px] font-medium"
+                          className="text-[12px] sm:text-[14px] font-medium"
                         />
                       </div>
                     </td>
@@ -535,12 +537,12 @@ function TopInvestors({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
           TOP 투자자
         </h2>
         <button
           onClick={() => navigate("/users")}
-          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+          className="flex items-center gap-0.5 text-[12px] text-[#0046FF] hover:opacity-70 transition-opacity"
         >
           전체 <ChevronRight size={14} />
         </button>
@@ -558,7 +560,7 @@ function TopInvestors({
               className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <span
-                className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
+                className={`w-5 text-[12px] font-semibold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
               >
                 {i + 1}
               </span>
@@ -600,12 +602,12 @@ function PopularStocks({
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50 dark:border-slate-800">
-        <h2 className="text-[15px] font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
           인기 종목
         </h2>
         <button
           onClick={() => navigate("/invest")}
-          className="flex items-center gap-0.5 text-[13px] text-[#0046FF] hover:opacity-70 transition-opacity"
+          className="flex items-center gap-0.5 text-[12px] text-[#0046FF] hover:opacity-70 transition-opacity"
         >
           전체 <ChevronRight size={14} />
         </button>
@@ -624,7 +626,7 @@ function PopularStocks({
                 className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <span
-                  className={`w-5 text-[13px] font-bold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
+                  className={`w-5 text-[12px] font-semibold ${i < 3 ? "text-[#0046FF]" : "text-gray-400 dark:text-slate-500"}`}
                 >
                   {i + 1}
                 </span>
@@ -716,10 +718,10 @@ export default function HomePage() {
       {/* 헤더 */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
             홈
           </h1>
-          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-0.5">
             {TODAY}
           </p>
         </div>

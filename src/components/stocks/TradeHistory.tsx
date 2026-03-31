@@ -63,7 +63,7 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
             <tr>
               <td
                 colSpan={6}
-                className="text-center py-10 text-[13px] text-gray-400 dark:text-slate-500"
+                className="text-center py-10 text-[12px] text-gray-400 dark:text-slate-500"
               >
                 거래 내역이 없습니다.
               </td>
@@ -76,29 +76,29 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
               >
                 <td className="py-3.5 pl-4 pr-6 whitespace-nowrap">
                   <span
-                    className={`text-[13px] font-semibold ${
+                    className={`text-[12px] font-semibold ${
                       order.side === "BUY" ? "text-red-500" : "text-blue-500"
                     }`}
                   >
                     {order.sideLabel}
                   </span>
                 </td>
-                <td className="py-3.5 px-6 text-[13px] text-gray-600 dark:text-slate-400 whitespace-nowrap">
+                <td className="py-3.5 px-6 text-[12px] text-gray-600 dark:text-slate-400 whitespace-nowrap">
                   {order.orderTypeLabel}
                 </td>
-                <td className="py-3.5 px-6 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                <td className="py-3.5 px-6 text-right text-[12px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {order.orderPrice.toLocaleString()}원
                 </td>
-                <td className="py-3.5 px-6 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                <td className="py-3.5 px-6 text-right text-[12px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {order.quantity}주
                 </td>
-                <td className="py-3.5 pl-6 pr-12 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
+                <td className="py-3.5 pl-6 pr-12 text-right text-[12px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {formatAmount(order.orderAmount)}
                 </td>
                 <td className="py-3.5 pl-6 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-[13px] font-semibold ${
+                      className={`text-[12px] font-semibold ${
                         order.status === "CANCELLED"
                           ? "text-gray-400 dark:text-slate-500"
                           : "text-gray-700 dark:text-gray-300"
@@ -129,14 +129,14 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
       <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setConfirmOrderId(null)}>
         <div className="bg-white dark:bg-slate-900 rounded-2xl w-90 shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-            <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">주문 취소</p>
+            <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">주문 취소</p>
             <button onClick={() => setConfirmOrderId(null)} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
               <X size={18} />
             </button>
           </div>
           <div className="px-6 py-6">
             <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">주문을 취소하시겠어요?</p>
-            <p className="text-[13px] text-gray-400 dark:text-slate-500">취소된 주문은 되돌릴 수 없어요.</p>
+            <p className="text-[12px] text-gray-400 dark:text-slate-500">취소된 주문은 되돌릴 수 없어요.</p>
           </div>
           <div className="flex gap-2 px-6 pb-6">
             <Button variant="invalid" className="flex-1 py-2.5" onClick={() => setConfirmOrderId(null)}>닫기</Button>

@@ -70,7 +70,7 @@ export default function OrderBook({
         <span
           className={`relative w-[40%] tabular-nums ${
             isCurrent
-              ? `font-bold ${priceDiff >= 0 ? "text-red-500" : "text-blue-500"}`
+              ? `font-semibold ${priceDiff >= 0 ? "text-red-500" : "text-blue-500"}`
               : `font-medium ${priceDiff >= 0 ? "text-red-500" : "text-blue-500"}`
           }`}
         >
@@ -106,7 +106,7 @@ export default function OrderBook({
         <h3 className="text-[14px] font-semibold text-gray-900 dark:text-gray-100 mb-3">
           호가
         </h3>
-        <div className="flex flex-col text-[13px]">
+        <div className="flex flex-col text-[12px]">
           {sellLevels
             .slice()
             .reverse()
@@ -126,22 +126,22 @@ export default function OrderBook({
             className="relative bg-white dark:bg-slate-900 rounded-2xl p-5 w-64 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <p className="text-[13px] text-gray-500 dark:text-slate-400 text-center mb-1">
+            <p className="text-[12px] text-gray-500 dark:text-slate-400 text-center mb-1">
               주문 가격
             </p>
-            <p className="text-[18px] font-bold text-gray-900 dark:text-gray-100 text-center mb-4">
+            <p className="text-[18px] font-semibold text-gray-900 dark:text-gray-100 text-center mb-4">
               {pendingPrice.toLocaleString()}원
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => handleSideSelect("buy")}
-                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-[14px] font-bold"
+                className="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-[14px] font-semibold"
               >
                 매수
               </button>
               <button
                 onClick={() => hasHolding && handleSideSelect("sell")}
-                className={`flex-1 py-2.5 rounded-xl text-[14px] font-bold ${
+                className={`flex-1 py-2.5 rounded-xl text-[14px] font-semibold ${
                   hasHolding
                     ? "bg-blue-500 text-white"
                     : "bg-gray-100 dark:bg-slate-700 text-gray-300 dark:text-slate-500 cursor-not-allowed"

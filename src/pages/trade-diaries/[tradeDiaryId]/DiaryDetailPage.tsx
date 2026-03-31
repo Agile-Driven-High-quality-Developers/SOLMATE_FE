@@ -62,12 +62,12 @@ export default function DiaryDetailPage() {
   );
 
   const isProfit = (diary?.profit ?? 0) >= 0;
-  const profitColor = isProfit ? "text-[#FF4444]" : "text-[#0046FF]";
+  const profitColor = isProfit ? "text-[#F04452]" : "text-[#0046FF]";
   const tradeTypeLabel = diary?.tradeType === "BUY" ? "매수" : "매도";
   const tradeTypeBg =
-    diary?.tradeType === "BUY" ? "bg-[#FF4444]" : "bg-[#0046FF]";
+    diary?.tradeType === "BUY" ? "bg-[#F04452]" : "bg-[#0046FF]";
   return (
-    <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
+    <div className="flex flex-col h-full p-4 md:p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function DiaryDetailPage() {
                 >
                   {tradeTypeLabel}
                 </span>
-                <span className="text-[18px] font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-[18px] font-semibold text-gray-900 dark:text-gray-100">
                   {diary.stockName}
                 </span>
                 <span className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -120,7 +120,7 @@ export default function DiaryDetailPage() {
               </div>
               <div className="flex items-center gap-3">
                 {diary?.tradeType === "SELL" && (
-                  <p className={`text-[16px] font-bold ${profitColor}`}>
+                  <p className={`text-[16px] font-semibold ${profitColor}`}>
                     {isProfit ? "+" : ""}
                     {diary.profit.toLocaleString()} 원
                   </p>
@@ -140,7 +140,7 @@ export default function DiaryDetailPage() {
             </div>
 
             {/* 체결 요약 */}
-            <p className="text-[13px] text-gray-400 dark:text-slate-500">
+            <p className="text-[12px] text-gray-400 dark:text-slate-500">
               {diary.quantity}주 · {formatPrice(diary.filledPrice)} ·{" "}
               {formatDateTime(diary.createdAt)}
             </p>
@@ -194,12 +194,12 @@ export default function DiaryDetailPage() {
                     value={diaryEditContent}
                     onChange={(e) => setDiaryEditContent(e.target.value)}
                     rows={5}
-                    className="w-full px-4 py-3 text-[15px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none focus:border-[#0046FF] transition-colors resize-none"
+                    className="w-full px-4 py-3 text-[16px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none focus:border-[#0046FF] transition-colors resize-none"
                   />
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => setIsEditingDiary(false)}
-                      className="px-4 py-1.5 text-[13px] font-medium text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                      className="px-4 py-1.5 text-[12px] font-medium text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                     >
                       취소
                     </button>
@@ -210,14 +210,14 @@ export default function DiaryDetailPage() {
                           onSuccess: () => setIsEditingDiary(false),
                         })
                       }
-                      className="px-4 py-1.5 text-[13px] font-semibold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                      className="px-4 py-1.5 text-[12px] font-semibold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
                       저장
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="text-[15px] text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                <p className="text-[16px] text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                   {diary.content}
                 </p>
               )}
@@ -229,10 +229,10 @@ export default function DiaryDetailPage() {
       {/* 댓글 섹션 */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 p-5 flex flex-col gap-6 shadow-sm">
         <div className="flex items-center gap-2">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             댓글
           </p>
-          <span className="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 text-[12px] font-bold rounded-full tabular-nums">
+          <span className="px-2 py-0.5 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 text-[12px] font-semibold rounded-full tabular-nums">
             {diary?.comments?.length ?? 0}
           </span>
         </div>
@@ -248,12 +248,12 @@ export default function DiaryDetailPage() {
                   comment.imageUrl ||
                   undefined
                 }
-                size={34}
+                size={32}
               />
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-bold text-gray-800 dark:text-gray-200">
+                    <span className="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
                       {comment.nickname}
                     </span>
                     {comment.isMentor && <Badge name="멘토" color="#FF9900" />}
@@ -268,13 +268,13 @@ export default function DiaryDetailPage() {
                             setEditingCommentId(comment.commentId);
                             setEditInput(comment.content);
                           }}
-                          className="text-[11px] font-medium text-gray-400 hover:text-blue-500 dark:text-slate-500 dark:hover:text-blue-400 transition-colors"
+                          className="text-[12px] font-medium text-gray-400 hover:text-blue-500 dark:text-slate-500 dark:hover:text-blue-400 transition-colors"
                         >
                           수정
                         </button>
                         <button
                           onClick={() => deleteComment(comment.commentId)}
-                          className="text-[11px] font-medium text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors"
+                          className="text-[12px] font-medium text-gray-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition-colors"
                         >
                           삭제
                         </button>
@@ -289,7 +289,7 @@ export default function DiaryDetailPage() {
                       value={editInput}
                       onChange={(e) => setEditInput(e.target.value)}
                       autoFocus
-                      className="w-full px-3 py-2 text-[13px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none ring-1 ring-transparent focus:ring-[#0046FF] focus:border-[#0046FF] transition-all"
+                      className="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none ring-1 ring-transparent focus:ring-[#0046FF] focus:border-[#0046FF] transition-all"
                     />
                     <div className="flex justify-end gap-2">
                       <button
@@ -309,14 +309,14 @@ export default function DiaryDetailPage() {
                             { onSuccess: () => setEditingCommentId(null) },
                           );
                         }}
-                        className="px-3 py-1 text-[12px] font-bold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors"
+                        className="px-3 py-1 text-[12px] font-semibold text-white bg-[#0046FF] rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         저장
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
+                  <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words">
                     {comment.content}
                   </p>
                 )}
@@ -350,7 +350,7 @@ export default function DiaryDetailPage() {
                     });
                   }
                 }}
-                placeholder="댓글을 입력하세요..."
+                placeholder="댓글을 입력하세요"
                 className="w-full px-4 py-2.5 text-[14px] bg-gray-50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 rounded-2xl outline-none focus:ring-2 focus:ring-[#0046FF]/20 focus:border-[#0046FF] transition-all"
               />
               <button
@@ -360,7 +360,7 @@ export default function DiaryDetailPage() {
                     onSuccess: () => setCommentInput(""),
                   })
                 }
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-[13px] font-bold text-white bg-[#0046FF] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-30 disabled:grayscale"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 text-[12px] font-semibold text-white bg-[#0046FF] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-30 disabled:grayscale"
               >
                 등록
               </button>

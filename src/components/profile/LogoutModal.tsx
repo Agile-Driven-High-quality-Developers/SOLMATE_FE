@@ -18,7 +18,7 @@ export default function LogoutModal({ onClose, onConfirm }: Props) {
       >
         {/* 헤더 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             로그아웃
           </p>
           <button
@@ -33,7 +33,7 @@ export default function LogoutModal({ onClose, onConfirm }: Props) {
           <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
             로그아웃 하시겠어요?
           </p>
-          <p className="text-[13px] text-gray-400 dark:text-slate-500">
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
             언제든지 다시 로그인할 수 있어요.
           </p>
         </div>

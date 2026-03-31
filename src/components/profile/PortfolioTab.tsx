@@ -38,7 +38,7 @@ export default function PortfolioTab({
           <p className="text-[11px] font-medium text-gray-400 dark:text-slate-500 mb-1">
             총 평가금액
           </p>
-          <p className="text-[16px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             {fmt(totalEvaluation)}
           </p>
         </div>
@@ -47,7 +47,7 @@ export default function PortfolioTab({
             총 수익률
           </p>
           <p
-            className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}
+            className={`text-[16px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}
           >
             {isPositive ? "+" : ""}
             {totalReturnRate.toFixed(2)}%
@@ -58,7 +58,7 @@ export default function PortfolioTab({
             총 수익
           </p>
           <p
-            className={`text-[16px] font-bold ${isPositive ? "text-red-500" : "text-blue-500"}`}
+            className={`text-[16px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}
           >
             {isPositive ? "+" : ""}
             {fmt(totalReturnAmount)}

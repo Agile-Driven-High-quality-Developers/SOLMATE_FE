@@ -24,7 +24,7 @@ export default function TabBar({
             <button
               key={tab.id}
               onClick={() => onChange(tab.id)}
-              className={`flex-1 py-3 text-[15px] font-semibold transition-colors duration-150 border-b-2 -mb-px ${
+              className={`flex-1 py-3 text-[16px] font-semibold transition-colors duration-150 border-b-2 -mb-px ${
                 isActive
                   ? "text-[#0046FF] border-[#0046FF]"
                   : "text-gray-400 border-transparent hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300"
@@ -59,7 +59,7 @@ export default function TabBar({
             className={`px-4 py-2 text-[16px] transition-colors duration-150 rounded-4xl font-semibold border ${
               isActive
                 ? ""
-                : "bg-white border-gray-100 text-[#6B7280] dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
+                : "bg-white border-gray-100 text-gray-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400"
             }`}
           >
             {tab.label}

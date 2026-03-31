@@ -101,7 +101,7 @@ export default function LoginPage() {
           localStorage.removeItem("autoLogin");
         });
     }
-  }, [navigate, setAuth]);
+  }, []);
 
   // POST /api/auth/login
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -211,7 +211,7 @@ export default function LoginPage() {
 
             {/* 에러 메시지 */}
             {errorMsg && (
-              <p className="text-[13px] text-red-500 -mt-1">{errorMsg}</p>
+              <p className="text-[12px] text-red-500 -mt-1">{errorMsg}</p>
             )}
 
             {/* 자동 로그인 / 비밀번호 찾기 */}
@@ -223,12 +223,12 @@ export default function LoginPage() {
                   onChange={(e) => setField("autoLogin", e.target.checked)}
                   className="w-4 h-4 rounded border-gray-300 accent-[#0046FF] cursor-pointer"
                 />
-                <span className="text-[13px] text-gray-500">자동 로그인</span>
+                <span className="text-[12px] text-gray-500">자동 로그인</span>
               </label>
 
               <button
                 type="button"
-                className="text-[13px] text-gray-400 hover:text-[#0046FF] transition-colors"
+                className="text-[12px] text-gray-400 hover:text-[#0046FF] transition-colors"
               >
                 비밀번호 찾기
               </button>
@@ -239,7 +239,7 @@ export default function LoginPage() {
               type="submit"
               variant={isFormValid ? "primary" : "invalid"}
               className={[
-                "w-full py-3 text-[15px] font-semibold mt-1",
+                "w-full py-3 text-[16px] font-semibold mt-1",
                 !isFormValid || isLoading
                   ? "cursor-not-allowed opacity-60"
                   : "",
@@ -281,7 +281,7 @@ export default function LoginPage() {
           </Button>
 
           {/* 회원가입 안내 */}
-          <p className="mt-6 text-center text-[13px] text-gray-400">
+          <p className="mt-6 text-center text-[12px] text-gray-400">
             아직 계정이 없으신가요?{" "}
             <button
               type="button"

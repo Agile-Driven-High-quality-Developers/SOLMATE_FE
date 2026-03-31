@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs -0 sed -i '' 's/text-\\\\[15px\\\\]/text-[16px]/g')",
+      "Bash(xargs -0 sed -i '' 's/text-\\\\[13px\\\\]/text-[12px]/g')",
+      "Bash(xargs -0 sed -i '' 's/#FF4444/#F04452/g')",
+      "Bash(xargs -0 sed -i '' 's/text-\\\\[#6B7280\\\\]/text-gray-500/g')",
+      "Bash(xargs -0 sed -i '' 's/font-bold/font-semibold/g')",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

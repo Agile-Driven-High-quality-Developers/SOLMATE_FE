@@ -74,7 +74,7 @@ export default function ProfileCard({
           />
         </div>
         <div className="flex items-center gap-2 mt-1">
-          <h2 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="text-[17px] font-semibold text-gray-900 dark:text-gray-100">
             {nickname}
           </h2>
           {badge === "멘토" && (
@@ -89,7 +89,7 @@ export default function ProfileCard({
           )}
         </div>
         {email && (
-          <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+          <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-0.5">
             {email}
           </p>
         )}
@@ -101,7 +101,7 @@ export default function ProfileCard({
           onClick={onFollowersClick}
           className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             {followers}
           </p>
           <p className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -113,7 +113,7 @@ export default function ProfileCard({
           onClick={onFollowingClick}
           className="flex-1 text-center py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
         >
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             {following}
           </p>
           <p className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -129,7 +129,7 @@ export default function ProfileCard({
             총 수익률
           </p>
           <p
-            className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+            className={`text-[12px] font-semibold ${isPositive ? "text-[#F04452]" : "text-[#0046FF]"}`}
           >
             {isPositive ? "+" : ""}
             {totalReturnRate.toFixed(2)}%
@@ -140,7 +140,7 @@ export default function ProfileCard({
             총 수익
           </p>
           <p
-            className={`text-[13px] font-bold ${isPositive ? "text-[#FF4444]" : "text-[#0046FF]"}`}
+            className={`text-[12px] font-semibold ${isPositive ? "text-[#F04452]" : "text-[#0046FF]"}`}
           >
             {isPositive ? "+" : ""}
             {fmtAmount(totalReturn)}원

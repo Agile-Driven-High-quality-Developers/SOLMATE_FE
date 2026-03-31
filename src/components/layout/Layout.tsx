@@ -1,11 +1,12 @@
 // src/components/layout/Layout.tsx
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { stompSubscribe } from "@/lib/stompClient";
 import { parseMarketIndicatorMessage, homeQueryKeys } from "@/api/homeApi";
 import type { MarketIndexData, MarketIndicatorMessage } from "@/api/homeApi";
 import Sidebar from "./Sidebar";
+import Logo from "@/components/ui/Logo";
 import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
 import { useOnboardingStore } from "@/store/onboardingStore";
 import { useAuthStore, useUser } from "@/store/authStore";
@@ -33,6 +34,7 @@ export default function Layout() {
   const user = useUser();
 
   const openSidebar = useSidebarStore((s) => s.open); // 사이드바 여는 함수
+  const navigate = useNavigate();
 
   useNotificationSubscription(user?.userId);
 
@@ -74,9 +76,11 @@ export default function Layout() {
           >
             <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
           </button>
-          <span className="ml-2 font-bold text-gray-900 dark:text-gray-100">
-            SOLMate
-          </span>
+          <button onClick={() => navigate("/")} className="ml-2 cursor-pointer">
+            <p className="text-[18px] font-semibold text-gray-900 leading-tight truncate dark:text-gray-100">
+              SOLMate
+            </p>
+          </button>
         </header>
 
         {/* 메인 콘텐츠 영역 */}

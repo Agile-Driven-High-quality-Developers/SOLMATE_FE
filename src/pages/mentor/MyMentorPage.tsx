@@ -98,7 +98,7 @@ function CancelMentorModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-          <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
             멘토 취소
           </p>
           <button
@@ -110,10 +110,10 @@ function CancelMentorModal({
         </div>
         <div className="px-6 py-6">
           <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-            <span className="font-bold text-[#0046FF]">{mentorNickname}</span>{" "}
+            <span className="font-semibold text-[#0046FF]">{mentorNickname}</span>{" "}
             멘토를 취소하시겠어요?
           </p>
-          <p className="text-[13px] text-gray-400 dark:text-slate-500">
+          <p className="text-[12px] text-gray-400 dark:text-slate-500">
             멘토 취소 후에도 다시 신청할 수 있어요.
           </p>
         </div>
@@ -191,11 +191,11 @@ export default function MyMentorPage() {
     return (
       <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen bg-gray-50 dark:bg-slate-950">
         {toast && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[12px] font-medium px-5 py-3 rounded-2xl shadow-lg">
             {toast}
           </div>
         )}
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           나의 멘토
         </h1>
         <div className="flex-1 flex items-center justify-center text-[14px] text-gray-400 dark:text-slate-500">
@@ -210,7 +210,7 @@ export default function MyMentorPage() {
   return (
     <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen md:h-screen md:overflow-hidden bg-gray-50 dark:bg-slate-950">
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[13px] font-medium px-5 py-3 rounded-2xl shadow-lg">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white text-[12px] font-medium px-5 py-3 rounded-2xl shadow-lg">
           {toast}
         </div>
       )}
@@ -233,7 +233,7 @@ export default function MyMentorPage() {
       )}
       {/* 헤더 */}
       <div className="shrink-0">
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           나의 멘토
         </h1>
       </div>
@@ -253,14 +253,14 @@ export default function MyMentorPage() {
             />
             <div className="flex flex-col gap-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-bold text-gray-900 dark:text-gray-100">
+                <span className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                   {mentor.nickname}
                 </span>
                 <span className="text-[11px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 px-2 py-0.5 rounded-full">
                   멘토
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-gray-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-gray-500">
                 <div className="flex items-center gap-1">
                   <Users size={12} className="text-gray-400" />
                   <span>팔로워</span>
@@ -271,7 +271,7 @@ export default function MyMentorPage() {
                 <div className="flex items-center gap-1">
                   <span>총 수익률</span>
                   <span
-                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {(summary?.totalReturnRate ?? 0).toFixed(2)}%
@@ -280,7 +280,7 @@ export default function MyMentorPage() {
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
                   <span
-                    className={`font-bold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {fmtAmount(summary?.totalReturnAmount ?? 0)}
@@ -295,14 +295,14 @@ export default function MyMentorPage() {
           <div className="flex items-center gap-2 sm:shrink-0">
             <Button
               variant="basic"
-              className="flex-1 sm:flex-none px-4 py-2 text-[13px]"
+              className="flex-1 sm:flex-none px-4 py-2 text-[12px]"
               onClick={() => navigate(`/users/${mentor.userId}`)}
             >
               프로필 보기
             </Button>
             <Button
               variant="danger"
-              className="flex-1 sm:flex-none px-4 py-2 text-[13px] flex items-center justify-center gap-1.5"
+              className="flex-1 sm:flex-none px-4 py-2 text-[12px] flex items-center justify-center gap-1.5"
               onClick={() => setShowCancelModal(true)}
             >
               <Users size={13} />

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { HelpCircle } from "lucide-react";
 import { useOnboardingStore } from "@/store/onboardingStore";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 // ─── 상수 ──────────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,7 @@ export type TourStep = {
   description: string;
   items?: TourItem[];
   placement: Placement;
+  beforeShow?: () => void;
 };
 
 type Props = {
@@ -103,7 +105,19 @@ function getTooltipPos(
         left: clampedLeft,
       };
     }
-    case "right":
+    case "right": {
+      const spaceRight =
+        window.innerWidth - rect.right - SPOT_PADDING - TOOLTIP_GAP;
+      // 오른쪽 공간 부족 시 (모바일 사이드바 등) 위로 배치
+      if (spaceRight < TOOLTIP_WIDTH) {
+        return {
+          top: Math.max(
+            16,
+            rect.top - SPOT_PADDING - TOOLTIP_GAP - TOOLTIP_EST_HEIGHT,
+          ),
+          left: clampedLeft,
+        };
+      }
       return {
         top: Math.max(
           16,
@@ -117,6 +131,7 @@ function getTooltipPos(
           window.innerWidth - TOOLTIP_WIDTH - 16,
         ),
       };
+    }
     case "left": {
       const rawLeft = rect.left - TOOLTIP_WIDTH - SPOT_PADDING - TOOLTIP_GAP;
       return {
@@ -144,6 +159,7 @@ export default function SpotlightTour({
   const seenTours = useOnboardingStore((s) => s.seenTours);
   const markTourSeen = useOnboardingStore((s) => s.markTourSeen);
   const resetTour = useOnboardingStore((s) => s.resetTour);
+  const isSidebarOpen = useSidebarStore((s) => s.isOpen);
 
   const hasSeen = !hasSeenOnboarding || (seenTours[tourKey] ?? false);
   // 온보딩 완료 후 투어도 완료된 경우에만 재시작 버튼 표시
@@ -164,6 +180,8 @@ export default function SpotlightTour({
 
     ids.push(
       window.setTimeout(() => {
+        step.beforeShow?.();
+
         const el = document.querySelector<HTMLElement>(
           `[data-tour="${step.target}"]`,
         );
@@ -175,6 +193,7 @@ export default function SpotlightTour({
 
         el.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
+        const delay = step.beforeShow ? 450 : 350;
         ids.push(
           window.setTimeout(() => {
             const updated = document.querySelector<HTMLElement>(
@@ -184,13 +203,13 @@ export default function SpotlightTour({
               setRect(updated.getBoundingClientRect());
               setTooltipVisible(true);
             }
-          }, 350),
+          }, delay),
         );
       }, 0),
     );
 
     return () => ids.forEach((id) => window.clearTimeout(id));
-  }, [stepIdx, step?.target, hasSeen, tourKey, markTourSeen, steps.length]);
+  }, [stepIdx, step?.target, step?.beforeShow, hasSeen, tourKey, markTourSeen, steps.length]);
 
   useEffect(() => {
     if (hasSeen || !step) return;
@@ -226,7 +245,7 @@ export default function SpotlightTour({
   };
 
   if (hasSeen) {
-    if (!canReplay || hidden) return null;
+    if (!canReplay || hidden || isSidebarOpen) return null;
     return (
       <button
         className="animate-float fixed top-16 right-4 lg:top-4 z-99 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
@@ -328,10 +347,10 @@ export default function SpotlightTour({
               </button>
             </div>
 
-            <h3 className="text-[15px] font-bold text-gray-900 mb-1.5">
+            <h3 className="text-[16px] font-semibold text-gray-900 mb-1.5">
               {step.title}
             </h3>
-            <p className="text-[13px] text-gray-500 leading-relaxed mb-2">
+            <p className="text-[12px] text-gray-500 leading-relaxed mb-2">
               {step.description}
             </p>
             {step.items && (
@@ -339,7 +358,7 @@ export default function SpotlightTour({
                 {step.items.map((item, i) => (
                   <li
                     key={i}
-                    className="flex items-center gap-2 text-[13px] text-gray-700"
+                    className="flex items-center gap-2 text-[12px] text-gray-700"
                   >
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-[#0046FF] inline-block" />
                     <span className="leading-snug">

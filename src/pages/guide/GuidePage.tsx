@@ -372,7 +372,7 @@ export default function GuidePage() {
                   <Icon className="w-4 h-4 shrink-0" />
                   <span
                     className={[
-                      "text-[13px]",
+                      "text-[12px]",
                       isActive ? "font-semibold" : "font-medium",
                     ].join(" ")}
                   >
@@ -411,7 +411,7 @@ export default function GuidePage() {
                 <span className="inline-block text-[12px] font-semibold bg-white/20 px-3 py-1 rounded-full mb-3">
                   SOLMate 가이드
                 </span>
-                <h1 className="text-2xl font-bold mb-2">
+                <h1 className="text-2xl font-semibold mb-2">
                   SOLMate와 함께
                   <br />
                   주식투자를 배워보세요
@@ -463,7 +463,7 @@ export default function GuidePage() {
                     <h3 className="text-[14px] font-semibold text-gray-800 dark:text-gray-200 mb-1">
                       {feat.title}
                     </h3>
-                    <p className="text-[13px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                    <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
                       {feat.desc}
                     </p>
                   </div>
@@ -511,14 +511,14 @@ export default function GuidePage() {
                     </div>
                     <div className="pb-2">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[11px] font-bold text-gray-300 dark:text-slate-600">
+                        <span className="text-[11px] font-semibold text-gray-300 dark:text-slate-600">
                           STEP {step.step}
                         </span>
                         <h3 className="text-[14px] font-semibold text-gray-800 dark:text-gray-200">
                           {step.title}
                         </h3>
                       </div>
-                      <p className="text-[13px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                      <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
                         {step.desc}
                       </p>
                     </div>
@@ -531,10 +531,10 @@ export default function GuidePage() {
             <div className="mt-6 bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900 rounded-2xl p-5 flex gap-3">
               <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <p className="text-[13px] font-semibold text-amber-800 mb-1">
+                <p className="text-[12px] font-semibold text-amber-800 mb-1">
                   초보자 팁
                 </p>
-                <p className="text-[13px] text-amber-700 leading-relaxed">
+                <p className="text-[12px] text-amber-700 leading-relaxed">
                   처음에는 관심 있는 기업 2~3개를 골라 소액으로 시작해보세요.
                   매매일지를 꾸준히 작성하면 자신의 투자 패턴을 파악하는 데 큰
                   도움이 됩니다.
@@ -566,11 +566,11 @@ export default function GuidePage() {
               <div className="bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <ArrowUpRight className="w-4 h-4 text-red-500" />
-                  <span className="text-[13px] font-semibold text-red-600">
+                  <span className="text-[12px] font-semibold text-red-600">
                     수익 예시
                   </span>
                 </div>
-                <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed">
                   1주 @ 50,000원 매수 →<br />
                   1주 @ 60,000원 매도
                   <br />
@@ -582,11 +582,11 @@ export default function GuidePage() {
               <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">
                   <ArrowDownRight className="w-4 h-4 text-blue-500" />
-                  <span className="text-[13px] font-semibold text-blue-600">
+                  <span className="text-[12px] font-semibold text-blue-600">
                     손실 예시
                   </span>
                 </div>
-                <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed">
                   1주 @ 50,000원 매수 →<br />
                   1주 @ 42,000원 매도
                   <br />
@@ -598,7 +598,7 @@ export default function GuidePage() {
             </div>
 
             {/* 투자 전략 */}
-            <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
+            <h3 className="text-[16px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
               대표적인 투자 전략
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
@@ -614,7 +614,7 @@ export default function GuidePage() {
                     >
                       <Icon className="w-4 h-4" />
                     </div>
-                    <h4 className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-1">
+                    <h4 className="text-[12px] font-semibold text-gray-800 dark:text-gray-200 mb-1">
                       {s.title}
                     </h4>
                     <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
@@ -626,7 +626,7 @@ export default function GuidePage() {
             </div>
 
             {/* 투자 원칙 */}
-            <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
+            <h3 className="text-[16px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
               투자 원칙 & 주의사항
             </h3>
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden">
@@ -642,7 +642,7 @@ export default function GuidePage() {
                 >
                   <rule.icon className={`w-5 h-5 shrink-0 ${rule.iconColor}`} />
                   <div>
-                    <p className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-0.5">
+                    <p className="text-[12px] font-semibold text-gray-800 dark:text-gray-200 mb-0.5">
                       {rule.title}
                     </p>
                     <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
@@ -657,10 +657,10 @@ export default function GuidePage() {
             <div className="mt-6 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-5 flex gap-3">
               <DollarSign className="w-5 h-5 text-gray-400 dark:text-slate-500 shrink-0 mt-0.5" />
               <div>
-                <p className="text-[13px] font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                <p className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   수수료 안내
                 </p>
-                <p className="text-[13px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
                   SOLMate 모의투자는 매매 시 수수료가 별도로 부과되지 않습니다.
                   실전 투자에는 수수료가 부과되므로 수수료가 수익에 미치는
                   영향을 미리 파악해두세요.
@@ -699,7 +699,7 @@ export default function GuidePage() {
                     <p className="text-[14px] font-semibold text-gray-800 dark:text-gray-200 mb-0.5">
                       {item.term}
                     </p>
-                    <p className="text-[13px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                    <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -709,13 +709,13 @@ export default function GuidePage() {
 
             {/* 마무리 배너 */}
             <div className="mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white text-center">
-              <p className="text-[16px] font-bold mb-1">이제 준비됐나요?</p>
-              <p className="text-blue-100 text-[13px] mb-4">
+              <p className="text-[16px] font-semibold mb-1">이제 준비됐나요?</p>
+              <p className="text-blue-100 text-[12px] mb-4">
                 SOLMate와 함께 모의투자를 시작해보세요!
               </p>
               <a
                 href="/invest"
-                className="inline-flex items-center gap-1.5 bg-white text-blue-600 text-[13px] font-semibold px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center gap-1.5 bg-white text-blue-600 text-[12px] font-semibold px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors"
               >
                 <BarChart2 className="w-4 h-4" />
                 모의투자 시작하기
@@ -746,7 +746,7 @@ function SectionHeader({
           {label}
         </span>
       </div>
-      <h2 className="text-[20px] font-bold text-gray-900 dark:text-gray-100">{title}</h2>
+      <h2 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
       <div className="mt-2 w-10 h-0.5 bg-[#0046FF] rounded-full" />
     </div>
   );

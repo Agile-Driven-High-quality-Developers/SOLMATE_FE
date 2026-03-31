@@ -307,7 +307,7 @@ export default function StockDetailPage() {
               <div className="flex border-b border-gray-200 dark:border-slate-700 mb-4">
                 <button
                   onClick={() => setActiveTab("info")}
-                  className={`flex-1 py-2.5 text-[13px] font-semibold transition-colors ${
+                  className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors ${
                     activeTab === "info"
                       ? "text-[#0046FF] border-b-2 border-[#0046FF]"
                       : "text-gray-400 dark:text-slate-500"
@@ -317,7 +317,7 @@ export default function StockDetailPage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("history")}
-                  className={`flex-1 py-2.5 text-[13px] font-semibold transition-colors ${
+                  className={`flex-1 py-2.5 text-[12px] font-semibold transition-colors ${
                     activeTab === "history"
                       ? "text-[#0046FF] border-b-2 border-[#0046FF]"
                       : "text-gray-400 dark:text-slate-500"
@@ -454,7 +454,7 @@ export default function StockDetailPage() {
       <SpotlightTour tourKey="stock-detail" steps={STOCK_DETAIL_TOUR} hidden={!!orderSide || !!pendingOrder} />
 
       {errorToast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 bg-red-500 text-white text-[13px] font-semibold px-5 py-3 rounded-xl shadow-lg animate-fade-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2 bg-red-500 text-white text-[12px] font-semibold px-5 py-3 rounded-xl shadow-lg animate-fade-in">
           <span>⚠️</span>
           {errorToast}
         </div>

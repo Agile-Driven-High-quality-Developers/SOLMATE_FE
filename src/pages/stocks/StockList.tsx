@@ -144,10 +144,10 @@ function MarketPanel({
     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 flex divide-x divide-gray-100 dark:divide-slate-800">
       {data.map((idx) => (
         <div key={idx.label} className="flex-1 px-3 py-3 md:px-6 md:py-5">
-          <p className="text-[11px] md:text-[13px] text-gray-400 dark:text-slate-500 font-medium mb-0.5 md:mb-1">
+          <p className="text-[11px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-0.5 md:mb-1">
             {idx.label}
           </p>
-          <p className="text-[15px] md:text-[24px] font-bold text-gray-900 dark:text-gray-100">
+          <p className="text-[16px] md:text-[24px] font-semibold text-gray-900 dark:text-gray-100">
             {idx.value}
           </p>
           <div className="flex items-center gap-0.5 md:gap-1 mt-0.5">
@@ -205,7 +205,7 @@ function StockRow({
               strokeWidth={1.8}
             />
           </button>
-          <span className="w-5 text-center text-[13px] text-gray-500 dark:text-slate-400 tabular-nums">
+          <span className="w-5 text-center text-[12px] text-gray-500 dark:text-slate-400 tabular-nums">
             {index}
           </span>
         </div>
@@ -226,7 +226,7 @@ function StockRow({
           </div>
         </div>
       </td>
-      <td className="hidden md:table-cell px-6 py-3.5 text-left text-[13px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
+      <td className="hidden md:table-cell px-6 py-3.5 text-left text-[12px] text-gray-500 dark:text-slate-400 whitespace-nowrap">
         {SECTOR_MAP[stock.sectorType] ?? stock.sectorType}
       </td>
       <td className="px-6 py-3.5 text-right whitespace-nowrap">
@@ -242,7 +242,7 @@ function StockRow({
       </td>
       <td className="hidden md:table-cell px-6 py-3.5 text-right whitespace-nowrap">
         <span
-          className={`text-[13px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
+          className={`text-[12px] font-semibold tabular-nums ${stock.changeRate > 0 ? "text-red-500" : stock.changeRate < 0 ? "text-blue-500" : "text-gray-500"}`}
         >
           {stock.changeRate > 0 ? "+" : ""}
           {stock.changeRate.toFixed(2)}%
@@ -379,10 +379,10 @@ export default function StockList() {
     <div className="flex flex-col h-full p-3 md:p-6 gap-3 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
       <div>
-        <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
           모의투자
         </h1>
-        <p className="text-[13px] text-gray-400 dark:text-slate-500 mt-0.5">
+        <p className="text-[12px] text-gray-400 dark:text-slate-500 mt-0.5">
           KOSPI200 종목으로 실전 같은 모의 매매를 경험하세요
         </p>
       </div>
@@ -407,7 +407,7 @@ export default function StockList() {
             placeholder="종목명 또는 코드 검색"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-[13px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
+            className="w-full pl-9 pr-4 py-2 text-[12px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#0046FF] transition-colors dark:text-gray-100 dark:placeholder:text-slate-500"
           />
         </div>
         <div className="flex gap-1.5 flex-wrap">

@@ -66,12 +66,13 @@ export default function SignUpPage() {
     password === passwordConfirm;
 
   // ── 이메일 유효성 ──────────────────────────────────────────────────────────
-  const validateEmail = (val: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  const validateEmail = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
 
   const handleEmailBlur = () => {
     if (!email) return;
-    setEmailError(validateEmail(email) ? "" : "올바른 이메일 주소를 입력해 주세요.");
+    setEmailError(
+      validateEmail(email) ? "" : "올바른 이메일 주소를 입력해 주세요.",
+    );
   };
 
   // ── 인증 메일 발송 — POST /api/auth/email/send ─────────────────────────────
@@ -143,7 +144,9 @@ export default function SignUpPage() {
   // ── 비밀번호 ─────────────────────────────────────────────────────────────────
   const handlePasswordBlur = () => {
     if (!password) return;
-    setPasswordError(password.length < 8 ? "비밀번호는 8자 이상이어야 합니다." : "");
+    setPasswordError(
+      password.length < 8 ? "비밀번호는 8자 이상이어야 합니다." : "",
+    );
     if (passwordConfirm) validateConfirm(password, passwordConfirm);
   };
 
@@ -174,8 +177,12 @@ export default function SignUpPage() {
       showToast("회원가입이 완료되었습니다!");
       navigate("/login");
     } catch (err: unknown) {
-      const data = (err as { data?: { code?: string; message?: string } })?.data;
-      if ((data?.code === "USER_409_2" || data?.code === "USER_409") && data.message) {
+      const data = (err as { data?: { code?: string; message?: string } })
+        ?.data;
+      if (
+        (data?.code === "USER_409_2" || data?.code === "USER_409") &&
+        data.message
+      ) {
         showToast(data.message);
       } else {
         showToast("회원가입에 실패했습니다. 다시 시도해 주세요.");
@@ -189,7 +196,7 @@ export default function SignUpPage() {
   const emailSent = emailStep === "sent" || emailStep === "verifying";
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10">
+    <div className="min-h-dvh bg-gray-50 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-100">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-8 py-10">
           {/* 로고 */}
@@ -197,12 +204,17 @@ export default function SignUpPage() {
             <Logo appName="SOLMate" appSubtitle="모의투자를 통한 학습플랫폼" />
           </div>
 
-          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            className="flex flex-col gap-4"
+          >
             {/* ── 이메일 + 인증 메일 발송 ──────────────────────────────────── */}
             <div className="flex flex-col gap-1.5 w-full">
-              <label className="text-[14px] font-medium text-gray-700">이메일</label>
-              <div className="flex gap-2 items-stretch">
+              <label className="text-[14px] font-medium text-gray-700">
+                이메일
+              </label>
+              <div className="flex flex-col min-[480px]:flex-row gap-2 items-stretch">
                 <input
                   type="email"
                   value={email}
@@ -218,9 +230,11 @@ export default function SignUpPage() {
                   className={[
                     "flex-1 px-3 py-2.5 rounded-[10px] border outline-none",
                     "text-[16px] text-gray-900 placeholder:text-gray-400 transition-colors duration-150",
-                    emailVerified ? "bg-gray-50 border-green-500 text-gray-500" :
-                    emailError ? "border-red-400 focus:border-red-500" :
-                    "border-gray-200 focus:border-[#0046FF]",
+                    emailVerified
+                      ? "bg-gray-50 border-green-500 text-gray-500"
+                      : emailError
+                        ? "border-red-400 focus:border-red-500"
+                        : "border-gray-200 focus:border-[#0046FF]",
                   ].join(" ")}
                 />
                 <button
@@ -228,7 +242,7 @@ export default function SignUpPage() {
                   onClick={emailVerified ? undefined : handleSendCode}
                   disabled={emailStep === "sending" || emailVerified}
                   className={[
-                    "shrink-0 px-3.5 rounded-[10px] border text-[13px] font-medium",
+                    "shrink-0 px-3.5 py-1.5 rounded-[10px] border text-[12px] font-medium",
                     "transition-all duration-150 whitespace-nowrap",
                     "disabled:opacity-60 disabled:cursor-not-allowed",
                     emailVerified
@@ -236,20 +250,26 @@ export default function SignUpPage() {
                       : "border-[#0046FF] text-[#0046FF] hover:bg-blue-50",
                   ].join(" ")}
                 >
-                  {emailStep === "sending" ? "발송 중..." :
-                   emailVerified ? "✓ 인증됨" :
-                   emailSent ? "재발송" : "인증 발송"}
+                  {emailStep === "sending"
+                    ? "발송 중..."
+                    : emailVerified
+                      ? "✓ 인증됨"
+                      : emailSent
+                        ? "재발송"
+                        : "인증 발송"}
                 </button>
               </div>
               {emailError && (
-                <p className="text-[13px] text-red-500">{emailError}</p>
+                <p className="text-[12px] text-red-500">{emailError}</p>
               )}
             </div>
 
             {/* ── 인증 코드 입력 (메일 발송 후 표시) ──────────────────────── */}
             {(emailSent || emailVerified) && (
               <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-[14px] font-medium text-gray-700">인증 코드</label>
+                <label className="text-[14px] font-medium text-gray-700">
+                  인증 코드
+                </label>
                 <div className="flex gap-2 items-stretch">
                   <input
                     type="text"
@@ -263,9 +283,11 @@ export default function SignUpPage() {
                     className={[
                       "flex-1 px-3 py-2.5 rounded-[10px] border outline-none",
                       "text-[16px] text-gray-900 placeholder:text-gray-400 transition-colors duration-150",
-                      emailVerified ? "bg-gray-50 border-green-500 text-gray-500" :
-                      verifyError ? "border-red-400 focus:border-red-500" :
-                      "border-gray-200 focus:border-[#0046FF]",
+                      emailVerified
+                        ? "bg-gray-50 border-green-500 text-gray-500"
+                        : verifyError
+                          ? "border-red-400 focus:border-red-500"
+                          : "border-gray-200 focus:border-[#0046FF]",
                     ].join(" ")}
                   />
                   <button
@@ -273,7 +295,7 @@ export default function SignUpPage() {
                     onClick={emailVerified ? undefined : handleVerifyCode}
                     disabled={emailStep === "verifying" || emailVerified}
                     className={[
-                      "shrink-0 px-3.5 rounded-[10px] border text-[13px] font-medium",
+                      "shrink-0 px-3.5 rounded-[10px] border text-[12px] font-medium",
                       "transition-all duration-150 whitespace-nowrap",
                       "disabled:opacity-60 disabled:cursor-not-allowed",
                       emailVerified
@@ -281,20 +303,25 @@ export default function SignUpPage() {
                         : "border-[#0046FF] text-[#0046FF] hover:bg-blue-50",
                     ].join(" ")}
                   >
-                    {emailStep === "verifying" ? "확인 중..." :
-                     emailVerified ? "✓ 확인됨" : "코드 확인"}
+                    {emailStep === "verifying"
+                      ? "확인 중..."
+                      : emailVerified
+                        ? "✓ 확인됨"
+                        : "코드 확인"}
                   </button>
                 </div>
                 {verifyError && (
-                  <p className="text-[13px] text-red-500">{verifyError}</p>
+                  <p className="text-[12px] text-red-500">{verifyError}</p>
                 )}
               </div>
             )}
 
             {/* ── 닉네임 ────────────────────────────────────────────────────── */}
             <div className="flex flex-col gap-1.5 w-full">
-              <label className="text-[14px] font-medium text-gray-700">닉네임</label>
-              <div className="flex gap-2 items-stretch">
+              <label className="text-[14px] font-medium text-gray-700">
+                닉네임
+              </label>
+              <div className="flex flex-col min-[480px]:flex-row gap-2 items-stretch">
                 <input
                   type="text"
                   value={nickname}
@@ -305,9 +332,11 @@ export default function SignUpPage() {
                   className={[
                     "flex-1 px-3 py-2.5 rounded-[10px] border outline-none",
                     "text-[16px] text-gray-900 placeholder:text-gray-400 transition-colors duration-150",
-                    nicknameError ? "border-red-400 focus:border-red-500" :
-                    nicknameChecked ? "border-green-500 focus:border-green-500" :
-                    "border-gray-200 focus:border-[#0046FF]",
+                    nicknameError
+                      ? "border-red-400 focus:border-red-500"
+                      : nicknameChecked
+                        ? "border-green-500 focus:border-green-500"
+                        : "border-gray-200 focus:border-[#0046FF]",
                   ].join(" ")}
                 />
                 <button
@@ -315,7 +344,7 @@ export default function SignUpPage() {
                   onClick={handleCheckNickname}
                   disabled={checkingNickname}
                   className={[
-                    "shrink-0 px-3.5 rounded-[10px] border text-[13px] font-medium",
+                    "shrink-0 px-3.5 py-1.5 rounded-[10px] border text-[12px] font-medium",
                     "transition-all duration-150 whitespace-nowrap",
                     "disabled:opacity-60 disabled:cursor-not-allowed",
                     nicknameChecked
@@ -323,14 +352,18 @@ export default function SignUpPage() {
                       : "border-[#0046FF] text-[#0046FF] hover:bg-blue-50",
                   ].join(" ")}
                 >
-                  {checkingNickname ? "확인 중..." : nicknameChecked ? "✓ 확인됨" : "중복확인"}
+                  {checkingNickname
+                    ? "확인 중..."
+                    : nicknameChecked
+                      ? "✓ 확인됨"
+                      : "중복확인"}
                 </button>
               </div>
               {nicknameError && (
-                <p className="text-[13px] text-red-500">{nicknameError}</p>
+                <p className="text-[12px] text-red-500">{nicknameError}</p>
               )}
               {nicknameHint && !nicknameError && (
-                <p className="text-[13px] text-green-600">{nicknameHint}</p>
+                <p className="text-[12px] text-green-600">{nicknameHint}</p>
               )}
             </div>
 
@@ -388,8 +421,10 @@ export default function SignUpPage() {
               type="submit"
               variant={isFormValid ? "primary" : "invalid"}
               className={[
-                "w-full py-3 text-[15px] font-semibold mt-1",
-                !isFormValid || isSubmitting ? "cursor-not-allowed opacity-60" : "",
+                "w-full py-3 text-[16px] font-semibold mt-1",
+                !isFormValid || isSubmitting
+                  ? "cursor-not-allowed opacity-60"
+                  : "",
               ].join(" ")}
             >
               {isSubmitting ? (
@@ -404,7 +439,7 @@ export default function SignUpPage() {
           </form>
 
           {/* 로그인 안내 */}
-          <p className="mt-6 text-center text-[13px] text-gray-400">
+          <p className="mt-6 text-center text-[12px] text-gray-400">
             이미 계정이 있으신가요?{" "}
             <button
               type="button"
@@ -421,10 +456,12 @@ export default function SignUpPage() {
       <div
         className={[
           "fixed bottom-8 left-1/2 -translate-x-1/2",
-          "bg-gray-800 text-white text-[13px] px-5 py-2.5",
+          "bg-gray-800 text-white text-[12px] px-5 py-2.5",
           "rounded-lg pointer-events-none whitespace-nowrap z-50",
           "transition-all duration-200",
-          toast.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+          toast.visible
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-4",
         ].join(" ")}
       >
         {toast.msg}

@@ -79,7 +79,7 @@ export default function NotificationPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
-              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+              <p className="text-[16px] font-semibold text-gray-900 dark:text-gray-100">
                 멘토 신청 수락 불가
               </p>
               <button
@@ -93,7 +93,7 @@ export default function NotificationPage() {
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
                 이미 멘토가 있습니다.
               </p>
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 해당 멘티는 이미 다른 멘토가 배정되어 있어요.
               </p>
             </div>
@@ -112,11 +112,11 @@ export default function NotificationPage() {
       <div className="flex flex-col gap-4 p-6 pb-4 shrink-0">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-[22px] font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-[22px] font-semibold text-gray-900 dark:text-gray-100">
               알림
             </h1>
             {totalUnread > 0 && (
-              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+              <p className="text-[12px] text-gray-400 dark:text-slate-500">
                 읽지 않은 알림 {totalUnread}개
               </p>
             )}
@@ -132,7 +132,7 @@ export default function NotificationPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold rounded-xl cursor-pointer transition-colors ${
+                className={`flex items-center gap-1.5 px-4 py-2 text-[12px] font-semibold rounded-xl cursor-pointer transition-colors ${
                   isActive
                     ? "bg-[#0046FF] text-white"
                     : "bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700"
@@ -141,7 +141,7 @@ export default function NotificationPage() {
                 {tab.label}
                 {count > 0 && (
                   <span
-                    className={`flex items-center justify-center rounded-full text-[11px] font-bold w-[18px] h-[18px] ${
+                    className={`flex items-center justify-center rounded-full text-[11px] font-semibold w-[18px] h-[18px] ${
                       isActive
                         ? "bg-white text-[#0046FF]"
                         : "bg-red-500 text-white"
