@@ -15,13 +15,16 @@ const topicSubscriptions = new Map<
 >();
 
 let stompClient: Client | null = null;
+let wsConnectionCount = 0; // WebSocket 연결 생성 횟수
 
 // 활성화된 STOMP 연결이 필요한지 확인 후 연결/해제
 function checkConnectionRequired(wsUrl?: string) {
   const needsConnection = connectedPorts.size > 0;
 
   if (needsConnection && !stompClient && wsUrl) {
-    
+    wsConnectionCount++;
+    console.log(`[STOMP Worker] ✅ WebSocket 연결 생성: 총 ${wsConnectionCount}회 (연결된 탭 수: ${connectedPorts.size})`);
+
     // http(s) -> ws(s) 프로토콜 변환
     let brokerURL = wsUrl;
     if (wsUrl.startsWith("http")) {
@@ -98,6 +101,7 @@ declare const self: SharedWorkerGlobalScope;
 self.onconnect = (e: MessageEvent) => {
   const port = e.ports[0];
   connectedPorts.add(port);
+  console.log(`[STOMP Worker] 🔌 탭 연결됨 (현재 연결된 탭 수: ${connectedPorts.size})`);
 
   port.onmessage = (event) => {
     const data = event.data;
@@ -158,6 +162,7 @@ self.onconnect = (e: MessageEvent) => {
 
 function handlePortClose(port: MessagePort) {
   connectedPorts.delete(port);
+  console.log(`[STOMP Worker] ❌ 탭 연결 해제됨 (남은 탭 수: ${connectedPorts.size})`);
   
   // 모든 해당 포트의 구독 해제
   for (const [dest, info] of topicSubscriptions.entries()) {
