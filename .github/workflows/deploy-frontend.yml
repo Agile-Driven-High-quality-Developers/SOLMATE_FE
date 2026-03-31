@@ -1,0 +1,81 @@
+# -----------------------------------------------------------------------------
+# SOLMATE FE — S3 정적 호스팅 + CloudFront 캐시 무효화
+#
+# [필수 GitHub Actions Secrets]
+#   AWS_ROLE_ARN               OIDC로 가정할 IAM 역할 ARN
+#   S3_BUCKET                  대상 S3 버킷 이름 (루트에 index.html 이 오도록 sync)
+#   CLOUDFRONT_DISTRIBUTION_ID CloudFront 배포 ID (E 로 시작)
+#   VITE_API_BASE_URL          프로덕션 API 베이스 URL (https://... 권장)
+#
+# [선택 Secrets]
+#   VITE_S3_BASE_URL           종목 로고 등용 S3 베이스 URL (없으면 Secret 생략 가능)
+#
+# OIDC 미사용 시: IAM 사용자 액세스 키 + configure-aws-credentials 의
+# aws-access-key-id / aws-secret-access-key 방식으로 교체하고,
+# permissions 에서 id-token: write 는 제거해도 됩니다.
+# -----------------------------------------------------------------------------
+
+name: Deploy frontend
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  AWS_REGION: ap-northeast-2
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Production build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_S3_BASE_URL: ${{ secrets.VITE_S3_BASE_URL }}
+        run: pnpm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync dist to S3
+        run: aws s3 sync dist/ "s3://${{ secrets.S3_BUCKET }}/" --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
