@@ -193,11 +193,11 @@ function ReturnCells({
 
   return (
     <>
-      <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
+      <td className={`px-6 py-3.5 text-right font-semibold text-[13px] tabular-nums ${color}`}>
         {prefix}
-        {rate.toFixed(2)}%
+        {Math.abs(rate).toFixed(2)}%
       </td>
-      <td className={`px-4 py-3.5 text-[13px] font-medium text-right ${color}`}>
+      <td className={`px-6 py-3.5 text-[13px] font-medium text-right ${color}`}>
         {prefix}
         {(amount / 10000).toFixed(0)}만원
       </td>
@@ -236,7 +236,7 @@ function UserRow({
       className={`border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50/50 dark:hover:bg-slate-800 transition-colors ${user.me ? "bg-blue-50/40 dark:bg-blue-950/20" : ""}`}
     >
       {/* 순위 */}
-      <td className="px-5 py-3.5 text-center">
+      <td className="px-6 py-3.5 text-center">
         {rank === 1 ? (
           <Crown size={20} className="mx-auto text-yellow-400" />
         ) : rank === 2 ? (
@@ -249,7 +249,7 @@ function UserRow({
       </td>
 
       {/* 투자자 */}
-      <td className="px-2 py-3.5">
+      <td className="px-4 py-3.5">
         <div
           className="flex items-center gap-2.5 cursor-pointer hover:opacity-70 transition-opacity w-fit"
           onClick={() =>
@@ -274,7 +274,7 @@ function UserRow({
       </td>
 
       {/* 팔로워 */}
-      <td className="px-4 py-3.5 text-[13px] text-gray-500 text-right">
+      <td className="px-6 py-3.5 text-[13px] text-gray-500 text-right">
         {user.followerCount.toLocaleString()}명
       </td>
 
@@ -283,7 +283,7 @@ function UserRow({
 
       {/* 팔로우 */}
       <td
-        className="px-4 py-3.5 text-center"
+        className="px-6 py-3.5 text-center"
         data-tour={isFirstNonMe ? "users-follow" : undefined}
       >
         <FollowButton user={user} onToggle={onFollowToggle} />
@@ -291,7 +291,7 @@ function UserRow({
 
       {/* 멘토 */}
       <td
-        className="px-4 py-3.5 text-center"
+        className="px-6 py-3.5 text-center"
         data-tour={isFirstNonMe ? "users-mentor" : undefined}
       >
         <MentoringButton
@@ -618,25 +618,25 @@ export default function UserListPage() {
           <table className="w-full">
             <thead>
               <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
-                <th className="text-center px-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-16">
+                <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">
                   순위
                 </th>
-                <th className="text-left px-2 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-left px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   투자자
                 </th>
-                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">
+                <th className="text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
                   팔로워
                 </th>
-                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                <th className="text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
                   총 수익률
                 </th>
-                <th className="text-right px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
+                <th className="text-right px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-32">
                   총 수익
                 </th>
-                <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
                   팔로우
                 </th>
-                <th className="text-center px-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-24">
+                <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-28">
                   멘토
                 </th>
               </tr>

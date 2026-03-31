@@ -35,16 +35,24 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-100 dark:border-slate-800">
-            {["구분", "주문유형", "주문가격", "수량", "주문금액", "상태"].map(
-              (h) => (
-                <th
-                  key={h}
-                  className="text-left pb-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium"
-                >
-                  {h}
-                </th>
-              ),
-            )}
+            <th className="text-left py-3 pl-4 pr-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              구분
+            </th>
+            <th className="text-left py-3 px-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              주문유형
+            </th>
+            <th className="text-right py-3 px-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              주문가격
+            </th>
+            <th className="text-right py-3 px-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              수량
+            </th>
+            <th className="text-right py-3 pl-6 pr-12 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              주문금액
+            </th>
+            <th className="text-left py-3 pl-6 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
+              상태
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
@@ -63,7 +71,7 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
                 key={order.orderId}
                 className="hover:bg-gray-50/50 dark:hover:bg-slate-800"
               >
-                <td className="py-3">
+                <td className="py-3.5 pl-4 pr-6 whitespace-nowrap">
                   <span
                     className={`text-[13px] font-semibold ${
                       order.side === "BUY" ? "text-red-500" : "text-blue-500"
@@ -72,22 +80,22 @@ export default function TradeHistory({ tickerCode, orders }: Props) {
                     {order.sideLabel}
                   </span>
                 </td>
-                <td className="py-3 text-[13px] text-gray-600 dark:text-slate-400">
+                <td className="py-3.5 px-6 text-[13px] text-gray-600 dark:text-slate-400 whitespace-nowrap">
                   {order.orderTypeLabel}
                 </td>
-                <td className="py-3 text-[13px] text-gray-900 dark:text-gray-100">
+                <td className="py-3.5 px-6 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {order.orderPrice.toLocaleString()}원
                 </td>
-                <td className="py-3 text-[13px] text-gray-900 dark:text-gray-100">
+                <td className="py-3.5 px-6 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {order.quantity}주
                 </td>
-                <td className="py-3 text-[13px] text-gray-900 dark:text-gray-100">
+                <td className="py-3.5 pl-6 pr-12 text-right text-[13px] font-semibold text-gray-900 dark:text-gray-100 tabular-nums whitespace-nowrap">
                   {formatAmount(order.orderAmount)}
                 </td>
-                <td className="py-3">
+                <td className="py-3.5 pl-6 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-[13px] ${
+                      className={`text-[13px] font-semibold ${
                         order.status === "CANCELLED"
                           ? "text-gray-400 dark:text-slate-500"
                           : "text-gray-700 dark:text-gray-300"
