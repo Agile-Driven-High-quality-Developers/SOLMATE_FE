@@ -17,7 +17,7 @@ import {
   useMyMentorQuery,
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
-import { followUser, unfollowUser, requestMentoring, cancelMentoring } from "@/api/userListApi";
+import { followUser, unfollowUser, requestMentoring, cancelMentoring, cancelPendingMentoring } from "@/api/userListApi";
 import Button from "@/components/ui/Button";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -39,6 +39,7 @@ export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState<TabId>("portfolio");
   const [followModal, setFollowModal] = useState<"followers" | "following" | null>("following");
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showPendingCancelModal, setShowPendingCancelModal] = useState(false);
 
   const id = Number(userId);
   const { data: profile, isLoading } = useUserProfileQuery(id);
@@ -104,6 +105,17 @@ export default function UserProfilePage() {
     }
   };
 
+  const handlePendingMentoringCancel = async () => {
+    try {
+      await cancelPendingMentoring(id);
+      queryClient.invalidateQueries({ queryKey: ["users", id] });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
+      setShowPendingCancelModal(false);
+    } catch {
+      // 실패 시 무시
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full min-h-screen">
@@ -128,6 +140,28 @@ export default function UserProfilePage() {
 
   return (
     <div className="flex flex-col h-screen p-6 gap-5 overflow-hidden bg-gray-50 dark:bg-slate-950">
+      {showPendingCancelModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setShowPendingCancelModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">신청 취소</p>
+              <button onClick={() => setShowPendingCancelModal(false)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+                <span className="font-bold text-[#0046FF]">{profile?.nickname}</span> 멘토 신청을 취소하시겠어요?
+              </p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">취소 후에도 다시 신청할 수 있어요.</p>
+            </div>
+            <div className="flex gap-2 px-6 pb-6">
+              <Button variant="invalid" className="flex-1 py-2.5" onClick={() => setShowPendingCancelModal(false)}>닫기</Button>
+              <Button variant="danger" className="flex-1 py-2.5" onClick={handlePendingMentoringCancel}>신청 취소</Button>
+            </div>
+          </div>
+        </div>
+      )}
       {showCancelModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40" onClick={() => setShowCancelModal(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl" onClick={(e) => e.stopPropagation()}>
@@ -178,6 +212,7 @@ export default function UserProfilePage() {
             hasAcceptedMentor={hasAcceptedMentor}
             onMentoringRequest={handleMentoringRequest}
             onMentoringCancel={() => setShowCancelModal(true)}
+            onPendingCancelRequest={() => setShowPendingCancelModal(true)}
           />
           {followModal && (
             <FollowList type={followModal} userId={id} />
