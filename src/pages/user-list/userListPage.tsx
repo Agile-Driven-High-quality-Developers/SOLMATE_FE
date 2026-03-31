@@ -40,6 +40,7 @@ import {
   unfollowUser,
   requestMentoring,
   cancelMentoring,
+  cancelPendingMentoring,
 } from "@/api/userListApi";
 import type { UserItem } from "@/api/userListApi";
 import {
@@ -114,11 +115,13 @@ function MentoringButton({
   hasAcceptedMentor,
   onRequest,
   onCancel,
+  onPendingCancel,
 }: {
   user: UserItem;
   hasAcceptedMentor: boolean;
   onRequest: (user: UserItem) => void;
   onCancel: (user: UserItem) => void;
+  onPendingCancel: (user: UserItem) => void;
 }) {
   if (user.me) return null;
 
@@ -138,8 +141,8 @@ function MentoringButton({
   if (user.mentoringStatus === "PENDING") {
     return (
       <button
-        disabled
-        className="w-full py-1.5 rounded-[10px] text-[12px] border border-orange-400 text-orange-400 bg-white cursor-default opacity-60"
+        onClick={() => onPendingCancel(user)}
+        className="w-full py-1.5 rounded-[10px] text-[12px] border border-orange-400 text-orange-400 bg-white hover:bg-orange-50 transition-colors"
       >
         신청완료
       </button>
@@ -214,6 +217,7 @@ function UserRow({
   onFollowToggle,
   onMentoringRequest,
   onMentoringCancel,
+  onPendingCancel,
   isFirstNonMe,
 }: {
   user: UserItem;
@@ -224,6 +228,7 @@ function UserRow({
   onFollowToggle: (user: UserItem) => void;
   onMentoringRequest: (user: UserItem) => void;
   onMentoringCancel: (user: UserItem) => void;
+  onPendingCancel: (user: UserItem) => void;
   isFirstNonMe?: boolean;
 }) {
   const navigate = useNavigate();
@@ -295,6 +300,7 @@ function UserRow({
           hasAcceptedMentor={hasAcceptedMentor}
           onRequest={onMentoringRequest}
           onCancel={onMentoringCancel}
+          onPendingCancel={onPendingCancel}
         />
       </td>
     </tr>
@@ -326,9 +332,8 @@ export default function UserListPage() {
       { replace: true },
     );
 
-  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(
-    null,
-  );
+  const [cancelTargetUser, setCancelTargetUser] = useState<UserItem | null>(null);
+  const [pendingCancelTargetUser, setPendingCancelTargetUser] = useState<UserItem | null>(null);
 
   const { data, isLoading } = useUserListQuery();
   const { toggleFollow, setMentoringStatus } = useUserListCacheUpdate();
@@ -403,6 +408,22 @@ export default function UserListPage() {
     }
   }
 
+  async function handlePendingMentoringCancel(user: UserItem) {
+    setPendingCancelTargetUser(user);
+  }
+
+  async function confirmPendingCancel() {
+    if (!pendingCancelTargetUser) return;
+    const user = pendingCancelTargetUser;
+    setPendingCancelTargetUser(null);
+    setMentoringStatus(user.userId, "NONE", hasAcceptedMentor);
+    try {
+      await cancelPendingMentoring(user.userId);
+    } catch {
+      setMentoringStatus(user.userId, "PENDING", hasAcceptedMentor);
+    }
+  }
+
   const filtered = allUsers
     .filter((u) => tab === "전체" || u.following || u.me)
     .filter((u) => !search || u.nickname.includes(search));
@@ -474,6 +495,56 @@ export default function UserListPage() {
                 onClick={confirmMentoringCancel}
               >
                 멘토 취소
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {pendingCancelTargetUser && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40"
+          onClick={() => setPendingCancelTargetUser(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-2xl w-[360px] shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
+                신청 취소
+              </p>
+              <button
+                onClick={() => setPendingCancelTargetUser(null)}
+                className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
+                <span className="font-bold text-[#0046FF]">
+                  {pendingCancelTargetUser.nickname}
+                </span>{" "}
+                멘토 신청을 취소하시겠어요?
+              </p>
+              <p className="text-[13px] text-gray-400 dark:text-slate-500">
+                취소 후에도 다시 신청할 수 있어요.
+              </p>
+            </div>
+            <div className="flex gap-2 px-6 pb-6">
+              <Button
+                variant="invalid"
+                className="flex-1 py-2.5"
+                onClick={() => setPendingCancelTargetUser(null)}
+              >
+                닫기
+              </Button>
+              <Button
+                variant="danger"
+                className="flex-1 py-2.5"
+                onClick={confirmPendingCancel}
+              >
+                신청 취소
               </Button>
             </div>
           </div>
@@ -619,6 +690,7 @@ export default function UserListPage() {
                           onFollowToggle={handleFollowToggle}
                           onMentoringRequest={handleMentoringRequest}
                           onMentoringCancel={handleMentoringCancel}
+                          onPendingCancel={handlePendingMentoringCancel}
                           isFirstNonMe={i === firstNonMeIdx}
                         />
                       );
