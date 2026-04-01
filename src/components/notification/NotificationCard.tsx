@@ -70,15 +70,30 @@ function getIconConfig(type: NotificationItem["notificationType"]): IconConfig {
 }
 
 function formatNotificationContent(content: string): React.ReactNode {
-  const parts = content.split(/(\[[^\]]+\]|[^\s]+님|[^\s]+을\(를\))/g);
+  const nimIndex = content.indexOf("님");
+  if (nimIndex > 0) {
+    const name = content.slice(0, nimIndex);
+    const rest = content.slice(nimIndex + 1);
+    const restParts = rest.split(/(\[[^\]]+\]|[^\s]+을\(를\))/g);
+    const restNodes = restParts.map((part, i) => {
+      if (/^\[[^\]]+\]$/.test(part)) {
+        const inner = part.slice(1, -1);
+        return <React.Fragment key={i}>[<strong>{inner}</strong>]</React.Fragment>;
+      }
+      if (/^[^\s]+을\(를\)$/.test(part)) {
+        const word = part.slice(0, -4);
+        return <React.Fragment key={i}><strong>{word}</strong>을(를)</React.Fragment>;
+      }
+      return part;
+    });
+    return <><strong>{name}</strong>님{restNodes}</>;
+  }
+
+  const parts = content.split(/(\[[^\]]+\]|[^\s]+을\(를\))/g);
   return parts.map((part, i) => {
     if (/^\[[^\]]+\]$/.test(part)) {
       const inner = part.slice(1, -1);
       return <React.Fragment key={i}>[<strong>{inner}</strong>]</React.Fragment>;
-    }
-    if (/^[^\s]+님$/.test(part)) {
-      const name = part.slice(0, -1);
-      return <React.Fragment key={i}><strong>{name}</strong>님</React.Fragment>;
     }
     if (/^[^\s]+을\(를\)$/.test(part)) {
       const word = part.slice(0, -4);
