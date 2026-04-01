@@ -280,14 +280,14 @@ export default function TradeOrderModal({
         </div>
 
         {/* 미니 차트 */}
-        <div className="mb-4 rounded-xl overflow-hidden border dark:border-slate-800">
+        <div className="mb-4">
           <DiaryMiniChart
             tickerCode={tickerCode}
             tradeDate={today}
             tradeDateTime={new Date().toISOString()}
             tradeType={isBuy ? "BUY" : "SELL"}
             filledPrice={currentPrice}
-            chartHeight={60}
+            chartHeight={130}
           />
         </div>
 

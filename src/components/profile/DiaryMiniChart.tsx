@@ -356,7 +356,7 @@ export default function DiaryMiniChart({
   if (!tickerCode) return null;
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 mt-1">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 mt-1">
       <div className="flex flex-col gap-1.5 px-4 pt-3 pb-2">
         <span className="text-[12px] font-semibold text-gray-500 dark:text-slate-400">
           체결 시점 차트
