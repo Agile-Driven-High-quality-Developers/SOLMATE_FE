@@ -282,7 +282,11 @@ function DiaryDetail({
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && commentInput.trim()) {
+                  if (
+                    e.key === "Enter" &&
+                    !e.nativeEvent.isComposing &&
+                    commentInput.trim()
+                  ) {
                     postComment(commentInput, {
                       onSuccess: () => setCommentInput(""),
                     });

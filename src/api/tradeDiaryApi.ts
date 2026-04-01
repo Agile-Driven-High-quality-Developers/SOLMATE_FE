@@ -94,6 +94,10 @@ export function usePostCommentMutation(diaryId: string) {
       queryClient.invalidateQueries({
         queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
       });
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.myDiaries,
+      });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
     },
   });
 }
@@ -108,6 +112,10 @@ export function useModifyCommentMutation(diaryId: string) {
       queryClient.invalidateQueries({
         queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
       });
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.myDiaries,
+      });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
     },
   });
 }
@@ -121,6 +129,10 @@ export function useDeleteCommentMutation(diaryId: string) {
       queryClient.invalidateQueries({
         queryKey: myDiariesQueryKeys.diaryDetail(diaryId),
       });
+      queryClient.invalidateQueries({
+        queryKey: myDiariesQueryKeys.myDiaries,
+      });
+      queryClient.invalidateQueries({ queryKey: ["mentor"] });
     },
   });
 }
