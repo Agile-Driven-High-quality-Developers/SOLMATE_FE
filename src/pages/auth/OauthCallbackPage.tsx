@@ -31,11 +31,9 @@ export default function OAuthCallbackPage() {
       })
       .catch((err) => {
         console.error("[OAuth] 에러:", err.message);
-        const code = (err?.data as { code?: string; message?: string })?.code;
         const message =
-          code === "USER_409_1"
-            ? (err.data as { message: string }).message
-            : "구글 로그인에 실패했습니다. 다시 시도해 주세요.";
+          (err?.data as { message?: string })?.message ??
+          "구글 로그인에 실패했습니다. 다시 시도해 주세요.";
         navigate("/login", { replace: true, state: { errorMsg: message } });
       });
   }, [navigate, searchParams, setAuth]);
