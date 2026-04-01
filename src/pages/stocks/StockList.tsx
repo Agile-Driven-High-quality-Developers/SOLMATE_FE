@@ -205,7 +205,7 @@ function StockRow({
               strokeWidth={1.8}
             />
           </button>
-          <span className="w-5 text-center text-[12px] text-gray-500 dark:text-slate-400 tabular-nums">
+          <span className="hidden md:inline-block w-5 text-center text-[12px] text-gray-500 dark:text-slate-400 tabular-nums">
             {index}
           </span>
         </div>
@@ -470,7 +470,7 @@ export default function StockList() {
 
       {/* 종목 테이블 */}
       <div
-        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 md:overflow-x-auto"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-x-auto"
         data-tour="stock-table"
       >
         <table className="w-full md:min-w-175">
@@ -478,8 +478,8 @@ export default function StockList() {
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
               <th className="text-left pl-6 pr-4 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
                 <div className="flex items-center gap-3">
-                  <span className="w-3.5" />
-                  <span className="w-5 text-center">순위</span>
+                  <span className="w-3.5 hidden md:inline-block" />
+                  <span className="hidden md:inline-block w-5 text-center">순위</span>
                 </div>
               </th>
               <th className="text-left pl-2 pr-2 md:pl-3 md:pr-5 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap">
