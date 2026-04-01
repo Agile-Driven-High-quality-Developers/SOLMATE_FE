@@ -7,7 +7,11 @@ import {
   type UTCTimestamp,
   type IChartApi,
 } from "lightweight-charts";
-import { useCandleQuery, type CandleData, type PeriodType } from "@/api/stockApi";
+import {
+  useCandleQuery,
+  type CandleData,
+  type PeriodType,
+} from "@/api/stockApi";
 import { useThemeStore } from "@/store/themeStore";
 import { stompSubscribe } from "@/lib/stompClient";
 
@@ -44,7 +48,7 @@ const INITIAL_LIMIT: Record<PeriodType, number> = {
   day: 365,
   week: 365 * 3,
   month: 365 * 5,
-  year: 365 * 10,
+  year: 365 * 50,
 };
 
 const INITIAL_VISIBLE_CANDLES: Record<PeriodType, number> = {
@@ -57,9 +61,6 @@ const INITIAL_VISIBLE_CANDLES: Record<PeriodType, number> = {
   month: 60,
   year: 10,
 };
-
-const LOAD_MORE_STEP = 365;
-const MAX_LIMIT = 365 * 20;
 
 const UP_COLOR = "#F04452";
 const DOWN_COLOR = "#3B7DEB";
@@ -101,6 +102,7 @@ interface Props {
 export default function StockChart({ stockCode }: Props) {
   const [period, setPeriod] = useState<PeriodType>("1");
   const [limit, setLimit] = useState(INITIAL_LIMIT["1"]);
+  const [toTimestamp, setToTimestamp] = useState<number | undefined>(undefined);
   const [ohlcv, setOhlcv] = useState<OhlcvInfo | null>(null);
   const isDark = useThemeStore((s) => s.theme === "dark");
 
@@ -114,14 +116,24 @@ export default function StockChart({ stockCode }: Props) {
   const isInitialLoadRef = useRef(true);
   const lastRestCandleRef = useRef<CandleData | null>(null);
   const firstDailyVolumeRef = useRef<number | null>(null);
+  const allCandlesRef = useRef<CandleData[]>([]);
+  const noMoreDataRef = useRef(false);
 
   const isMinute = MINUTE_PERIODS.has(period);
-  const { data: candles, isPending } = useCandleQuery(stockCode, period, limit);
+  const { data: candles, isPending } = useCandleQuery(
+    stockCode,
+    period,
+    limit,
+    toTimestamp,
+  );
 
   const handlePeriodChange = (p: PeriodType) => {
     isInitialLoadRef.current = true;
     setPeriod(p);
     setLimit(INITIAL_LIMIT[p]);
+    setToTimestamp(undefined);
+    allCandlesRef.current = [];
+    noMoreDataRef.current = false;
     setOhlcv(null);
   };
 
@@ -255,9 +267,12 @@ export default function StockChart({ stockCode }: Props) {
     // 왼쪽으로 스크롤 시 추가 로드
     chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
       if (!range) return;
-      if (!loadingMoreRef.current && range.from < 10) {
-        loadingMoreRef.current = true;
-        setLimit((prev) => Math.min(prev + LOAD_MORE_STEP, MAX_LIMIT));
+      if (!loadingMoreRef.current && !noMoreDataRef.current && range.from < 10) {
+        const oldest = allCandlesRef.current[0];
+        if (oldest) {
+          loadingMoreRef.current = true;
+          setToTimestamp(oldest.time);
+        }
       }
     });
 
@@ -287,7 +302,10 @@ export default function StockChart({ stockCode }: Props) {
         horzLine: { color: isDark ? "#4b5563" : "#D1D5DB" },
       },
     });
-    chartRef.current.panes()[1]?.priceScale("right").applyOptions({ textColor });
+    chartRef.current
+      .panes()[1]
+      ?.priceScale("right")
+      .applyOptions({ textColor });
   }, [isDark]);
 
   // 기간 변경 시 timeVisible 동기화
@@ -300,11 +318,19 @@ export default function StockChart({ stockCode }: Props) {
     if (!candles || !candleSeriesRef.current || !volumeSeriesRef.current)
       return;
 
-    const timeMap = new Map<string, (typeof candles)[0]>();
-    for (const c of [...candles].sort((a, b) => a.time - b.time)) {
+    const prevAllLength = allCandlesRef.current.length;
+    const merged = [...allCandlesRef.current, ...candles];
+    const timeMap = new Map<string, CandleData>();
+    for (const c of merged.sort((a, b) => a.time - b.time)) {
       timeMap.set(toChartTime(c.time, isMinute).toString(), c);
     }
     const sorted = [...timeMap.values()].sort((a, b) => a.time - b.time);
+
+    // 스크롤로 추가 요청했는데 새 데이터가 없으면 더 이상 요청 안 함
+    if (loadingMoreRef.current && sorted.length === prevAllLength) {
+      noMoreDataRef.current = true;
+    }
+    allCandlesRef.current = sorted;
 
     candleSeriesRef.current.setData(
       sorted.map((c) => ({
@@ -324,7 +350,11 @@ export default function StockChart({ stockCode }: Props) {
       })),
     );
 
-    if (!loadingMoreRef.current && isInitialLoadRef.current) {
+    if (period === "year") {
+      // 년봉은 데이터 추가될 때마다 항상 전체 fit (초기 로드 및 스크롤 추가 모두)
+      chartRef.current?.timeScale().fitContent();
+      isInitialLoadRef.current = false;
+    } else if (!loadingMoreRef.current && isInitialLoadRef.current) {
       const total = sorted.length;
       const visible = INITIAL_VISIBLE_CANDLES[period];
       if (total > visible) {
@@ -482,7 +512,9 @@ export default function StockChart({ stockCode }: Props) {
               {ohlcv.close.toLocaleString()}
             </span>
             <span className="text-gray-400 dark:text-slate-500">거래량</span>
-            <span className="text-gray-700 dark:text-gray-300">{formatVolume(ohlcv.volume)}</span>
+            <span className="text-gray-700 dark:text-gray-300">
+              {formatVolume(ohlcv.volume)}
+            </span>
           </div>
         )}
 

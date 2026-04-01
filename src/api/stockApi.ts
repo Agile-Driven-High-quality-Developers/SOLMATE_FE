@@ -372,19 +372,20 @@ export async function fetchStocks(): Promise<StockItem[]> {
   return res.data.map((s) => ({ ...s, stockLogo: toLogoUrl(s.stockLogo) }));
 }
 
-export function useCandleQuery(stockCode: string, period: PeriodType, limit = 365) {
+export function useCandleQuery(stockCode: string, period: PeriodType, limit = 365, to?: number) {
   const url = (() => {
+    const toParam = to ? `&to=${to}` : "";
     if (period === "1" || period === "5" || period === "30" || period === "60") {
-      return `/api/stocks/${stockCode}/candles/minute?unit=${period}`;
+      return `/api/stocks/${stockCode}/candles/minute?unit=${period}${toParam}`;
     }
-    if (period === "day") return `/api/stocks/${stockCode}/candles/daily?days=${limit}`;
-    if (period === "week") return `/api/stocks/${stockCode}/candles/weekly?weeks=${Math.ceil(limit / 7)}`;
-    if (period === "month") return `/api/stocks/${stockCode}/candles/monthly?months=${Math.ceil(limit / 30)}`;
-    return `/api/stocks/${stockCode}/candles/yearly?years=${Math.ceil(limit / 365)}`;
+    if (period === "day") return `/api/stocks/${stockCode}/candles/daily?days=${limit}${toParam}`;
+    if (period === "week") return `/api/stocks/${stockCode}/candles/weekly?weeks=${Math.ceil(limit / 7)}${toParam}`;
+    if (period === "month") return `/api/stocks/${stockCode}/candles/monthly?months=${Math.ceil(limit / 30)}${toParam}`;
+    return `/api/stocks/${stockCode}/candles/yearly?years=${Math.ceil(limit / 365)}${toParam}`;
   })();
 
   return useQuery({
-    queryKey: [...stockQueryKeys.candles(stockCode, period), limit],
+    queryKey: [...stockQueryKeys.candles(stockCode, period), limit, to],
     queryFn: () =>
       fetchClient
         .get<ApiResponse<CandleData[]>>(url)
