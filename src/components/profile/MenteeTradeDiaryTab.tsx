@@ -236,6 +236,18 @@ function DiaryDetail({
                       type="text"
                       value={editInput}
                       onChange={(e) => setEditInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        // 한글 입력 중 엔터 키 중복 실행 방지 (isComposing 체크)
+                        if (
+                          e.key === "Enter" &&
+                          !e.nativeEvent.isComposing &&
+                          commentInput.trim()
+                        ) {
+                          postComment(commentInput, {
+                            onSuccess: () => setCommentInput(""),
+                          });
+                        }
+                      }}
                       className="w-full px-3 py-2 text-[12px] bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-gray-100 rounded-xl outline-none ring-1 ring-transparent focus:ring-[#0046FF] focus:border-[#0046FF] transition-all"
                     />
                     <div className="flex justify-end gap-2">
@@ -287,7 +299,11 @@ function DiaryDetail({
                 value={commentInput}
                 onChange={(e) => setCommentInput(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && commentInput.trim()) {
+                  if (
+                    e.key === "Enter" &&
+                    !e.nativeEvent.isComposing &&
+                    commentInput.trim()
+                  ) {
                     postComment(commentInput, {
                       onSuccess: () => setCommentInput(""),
                     });
