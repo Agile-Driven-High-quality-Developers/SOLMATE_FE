@@ -64,6 +64,12 @@ export function stompSubscribe(
   };
 }
 
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    worker.port.postMessage({ type: "PING" });
+  }
+});
+
 window.addEventListener("beforeunload", () => {
   worker.port.postMessage({ type: "DISCONNECT" });
   worker.port.close();
