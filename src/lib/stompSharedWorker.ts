@@ -16,18 +16,20 @@ const topicSubscriptions = new Map<
 
 let stompClient: Client | null = null;
 let wsConnectionCount = 0; // WebSocket 연결 생성 횟수
+let lastWsUrl: string | undefined;
 
 function checkConnectionRequired(wsUrl?: string) {
   const needsConnection = connectedPorts.size > 0;
+  if (wsUrl) lastWsUrl = wsUrl;
 
-  if (needsConnection && !stompClient && wsUrl) {
+  if (needsConnection && !stompClient && lastWsUrl) {
     wsConnectionCount++;
     console.log(`[STOMP Worker] ✅ WebSocket 연결 생성: 총 ${wsConnectionCount}회 (연결된 탭 수: ${connectedPorts.size})`);
 
-    let brokerURL = wsUrl;
-    if (wsUrl.startsWith("http")) {
-      brokerURL = wsUrl.replace(/^http/, "ws");
-    } else if (wsUrl === "/ws") {
+    let brokerURL = lastWsUrl;
+    if (lastWsUrl!.startsWith("http")) {
+      brokerURL = lastWsUrl!.replace(/^http/, "ws");
+    } else if (lastWsUrl === "/ws") {
       const protocol = self.location.protocol === "https:" ? "wss:" : "ws:";
       brokerURL = `${protocol}//${self.location.host}/ws`;
     }
@@ -106,6 +108,10 @@ self.onconnect = (e: MessageEvent) => {
 
     switch (data.type) {
       case "PING": {
+        if (!stompClient || !stompClient.active) {
+          console.log("[STOMP Worker] PING 수신 - 연결이 끊겨있어 재연결 시도합니다.");
+          checkConnectionRequired();
+        }
         break;
       }
       case "INIT": {
