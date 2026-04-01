@@ -42,8 +42,8 @@ async function request<T>(
     },
   });
 
-  // 401/403: 토큰 재발급 후 1회 재시도
-  if ((res.status === 401 || res.status === 403) && _retry) {
+  // 401/403: 토큰 재발급 후 1회 재시도 (로그인 엔드포인트는 제외 — 잘못된 비밀번호도 401이므로)
+  if ((res.status === 401 || res.status === 403) && _retry && path !== "/api/auth/login") {
     try {
       const newToken = await reissueToken();
       useAuthStore.getState().setAccessToken(newToken);
