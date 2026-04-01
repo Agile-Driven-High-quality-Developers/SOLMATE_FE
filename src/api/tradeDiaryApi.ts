@@ -17,6 +17,7 @@ export type MyDiariesItem = {
 
 export type DiaryComment = {
   commentId: number;
+  userId: number | null;
   nickname: string;
   imageUrl?: string;
   isMentor: boolean;
