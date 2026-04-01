@@ -171,7 +171,7 @@ function ReturnText({
 
 function SectionSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <ul className="divide-y divide-gray-50 animate-pulse dark:divide-gray-600">
+    <ul className="divide-y divide-gray-50 animate-pulse dark:divide-slate-700">
       {Array.from({ length: rows }).map((_, i) => (
         <li key={i} className="flex items-center gap-3 px-5 py-3">
           <div className="w-5 h-3 bg-gray-100 rounded-full dark:bg-gray-600" />
@@ -480,7 +480,7 @@ function HoldingsTable({
 
 function InvestorReturnRate({ rate }: { rate: number | undefined }) {
   if (rate === undefined)
-    return <div className="h-3 bg-gray-100 rounded-full w-12 animate-pulse" />;
+    return <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-12 animate-pulse" />;
 
   const isPositive = rate > 0;
   const isNegative = rate < 0;

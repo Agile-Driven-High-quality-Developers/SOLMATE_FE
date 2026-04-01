@@ -174,7 +174,7 @@ export default function TradeDiaryPage() {
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-20 bg-white rounded-2xl animate-pulse"
+                className="h-20 bg-white dark:bg-slate-800 rounded-2xl animate-pulse"
               />
             ))}
           </div>
