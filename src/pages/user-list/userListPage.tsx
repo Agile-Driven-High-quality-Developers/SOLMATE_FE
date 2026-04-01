@@ -171,10 +171,10 @@ function ReturnCells({
     return (
       <>
         <td className="px-4 py-3.5 text-right">
-          <div className="h-3 bg-gray-100 rounded-full w-14 ml-auto animate-pulse" />
+          <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-14 ml-auto animate-pulse" />
         </td>
         <td className="px-4 py-3.5 text-right">
-          <div className="h-3 bg-gray-100 rounded-full w-16 ml-auto animate-pulse" />
+          <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-16 ml-auto animate-pulse" />
         </td>
       </>
     );
@@ -681,31 +681,31 @@ export default function UserListPage() {
                 ? Array.from({ length: 8 }).map((_, i) => (
                     <tr
                       key={i}
-                      className="border-b border-gray-50 animate-pulse"
+                      className="border-b border-gray-50 dark:border-slate-800 animate-pulse"
                     >
                       <td className="px-5 py-4">
-                        <div className="h-3 bg-gray-100 rounded-full w-4" />
+                        <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-4" />
                       </td>
                       <td className="px-2 py-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 bg-gray-100 rounded-full" />
-                          <div className="h-3 bg-gray-100 rounded-full w-24" />
+                          <div className="w-8 h-8 bg-gray-100 dark:bg-slate-700 rounded-full" />
+                          <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-24" />
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-3 bg-gray-100 rounded-full w-10 ml-auto" />
+                        <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-10 ml-auto" />
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-3 bg-gray-100 rounded-full w-14 ml-auto" />
+                        <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-14 ml-auto" />
                       </td>
                       <td className="px-4 py-4">
-                        <div className="h-3 bg-gray-100 rounded-full w-16 ml-auto" />
+                        <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-16 ml-auto" />
                       </td>
                       <td className="hidden md:table-cell px-3 py-4">
-                        <div className="h-7 bg-gray-100 dark:bg-slate-800 rounded-lg w-16 ml-auto" />
+                        <div className="h-7 bg-gray-100 dark:bg-slate-700 rounded-lg w-16 ml-auto" />
                       </td>
                       <td className="hidden md:table-cell px-5 py-4">
-                        <div className="h-7 bg-gray-100 dark:bg-slate-800 rounded-lg w-18 ml-auto" />
+                        <div className="h-7 bg-gray-100 dark:bg-slate-700 rounded-lg w-18 ml-auto" />
                       </td>
                     </tr>
                   ))

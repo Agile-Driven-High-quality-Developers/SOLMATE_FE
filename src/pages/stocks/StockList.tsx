@@ -125,15 +125,15 @@ function MarketPanel({
 }) {
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 flex divide-x divide-gray-100 animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 flex divide-x divide-gray-100 dark:divide-slate-800 animate-pulse">
         {[0, 1, 2].map((i) => (
           <div
             key={i}
             className="flex-1 px-3 py-3 md:px-6 md:py-5 flex flex-col gap-2"
           >
-            <div className="h-3 bg-gray-100 rounded-full w-10 md:w-16" />
-            <div className="h-5 md:h-7 bg-gray-100 rounded-full w-16 md:w-28" />
-            <div className="h-3 bg-gray-100 rounded-full w-20 md:w-32" />
+            <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-10 md:w-16" />
+            <div className="h-5 md:h-7 bg-gray-100 dark:bg-slate-700 rounded-full w-16 md:w-28" />
+            <div className="h-3 bg-gray-100 dark:bg-slate-700 rounded-full w-20 md:w-32" />
           </div>
         ))}
       </div>
