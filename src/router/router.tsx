@@ -17,6 +17,7 @@ import MyMentorPage from "@/pages/mentor/MyMentorPage";
 import MyMenteePage from "@/pages/mentee/MyMenteePage";
 import UserProfilePage from "@/pages/users/UserProfilePage";
 import GuidePage from "@/pages/guide/GuidePage";
+import ForgotPasswordPage from "@/pages/auth/ForgotPasswordPage";
 
 export const router = createBrowserRouter([
   {
@@ -64,5 +65,9 @@ export const router = createBrowserRouter([
   {
     path: "/auth/callback",
     element: <OAuthCallbackPage />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPasswordPage />,
   },
 ]);

@@ -228,6 +228,7 @@ export default function LoginPage() {
 
               <button
                 type="button"
+                onClick={() => navigate("/forgot-password")}
                 className="text-[12px] text-gray-400 hover:text-[#0046FF] transition-colors"
               >
                 비밀번호 찾기
