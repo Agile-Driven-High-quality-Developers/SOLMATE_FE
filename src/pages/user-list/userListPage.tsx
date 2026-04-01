@@ -652,7 +652,7 @@ export default function UserListPage() {
           )}
           <table className="w-full">
             <thead>
-              <tr className="sticky top-0 z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
+              <tr className="sticky top-[-1px] z-10 bg-gray-50 dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700">
                 <th className="text-center px-6 py-3 text-[12px] text-gray-400 dark:text-slate-500 font-medium whitespace-nowrap w-20">
                   순위
                 </th>
