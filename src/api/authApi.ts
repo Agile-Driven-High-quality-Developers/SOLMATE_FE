@@ -27,6 +27,11 @@ export interface SignUpRequest {
   password: string;
 }
 
+export interface PasswordResetRequest {
+  email: string;
+  newPassword: string;
+}
+
 // ─── Auth API ──────────────────────────────────────────────────────────────────
 
 export const authApi = {
@@ -63,6 +68,14 @@ export const authApi = {
 
   /** POST /api/auth/reissue — 토큰 재발급 */
   reissue: reissueToken,
+
+  /** POST /api/auth/password/email/send — 비밀번호 재설정 인증 메일 발송 */
+  sendPasswordResetEmail: (email: string) =>
+    fetchClient.post<ApiResponse<void>>("/api/auth/password/email/send", { email }),
+
+  /** POST /api/auth/password/reset — 비밀번호 재설정 */
+  resetPassword: (data: PasswordResetRequest) =>
+    fetchClient.post<ApiResponse<void>>("/api/auth/password/reset", data),
 
   /** GET /api/users/me — 내 정보 조회 */
   getMe: () =>
