@@ -87,9 +87,14 @@ export default function SignUpPage() {
       await authApi.sendEmailCode(email);
       setEmailStep("sent");
       showToast("인증 코드를 발송했습니다. 이메일을 확인해 주세요.");
-    } catch {
+    } catch (err: unknown) {
       setEmailStep("idle");
-      showToast("인증 메일 발송에 실패했습니다. 다시 시도해 주세요.");
+      const e = err as { status?: number; data?: { code?: string; message?: string } };
+      if (e.data?.message) {
+        setEmailError(e.data.message);
+      } else {
+        showToast("인증 메일 발송에 실패했습니다. 다시 시도해 주세요.");
+      }
     }
   };
 
@@ -177,13 +182,12 @@ export default function SignUpPage() {
       showToast("회원가입이 완료되었습니다!");
       navigate("/login");
     } catch (err: unknown) {
-      const data = (err as { data?: { code?: string; message?: string } })
-        ?.data;
-      if (
-        (data?.code === "USER_409_2" || data?.code === "USER_409") &&
-        data.message
-      ) {
-        showToast(data.message);
+      const e = err as { data?: { code?: string; message?: string } };
+      if (e.data?.message) {
+        setEmailError(e.data.message);
+        setEmailStep("idle");
+        setVerifyCode("");
+        setVerifyError("");
       } else {
         showToast("회원가입에 실패했습니다. 다시 시도해 주세요.");
       }
