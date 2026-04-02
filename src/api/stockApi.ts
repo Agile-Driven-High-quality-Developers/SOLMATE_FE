@@ -353,6 +353,9 @@ export function useCancelOrderMutation(tickerCode: string) {
       queryClient.invalidateQueries({
         queryKey: stockQueryKeys.tradeHistory(tickerCode),
       });
+      queryClient.invalidateQueries({
+        queryKey: stockQueryKeys.cash,
+      });
     },
   });
 }

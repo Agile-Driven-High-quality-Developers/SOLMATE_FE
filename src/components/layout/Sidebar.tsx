@@ -67,7 +67,7 @@ const NAV_ITEMS: NavItemConfig[] = [
     id: "shinhan",
     label: "실전투자 바로가기",
     icon: Receipt,
-    href: "https://www.shinhansec.com/siw/customer-center/channel/channel_webTrading/contents.do",
+    href: "https://www.shinhansec.com/siw/customer-center/open-accounts/712501/view.do",
   },
 ];
 

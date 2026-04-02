@@ -51,11 +51,10 @@ import type { AccountSummaryData } from "@/api/accountSummaryApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SortBy = "returnRate" | "returnAmount" | "follower";
+type SortBy = "returnRate" | "follower";
 
 const SORT_OPTIONS: { value: SortBy; label: string }[] = [
   { value: "returnRate", label: "수익률순" },
-  { value: "returnAmount", label: "수익순" },
   { value: "follower", label: "팔로워순" },
 ];
 
@@ -454,15 +453,9 @@ export default function UserListPage() {
     if (!allSummariesLoaded) return 0;
     const aData = summaryMap.get(a.userId)?.data;
     const bData = summaryMap.get(b.userId)?.data;
-    if (sortBy === "returnRate") {
-      return (
-        (bData?.totalReturnRate ?? -Infinity) -
-        (aData?.totalReturnRate ?? -Infinity)
-      );
-    }
     return (
-      (bData?.totalReturnAmount ?? -Infinity) -
-      (aData?.totalReturnAmount ?? -Infinity)
+      (bData?.totalReturnRate ?? -Infinity) -
+      (aData?.totalReturnRate ?? -Infinity)
     );
   });
 

@@ -212,12 +212,15 @@ export default function StockDetailPage() {
   }, [stockCode, queryClient, user?.userId]);
 
   useEffect(() => {
-    if (!quote) return;
-    const rate = quote.changeRate;
-    document.title = `${quote.currentPrice.toLocaleString()}원 ${rate > 0 ? "+" : ""}${rate.toFixed(2)}% | ${quote.stockName}`;
     return () => {
       document.title = "SOLMATE";
     };
+  }, []);
+
+  useEffect(() => {
+    if (!quote) return;
+    const rate = quote.changeRate;
+    document.title = `${quote.currentPrice.toLocaleString()}원 ${rate > 0 ? "+" : ""}${rate.toFixed(2)}% | ${quote.stockName}`;
   }, [quote]);
 
   useEffect(() => {
