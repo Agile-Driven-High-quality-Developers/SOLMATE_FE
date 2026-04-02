@@ -239,9 +239,24 @@ function MarketIndicesRow({
   }
   return (
     <div className="flex gap-3">
-      {data.map((idx) => (
-        <MarketIndexCard key={idx.label} index={idx} />
-      ))}
+      {data.length === 0
+        ? ["KOSPI", "KOSDAQ", "USD/KRW"].map((label) => (
+            <div
+              key={label}
+              className="flex-1 min-w-0 bg-white dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-800 px-2 sm:px-4 py-3"
+            >
+              <p className="text-[10px] sm:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1">
+                {label}
+              </p>
+              <p className="text-[14px] sm:text-[18px] font-semibold text-gray-400 dark:text-slate-600">
+                -
+              </p>
+              <p className="text-[10px] sm:text-[12px] text-gray-300 dark:text-slate-700 mt-0.5">
+                데이터 없음
+              </p>
+            </div>
+          ))
+        : data.map((idx) => <MarketIndexCard key={idx.label} index={idx} />)}
     </div>
   );
 }
