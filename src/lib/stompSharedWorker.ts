@@ -1,10 +1,8 @@
-// src/lib/stompSharedWorker.ts
 /// <reference lib="webworker" />
 
 import { Client, type StompSubscription, type IMessage } from "@stomp/stompjs";
 
 const connectedPorts = new Set<MessagePort>();
-const portLastSeen = new Map<MessagePort, number>();
 
 const topicSubscriptions = new Map<
   string,
@@ -98,13 +96,9 @@ self.onconnect = (e: MessageEvent) => {
   connectedPorts.add(port);
   console.log(`[STOMP Worker] 🔌 탭 연결됨 (현재 연결된 탭 수: ${connectedPorts.size})`);
 
-  portLastSeen.set(port, Date.now());
-
   port.onmessage = (event) => {
     const data = event.data;
     if (!data) return;
-
-    portLastSeen.set(port, Date.now());
 
     switch (data.type) {
       case "PING": {
@@ -165,7 +159,6 @@ self.onconnect = (e: MessageEvent) => {
 function handlePortClose(port: MessagePort) {
   if (!connectedPorts.has(port)) return;
   connectedPorts.delete(port);
-  portLastSeen.delete(port);
   console.log(`[STOMP Worker] ❌ 탭 연결 해제됨 (남은 탭 수: ${connectedPorts.size})`);
 
   for (const [dest, info] of topicSubscriptions.entries()) {
@@ -181,16 +174,3 @@ function handlePortClose(port: MessagePort) {
   checkConnectionRequired();
 }
 
-const PING_TIMEOUT_MS = 15000;
-const DEAD_PORT_CHECK_INTERVAL_MS = 10000;
-
-setInterval(() => {
-  const now = Date.now();
-  for (const port of connectedPorts) {
-    const last = portLastSeen.get(port) ?? 0;
-    if (now - last > PING_TIMEOUT_MS) {
-      console.log("[STOMP Worker] 응답 없는 포트 감지 - 정리합니다.");
-      handlePortClose(port);
-    }
-  }
-}, DEAD_PORT_CHECK_INTERVAL_MS);
