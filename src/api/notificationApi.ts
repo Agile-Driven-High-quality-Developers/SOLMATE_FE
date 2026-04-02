@@ -99,10 +99,30 @@ export function useNotificationSubscription(userId: number | undefined) {
       const item: NotificationItem = JSON.parse(message.body);
 
       if (item.eventType === "DELETE") {
+        const prevList = queryClient.getQueryData<NotificationItem[]>(notificationQueryKeys.list);
+        const deletedItem = prevList?.find((n) => n.notificationId === item.notificationId);
+
         queryClient.setQueryData<NotificationItem[]>(
           notificationQueryKeys.list,
           (prev) => prev ? prev.filter((n) => n.notificationId !== item.notificationId) : prev,
         );
+
+        if (deletedItem && !deletedItem.isRead) {
+          queryClient.setQueryData<NotificationCountResponse>(
+            notificationQueryKeys.unreadCount,
+            (prev) => {
+              if (!prev) return prev;
+              const categoryKey = deletedItem.category.toLowerCase() as keyof Omit<NotificationCountResponse, "total">;
+              return {
+                ...prev,
+                total: Math.max(0, prev.total - 1),
+                [categoryKey]: Math.max(0, prev[categoryKey] - 1),
+              };
+            },
+          );
+        } else {
+          queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
+        }
         return;
       }
 
