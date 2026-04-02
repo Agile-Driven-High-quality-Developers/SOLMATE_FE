@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchClient } from "@/lib/fetchClient";
 import type { ApiResponse } from "./authApi";
 
@@ -159,5 +159,7 @@ export function useMarketIndicesQuery() {
           throw err;
         }),
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
+    gcTime: Infinity,
   });
 }
