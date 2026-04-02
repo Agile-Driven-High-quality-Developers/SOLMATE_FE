@@ -248,7 +248,7 @@ export default function SpotlightTour({
     if (!canReplay || hidden || isSidebarOpen) return null;
     return (
       <button
-        className="animate-float fixed top-16 right-4 lg:top-4 z-99 w-11 h-11 bg-white rounded-full shadow-lg flex items-center justify-center text-[#0046FF] hover:bg-gray-50 transition-colors"
+        className="animate-float fixed top-16 right-4 lg:top-4 z-99 w-11 h-11 bg-white dark:bg-[#1E3A8A] rounded-full shadow-lg flex items-center justify-center text-[#0046FF] dark:text-white hover:bg-gray-50 dark:hover:bg-[#1E40AF] transition-colors"
         onClick={handleReplay}
         title="가이드 다시보기"
       >
