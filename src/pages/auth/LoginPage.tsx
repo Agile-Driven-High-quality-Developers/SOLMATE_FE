@@ -240,17 +240,14 @@ export default function LoginPage() {
               type="submit"
               variant={isFormValid ? "primary" : "invalid"}
               className={[
-                "w-full py-3 text-[16px] font-semibold mt-1",
+                "w-full py-3 text-[16px] font-semibold mt-1 flex items-center justify-center",
                 !isFormValid || isLoading
                   ? "cursor-not-allowed opacity-60"
                   : "",
               ].join(" ")}
             >
               {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 size={16} className="animate-spin" />
-                  잠시만요...
-                </span>
+                <Loader2 size={16} className="animate-spin" />
               ) : (
                 "로그인"
               )}
