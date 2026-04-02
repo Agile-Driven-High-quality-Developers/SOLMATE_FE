@@ -18,6 +18,7 @@ import {
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 import { followUser, unfollowUser, requestMentoring, cancelMentoring, cancelPendingMentoring } from "@/api/userListApi";
+import { notificationQueryKeys } from "@/api/notificationApi";
 import Button from "@/components/ui/Button";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -99,6 +100,7 @@ export default function UserProfilePage() {
       await cancelMentoring(id);
       queryClient.invalidateQueries({ queryKey: ["users", id] });
       queryClient.invalidateQueries({ queryKey: ["mentor"] });
+      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
       setShowCancelModal(false);
     } catch {
       // 실패 시 무시
@@ -110,6 +112,7 @@ export default function UserProfilePage() {
       await cancelPendingMentoring(id);
       queryClient.invalidateQueries({ queryKey: ["users", id] });
       queryClient.invalidateQueries({ queryKey: ["mentor"] });
+      queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
       setShowPendingCancelModal(false);
     } catch {
       // 실패 시 무시

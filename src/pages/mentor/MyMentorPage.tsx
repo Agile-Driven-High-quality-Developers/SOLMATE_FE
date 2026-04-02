@@ -59,6 +59,7 @@ import {
 } from "@/api/mentorApi";
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 import { cancelMentoring } from "@/api/userListApi";
+import { notificationQueryKeys } from "@/api/notificationApi";
 import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -222,6 +223,7 @@ export default function MyMentorPage() {
             try {
               await cancelMentoring(mentorId);
               await queryClient.invalidateQueries({ queryKey: ["mentor"] });
+              queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
               showToast("멘토 취소가 완료되었습니다.");
             } catch {
               showToast("멘토 취소에 실패했습니다. 다시 시도해주세요.");
