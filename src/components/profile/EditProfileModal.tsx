@@ -67,7 +67,7 @@ export default function EditProfileModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 1 * 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       setImageError("이미지는 2MB 이하만 업로드할 수 있어요.");
       e.target.value = "";
       return;
