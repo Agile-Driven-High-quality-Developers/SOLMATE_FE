@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useMemo } from "react";
 import { fetchClient } from "@/lib/fetchClient";
+import { stompSubscribe } from "@/lib/stompClient";
 import type { ApiResponse } from "./authApi";
 import type { MyDiariesItem } from "./tradeDiaryApi";
 import type { TradeHistoryItem } from "./tradeApi";
@@ -92,6 +94,35 @@ export function useMentorHoldingsQuery(userId: number) {
     staleTime: 30_000,
     enabled: !!userId,
   });
+}
+
+export function useRealtimeMentorHoldings(userId: number) {
+  const { data: holdingsRaw = [], ...rest } = useMentorHoldingsQuery(userId);
+  const [realtimePrices, setRealtimePrices] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const active = holdingsRaw.filter((h) => h.quantity > 0);
+    if (active.length === 0) return;
+
+    const unsubs = active.map((h) =>
+      stompSubscribe(`/topic/stocks/${h.tickerCode}/quote`, (message) => {
+        const msg = JSON.parse(message.body);
+        setRealtimePrices((prev) => ({ ...prev, [h.tickerCode]: msg.currentPrice }));
+      }),
+    );
+
+    return () => unsubs.forEach((u) => u());
+  }, [holdingsRaw]);
+
+  const holdings = useMemo(() =>
+    holdingsRaw.filter((h) => h.quantity > 0).map((h) => {
+      const currentPrice = realtimePrices[h.tickerCode] ?? h.currentPrice;
+      const evaluation = currentPrice * h.quantity;
+      return { ...h, currentPrice, evaluation };
+    }),
+  [holdingsRaw, realtimePrices]);
+
+  return { holdings, ...rest };
 }
 
 export function useMentorDiariesQuery(userId: number) {

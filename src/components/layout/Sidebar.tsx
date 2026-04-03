@@ -27,6 +27,7 @@ import { authApi } from "@/api/authApi";
 import { useUnreadCountQuery } from "@/api/notificationApi";
 import { useMyProfileQuery } from "@/api/userListApi";
 import { useAccountSummaryQuery } from "@/api/accountSummaryApi";
+import { useRealtimeHoldings } from "@/api/accountApi";
 import { useSidebarStore } from "../../store/sidebarStore";
 import LogoutModal from "@/components/profile/LogoutModal";
 
@@ -249,6 +250,7 @@ export default function SidebarNav() {
   const { data: unreadCount } = useUnreadCountQuery();
   const { data: myProfile } = useMyProfileQuery();
   const { data: accountSummary } = useAccountSummaryQuery();
+  const { holdings: holdingsRaw } = useRealtimeHoldings();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
@@ -270,8 +272,15 @@ export default function SidebarNav() {
     close(); // 페이지 이동 후 사이드바 닫기
   };
 
+  const realtimeTotalEvaluation = holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeTotalAsset = (accountSummary?.cash ?? 0) + realtimeTotalEvaluation;
+  const realtimeTotalReturnAmount = realtimeTotalAsset - (accountSummary?.initialCash ?? 0);
+  const realtimeTotalReturnRate = (accountSummary?.initialCash ?? 0) > 0
+    ? (realtimeTotalReturnAmount / (accountSummary?.initialCash ?? 1)) * 100
+    : (accountSummary?.totalReturnRate ?? 0);
+
   const returnRate = accountSummary
-    ? `${accountSummary.totalReturnRate >= 0 ? "+" : ""}${accountSummary.totalReturnRate.toFixed(2)}%`
+    ? `${realtimeTotalReturnRate >= 0 ? "+" : ""}${realtimeTotalReturnRate.toFixed(2)}%`
     : "-";
 
   const user = storeUser

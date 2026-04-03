@@ -1,15 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import PortfolioChart from "@/components/account/PortfolioChart";
 import HoldingList from "@/components/account/HoldingList";
-import {
-  Wallet,
-  Landmark,
-  Package,
-  TrendingUp,
-  PieChart,
-  ClipboardList,
-} from "lucide-react";
-import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
+import { Wallet, Landmark, Package, TrendingUp, PieChart, ClipboardList } from "lucide-react";
+import { useAccountSummaryQuery, useRealtimeHoldings } from "@/api/accountApi";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -101,7 +94,7 @@ function fmt(n: number) {
 
 export default function AccountPage() {
   const { data: summary } = useAccountSummaryQuery();
-  const { data: holdingsRaw = [] } = useHoldingsQuery();
+  const { holdings: holdingsRaw } = useRealtimeHoldings();
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
@@ -111,21 +104,40 @@ export default function AccountPage() {
     return () => mq.removeEventListener("change", handler);
   }, []);
 
-  const holdings = holdingsRaw
-    .filter((h) => h.quantity > 0)
-    .map((h) => ({
-      tickerCode: h.tickerCode,
-      stockName: h.stockName,
-      stockLogo: h.stockLogo,
-      quantity: h.quantity,
-      averageBuyPrice: h.avgPrice,
-      currentPrice: h.currentPrice,
-      evaluationAmount: h.evaluation,
-      profitRate: h.returnRate,
-      profitAmount: h.returnAmount,
-    }));
+  const holdings = holdingsRaw.map((h) => ({
+    tickerCode: h.tickerCode,
+    stockName: h.stockName,
+    stockLogo: h.stockLogo,
+    quantity: h.quantity,
+    averageBuyPrice: h.avgPrice,
+    currentPrice: h.currentPrice,
+    evaluationAmount: h.evaluation,
+    profitRate: h.returnRate,
+    profitAmount: h.returnAmount,
+  }));
 
-  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
+  const totalEvaluation = useMemo(
+    () => holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0),
+    [holdingsRaw],
+  );
+
+  const cash = summary?.cash ?? 0;
+  const initialCash = summary?.initialCash ?? 0;
+  const totalAsset = cash + totalEvaluation;
+  const totalReturnAmount = totalAsset - initialCash;
+  const totalReturnRate = initialCash > 0 ? (totalReturnAmount / initialCash) * 100 : 0;
+  const isPositive = totalReturnRate >= 0;
+
+  const holdingsRatio = useMemo(() =>
+    totalEvaluation > 0
+      ? holdingsRaw.map((h) => ({
+          tickerCode: h.tickerCode,
+          stockName: h.stockName,
+          evaluation: h.evaluation,
+          ratio: (h.evaluation / totalEvaluation) * 100,
+        }))
+      : (summary?.holdingsRatio ?? []),
+  [holdingsRaw, totalEvaluation, summary?.holdingsRatio]);
 
   return (
     <div className="flex flex-col h-full p-4 md:p-6 gap-4 md:gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
@@ -140,84 +152,44 @@ export default function AccountPage() {
 
       <div className="grid grid-cols-3 md:grid-cols-[2fr_1fr_1fr_1fr] gap-3 md:gap-4 items-stretch">
         {/* 보유 총 자산 */}
-        <div
-          className="col-span-3 md:col-span-1 bg-[#0046FF] rounded-2xl px-4 md:px-6 py-4 md:py-5 text-white"
-          data-tour="account-total"
-        >
-          <p className="text-[12px] md:text-[12px] font-medium opacity-80 mb-1 md:mb-2">
-            보유 총 자산
-          </p>
-          <p className="text-[22px] md:text-[28px] font-semibold">
-            {fmt(summary?.totalAsset ?? 0)}
-          </p>
-          <p
-            className={`text-[11px] md:text-[12px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-200"}`}
-          >
-            {isPositive ? "+" : ""}
-            {fmt(summary?.totalReturnAmount ?? 0)} ({isPositive ? "+" : ""}
-            {(summary?.totalReturnRate ?? 0).toFixed(2)}%)
+        <div className="col-span-3 md:col-span-1 bg-[#0046FF] rounded-2xl px-4 md:px-6 py-4 md:py-5 text-white" data-tour="account-total">
+          <p className="text-[12px] md:text-[12px] font-medium opacity-80 mb-1 md:mb-2">보유 총 자산</p>
+          <p className="text-[22px] md:text-[28px] font-semibold">{fmt(totalAsset)}</p>
+          <p className={`text-[11px] md:text-[12px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-200"}`}>
+            {isPositive ? "+" : ""}{fmt(totalReturnAmount)} ({isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%)
           </p>
         </div>
 
         {/* 주문 가능 금액 */}
-        <div
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5"
-          data-tour="account-cash"
-        >
-          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">
-            주문 가능
-          </p>
-          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">
-            {fmt(summary?.cash ?? 0)}
-          </p>
-          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">
-            원금 {fmt(summary?.initialCash ?? 0)}
-          </p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-cash">
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">주문 가능</p>
+          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">{fmt(cash)}</p>
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">원금 {fmt(initialCash)}</p>
         </div>
 
         {/* 보유 종목 */}
-        <div
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5"
-          data-tour="account-holdings-count"
-        >
-          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">
-            보유 종목
-          </p>
-          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">
-            {summary?.holdingsCount ?? 0}개
-          </p>
-          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">
-            평가 {fmt(summary?.totalEvaluation ?? 0)}
-          </p>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-holdings-count">
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 font-medium mb-1 md:mb-2">보유 종목</p>
+          <p className="text-[16px] md:text-[22px] font-semibold text-gray-900 dark:text-gray-100">{holdings.length}개</p>
+          <p className="text-[10px] md:text-[12px] text-gray-400 dark:text-slate-500 mt-1">평가 {fmt(totalEvaluation)}</p>
         </div>
 
         {/* 수익률 */}
-        <div
-          className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5"
-          data-tour="account-return"
-        >
-          <p className="text-[10px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-2">
-            총 수익률
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 px-3 md:px-6 py-3 md:py-5" data-tour="account-return">
+          <p className="text-[10px] md:text-[12px] text-gray-400 font-medium mb-1 md:mb-2">총 수익률</p>
+          <p className={`text-[16px] md:text-[22px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}>
+            {isPositive ? "+" : ""}{totalReturnRate.toFixed(2)}%
           </p>
-          <p
-            className={`text-[16px] md:text-[22px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}
-          >
-            {isPositive ? "+" : ""}
-            {(summary?.totalReturnRate ?? 0).toFixed(2)}%
-          </p>
-          <p
-            className={`text-[10px] md:text-[12px] mt-1 font-medium ${isPositive ? "text-red-400" : "text-blue-400"}`}
-          >
-            {isPositive ? "+" : ""}
-            {fmt(summary?.totalReturnAmount ?? 0)}
+          <p className={`text-[10px] md:text-[12px] mt-1 font-medium ${isPositive ? "text-red-400" : "text-blue-400"}`}>
+            {isPositive ? "+" : ""}{fmt(totalReturnAmount)}
           </p>
         </div>
 
         {/* 종목 비중 차트 */}
         <div className="col-span-3 md:col-span-1" data-tour="account-chart">
           <PortfolioChart
-            items={summary?.holdingsRatio ?? []}
-            totalEvaluation={summary?.totalEvaluation ?? 0}
+            items={holdingsRatio}
+            totalEvaluation={totalEvaluation}
             compact={isMobile}
           />
         </div>

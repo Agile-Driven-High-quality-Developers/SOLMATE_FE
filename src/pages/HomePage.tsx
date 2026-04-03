@@ -97,7 +97,7 @@ import {
 import Avatar from "@/components/ui/Avatar";
 import { useMarketIndicesQuery } from "@/api/homeApi";
 import type { MarketIndexData } from "@/api/homeApi";
-import { useHoldingsQuery } from "@/api/accountApi";
+import { useRealtimeHoldings } from "@/api/accountApi";
 import type { HoldingItem } from "@/api/accountApi";
 import { useUserListInfiniteQuery } from "@/api/userListApi";
 import type { UserItem } from "@/api/userListApi";
@@ -312,11 +312,11 @@ function PortfolioCard({
             <p className="text-white/70 text-[12px] font-medium mb-1">
               총 평가자산
             </p>
-            <p className="text-white text-[32px] font-semibold leading-tight">
+            <p className="text-white text-[32px] font-semibold leading-tight tabular-nums whitespace-nowrap">
               {fmt(data.totalAsset)}
             </p>
             <p
-              className={`text-[14px] font-medium mt-1 ${isPositive ? "text-red-300" : "text-blue-300"}`}
+              className={`text-[14px] font-medium mt-1 tabular-nums whitespace-nowrap ${isPositive ? "text-red-300" : "text-blue-300"}`}
             >
               {isPositive ? "+" : ""}
               {fmt(data.totalReturnAmount)} ({isPositive ? "+" : ""}
@@ -325,19 +325,19 @@ function PortfolioCard({
             <div className="flex gap-6 mt-5">
               <div>
                 <p className="text-white/60 text-[11px]">투자원금</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">
+                <p className="text-white text-[14px] font-semibold mt-0.5 tabular-nums whitespace-nowrap">
                   {fmt(data.initialCash)}
                 </p>
               </div>
               <div>
                 <p className="text-white/60 text-[11px]">예수금</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">
+                <p className="text-white text-[14px] font-semibold mt-0.5 tabular-nums whitespace-nowrap">
                   {fmt(data.cash)}
                 </p>
               </div>
               <div>
                 <p className="text-white/60 text-[11px]">보유종목</p>
-                <p className="text-white text-[14px] font-semibold mt-0.5">
+                <p className="text-white text-[14px] font-semibold mt-0.5 tabular-nums whitespace-nowrap">
                   {data.holdingsCount}개
                 </p>
               </div>
@@ -350,6 +350,13 @@ function PortfolioCard({
 }
 
 // ─── 보유 종목 ─────────────────────────────────────────────────────────────────
+
+function fmtHolding(n: number) {
+  const abs = Math.abs(n);
+  if (abs >= 100_000_000) return `${(n / 100_000_000).toFixed(1)}억원`;
+  if (abs >= 10_000_000) return `${Math.round(n / 10_000).toLocaleString()}만원`;
+  return `${n.toLocaleString()}원`;
+}
 
 function HoldingsTable({
   data,
@@ -389,16 +396,16 @@ function HoldingsTable({
                 <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   종목
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-14">
                   보유량
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
                   평가금액
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
                   평가손익
                 </th>
-                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-20">
                   수익률
                 </th>
               </tr>
@@ -437,24 +444,24 @@ function HoldingsTable({
                     </td>
 
                     {/* 2. 보유량 (모바일: 숨김 / 데스크탑: 2열) */}
-                    <td className="hidden sm:table-cell px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400">
+                    <td className="hidden sm:table-cell px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400 whitespace-nowrap">
                       {stock.quantity}주
                     </td>
 
                     {/* 3. 평가금액 (모바일: 좌측 하단 / 데스크탑: 3열) */}
-                    <td className="px-5 pb-5 sm:p-0 sm:px-4 sm:py-3 sm:table-cell sm:text-right">
+                    <td className="px-5 pb-5 sm:p-0 sm:px-4 sm:py-3 sm:table-cell sm:text-right whitespace-nowrap">
                       <div className="flex flex-col sm:block">
                         <span className="sm:hidden text-[11px] text-gray-400 mb-0.5">
                           평가금액
                         </span>
                         <span className="text-[14px] font-medium text-gray-800 dark:text-gray-200">
-                          {stock.evaluation.toLocaleString()}원
+                          {fmtHolding(stock.evaluation)}
                         </span>
                       </div>
                     </td>
 
                     {/* 4. 평가손익 (모바일: 우측 하단 고정 / 데스크탑: 4열) */}
-                    <td className="absolute right-5 bottom-4 sm:static sm:table-cell sm:px-4 sm:py-3 sm:text-right">
+                    <td className="absolute right-5 bottom-4 sm:static sm:table-cell sm:px-4 sm:py-3 sm:text-right whitespace-nowrap">
                       <div className="flex flex-col items-end sm:block">
                         {/* 모바일에서는 여기서 수익률(%)도 같이 보여줌 */}
                         <div className="sm:hidden mb-0.5">
@@ -465,7 +472,7 @@ function HoldingsTable({
                           />
                         </div>
                         <ReturnText
-                          value={`${isPositive ? "+" : ""}${stock.returnAmount.toLocaleString()}원`}
+                          value={`${isPositive ? "+" : ""}${fmtHolding(stock.returnAmount)}`}
                           isPositive={isPositive}
                           className="text-[12px] sm:text-[14px] font-medium"
                         />
@@ -473,7 +480,7 @@ function HoldingsTable({
                     </td>
 
                     {/* 5. 수익률 (모바일: 숨김 (4번에서 처리) / 데스크탑: 5열) */}
-                    <td className="hidden sm:table-cell px-5 py-3 text-right">
+                    <td className="hidden sm:table-cell px-5 py-3 text-right whitespace-nowrap">
                       <ReturnText
                         value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
                         isPositive={isPositive}
@@ -685,8 +692,7 @@ export default function HomePage() {
   const { data: marketIndices = [], isLoading: loadingMarket } =
     useMarketIndicesQuery();
   const { data: summary, isLoading: loadingSummary } = useAccountSummaryQuery();
-  const { data: holdings = [], isLoading: loadingHoldings } =
-    useHoldingsQuery();
+  const { holdings, isLoading: loadingHoldings } = useRealtimeHoldings();
   const { data: userListData, isLoading: loadingUsers } =
     useUserListInfiniteQuery();
   const [stocks, setStocks] = useState<StockItem[]>([]);
@@ -728,6 +734,20 @@ export default function HomePage() {
 
   const allUsers = userListData?.pages.flatMap((p) => p.users) ?? [];
 
+  const realtimeTotalEvaluation = holdings.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeSummary = summary
+    ? {
+        ...summary,
+        totalEvaluation: realtimeTotalEvaluation,
+        totalAsset: summary.cash + realtimeTotalEvaluation,
+        totalReturnAmount: summary.cash + realtimeTotalEvaluation - summary.initialCash,
+        totalReturnRate:
+          summary.initialCash > 0
+            ? ((summary.cash + realtimeTotalEvaluation - summary.initialCash) / summary.initialCash) * 100
+            : 0,
+      }
+    : undefined;
+
   return (
     <div className="flex flex-col h-full p-6 gap-5 overflow-auto bg-gray-50 dark:bg-slate-950 min-h-screen">
       {/* 헤더 */}
@@ -750,7 +770,7 @@ export default function HomePage() {
         {/* 왼쪽: 포트폴리오 + 보유 종목 (58%) */}
         <div className="flex flex-col gap-4 w-full min-[1200px]:basis-[58%] min-[1200px]:shrink-0">
           <div data-tour="portfolio">
-            <PortfolioCard data={summary} loading={loadingSummary} />
+            <PortfolioCard data={realtimeSummary} loading={loadingSummary} />
           </div>
           <div data-tour="holdings">
             <HoldingsTable

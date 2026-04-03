@@ -91,10 +91,10 @@ export default function NotificationPage() {
             </div>
             <div className="px-6 py-6">
               <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-                이미 멘토가 있습니다.
+                이미 나와 매칭된 멘티입니다.
               </p>
               <p className="text-[12px] text-gray-400 dark:text-slate-500">
-                해당 멘티는 이미 다른 멘토가 배정되어 있어요.
+                해당 멘티는 이미 나와 매칭되어 있어요.
               </p>
             </div>
             <div className="px-6 pb-6">

@@ -9,7 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import { authApi } from "@/api/authApi";
 import { useMyDiariesQuery } from "@/api/tradeDiaryApi";
 import { useTradeHistoryQuery } from "@/api/tradeApi";
-import { useAccountSummaryQuery, useHoldingsQuery } from "@/api/accountApi";
+import { useAccountSummaryQuery, useRealtimeHoldings } from "@/api/accountApi";
 import { useMyProfileQuery } from "@/api/userListApi";
 import ProfileCard from "@/components/profile/ProfileCard";
 import UnderlineTabBar from "@/components/ui/UnderlineTabBar";
@@ -88,7 +88,7 @@ export default function ProfilePage() {
   const { data: diaries = [] } = useMyDiariesQuery();
   const { data: tradeHistories = [] } = useTradeHistoryQuery();
   const { data: summary } = useAccountSummaryQuery();
-  const { data: holdingsRaw = [] } = useHoldingsQuery();
+  const { holdings: holdingsRaw } = useRealtimeHoldings();
 
   const holdings = holdingsRaw
     .filter((h) => h.quantity > 0)
@@ -103,6 +103,21 @@ export default function ProfilePage() {
       profitRate: h.returnRate,
       profitAmount: h.returnAmount,
     }));
+
+  const realtimeTotalEvaluation = holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeTotalAsset = (summary?.cash ?? 0) + realtimeTotalEvaluation;
+  const realtimeTotalReturnAmount = realtimeTotalAsset - (summary?.initialCash ?? 0);
+  const realtimeTotalReturnRate = (summary?.initialCash ?? 0) > 0
+    ? (realtimeTotalReturnAmount / (summary?.initialCash ?? 1)) * 100
+    : (summary?.totalReturnRate ?? 0);
+  const realtimeHoldingsRatio = realtimeTotalEvaluation > 0
+    ? holdingsRaw.map((h) => ({
+        tickerCode: h.tickerCode,
+        stockName: h.stockName,
+        evaluation: h.evaluation,
+        ratio: (h.evaluation / realtimeTotalEvaluation) * 100,
+      }))
+    : (summary?.holdingsRatio ?? []);
 
   const queryClient = useQueryClient();
 
@@ -161,8 +176,8 @@ export default function ProfilePage() {
             profileImageUrl={user.imageUrl ?? myProfile?.imageUrl}
             followers={myProfile?.followerCount ?? 0}
             following={myProfile?.followingCount ?? 0}
-            totalReturnRate={summary?.totalReturnRate ?? 0}
-            totalReturn={summary?.totalReturnAmount ?? 0}
+            totalReturnRate={realtimeTotalReturnRate}
+            totalReturn={realtimeTotalReturnAmount}
             onEditClick={() => setModal("edit")}
             onLogoutClick={() => setModal("logout")}
             onFollowersClick={() => setFollowModal("followers")}
@@ -180,10 +195,10 @@ export default function ProfilePage() {
         {/* 모바일 전용: 포트폴리오 섹션 (탭에서 분리) */}
         <div className="md:hidden">
           <PortfolioTab
-            totalEvaluation={summary?.totalEvaluation ?? 0}
-            totalReturnRate={summary?.totalReturnRate ?? 0}
-            totalReturnAmount={summary?.totalReturnAmount ?? 0}
-            portfolio={summary?.holdingsRatio ?? []}
+            totalEvaluation={realtimeTotalEvaluation}
+            totalReturnRate={realtimeTotalReturnRate}
+            totalReturnAmount={realtimeTotalReturnAmount}
+            portfolio={realtimeHoldingsRatio}
             holdings={holdings}
             compact={false}
           />
@@ -228,10 +243,10 @@ export default function ProfilePage() {
             {activeTab === "portfolio" && (
               <div className="hidden md:block h-full">
                 <PortfolioTab
-                  totalEvaluation={summary?.totalEvaluation ?? 0}
-                  totalReturnRate={summary?.totalReturnRate ?? 0}
-                  totalReturnAmount={summary?.totalReturnAmount ?? 0}
-                  portfolio={summary?.holdingsRatio ?? []}
+                  totalEvaluation={realtimeTotalEvaluation}
+                  totalReturnRate={realtimeTotalReturnRate}
+                  totalReturnAmount={realtimeTotalReturnAmount}
+                  portfolio={realtimeHoldingsRatio}
                   holdings={holdings}
                 />
               </div>
