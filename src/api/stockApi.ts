@@ -379,7 +379,8 @@ export function useCandleQuery(stockCode: string, period: PeriodType, limit = 36
   const url = (() => {
     const toParam = to ? `&to=${to}` : "";
     if (period === "1" || period === "5" || period === "30" || period === "60") {
-      return `/api/stocks/${stockCode}/candles/minute?unit=${period}${toParam}`;
+      const daysParam = limit > 0 ? `&days=${limit}` : "";
+      return `/api/stocks/${stockCode}/candles/minute?unit=${period}${daysParam}${toParam}`;
     }
     if (period === "day") return `/api/stocks/${stockCode}/candles/daily?days=${limit}${toParam}`;
     if (period === "week") return `/api/stocks/${stockCode}/candles/weekly?weeks=${Math.ceil(limit / 7)}${toParam}`;
