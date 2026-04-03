@@ -107,8 +107,10 @@ export default function NotificationCard({ item, onRead, onAccept, onReject }: P
   const { bg, icon, badgeText, badgeClass } = getIconConfig(item.notificationType);
   const isUnread = !item.isRead;
 
+  const isMentoringRequest = item.notificationType === "MENTORING_REQUEST";
+
   const handleClick = () => {
-    if (isUnread) onRead?.(item.notificationId);
+    if (isUnread && !isMentoringRequest) onRead?.(item.notificationId);
   };
 
   return (
@@ -149,16 +151,16 @@ export default function NotificationCard({ item, onRead, onAccept, onReject }: P
           </p>
 
           {/* 멘토 신청 액션 버튼 */}
-          {item.notificationType === "MENTORING_REQUEST" && isUnread && (
+          {isMentoringRequest && (
             <div className="flex items-center gap-2 mt-3">
               <button
-                onClick={() => onAccept?.(item.notificationId)}
+                onClick={(e) => { e.stopPropagation(); onRead?.(item.notificationId); onAccept?.(item.notificationId); }}
                 className="px-3 py-1.5 text-[12px] font-semibold text-white bg-green-500 hover:bg-green-600 rounded-lg cursor-pointer transition-colors"
               >
                 수락
               </button>
               <button
-                onClick={() => onReject?.(item.notificationId)}
+                onClick={(e) => { e.stopPropagation(); onRead?.(item.notificationId); onReject?.(item.notificationId); }}
                 className="px-3 py-1.5 text-[12px] font-semibold text-white bg-red-500 hover:bg-red-600 rounded-lg cursor-pointer transition-colors"
               >
                 거절

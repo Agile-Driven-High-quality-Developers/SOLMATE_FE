@@ -13,6 +13,7 @@ import {
   useDeleteCommentMutation,
 } from "@/api/tradeDiaryApi";
 import { useStocksQuery } from "@/api/stockApi";
+import DiaryMiniChart from "@/components/profile/DiaryMiniChart";
 
 type Props = {
   items: MyDiariesItem[];
@@ -172,6 +173,16 @@ function DiaryDetail({
             </div>
           ))}
         </div>
+
+        {detail.tickerCode && (
+          <DiaryMiniChart
+            tickerCode={detail.tickerCode}
+            tradeDate={detail.createdAt.slice(0, 10)}
+            tradeDateTime={detail.createdAt}
+            tradeType={detail.tradeType}
+            filledPrice={detail.filledPrice}
+          />
+        )}
 
         {/* 매매 일지 본문 */}
         <div className="pt-2">

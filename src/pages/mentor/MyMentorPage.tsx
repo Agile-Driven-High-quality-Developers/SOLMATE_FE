@@ -43,7 +43,7 @@ import PortfolioTab from "@/components/profile/PortfolioTab";
 import {
   useMyMentorQuery,
   useUserProfileQuery,
-  useMentorHoldingsQuery,
+  useRealtimeMentorHoldings,
   useMentorDiariesQuery,
   useMentorTradeHistoryQuery,
 } from "@/api/mentorApi";
@@ -154,23 +154,36 @@ export default function MyMentorPage() {
   const { data: mentor, isLoading: loadingMentor } =
     useUserProfileQuery(mentorId);
   const { data: summary } = useAccountSummaryByUserQuery(mentorId);
-  const { data: holdingsRaw = [] } = useMentorHoldingsQuery(mentorId);
+  const { holdings: holdingsRaw } = useRealtimeMentorHoldings(mentorId);
   const { data: diaries = [] } = useMentorDiariesQuery(mentorId);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(mentorId);
 
-  const holdings = holdingsRaw
-    .filter((h) => h.quantity > 0)
-    .map((h) => ({
-      tickerCode: h.tickerCode,
-      stockName: h.stockName,
-      stockLogo: h.stockLogo,
-      quantity: h.quantity,
-      averageBuyPrice: 0,
-      currentPrice: h.currentPrice,
-      evaluationAmount: h.evaluation,
-      profitRate: h.returnRate,
-      profitAmount: h.returnAmount,
-    }));
+  const holdings = holdingsRaw.map((h) => ({
+    tickerCode: h.tickerCode,
+    stockName: h.stockName,
+    stockLogo: h.stockLogo,
+    quantity: h.quantity,
+    averageBuyPrice: 0,
+    currentPrice: h.currentPrice,
+    evaluationAmount: h.evaluation,
+    profitRate: h.returnRate,
+    profitAmount: h.returnAmount,
+  }));
+
+  const realtimeTotalEvaluation = holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeTotalAsset = (summary?.cash ?? 0) + realtimeTotalEvaluation;
+  const realtimeTotalReturnAmount = realtimeTotalAsset - (summary?.initialCash ?? 0);
+  const realtimeTotalReturnRate = (summary?.initialCash ?? 0) > 0
+    ? (realtimeTotalReturnAmount / (summary?.initialCash ?? 1)) * 100
+    : (summary?.totalReturnRate ?? 0);
+  const realtimeHoldingsRatio = realtimeTotalEvaluation > 0
+    ? holdingsRaw.map((h) => ({
+        tickerCode: h.tickerCode,
+        stockName: h.stockName,
+        evaluation: h.evaluation,
+        ratio: (h.evaluation / realtimeTotalEvaluation) * 100,
+      }))
+    : (summary?.holdingsRatio ?? []);
 
   if (loadingMyMentor || loadingMentor) {
     return (
@@ -198,7 +211,7 @@ export default function MyMentorPage() {
     );
   }
 
-  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
+  const isPositive = realtimeTotalReturnRate >= 0;
 
   return (
     <div className="flex flex-col p-4 sm:p-6 gap-5 min-h-screen md:h-screen md:overflow-hidden bg-gray-50 dark:bg-slate-950">
@@ -270,7 +283,7 @@ export default function MyMentorPage() {
                     className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
-                    {(summary?.totalReturnRate ?? 0).toFixed(2)}%
+                    {realtimeTotalReturnRate.toFixed(2)}%
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -279,7 +292,7 @@ export default function MyMentorPage() {
                     className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
-                    {fmtAmount(summary?.totalReturnAmount ?? 0)}
+                    {fmtAmount(realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0))}
                   </span>
                 </div>
                 <div className=""></div>
@@ -327,10 +340,10 @@ export default function MyMentorPage() {
           )}
           {activeTab === "portfolio" && (
             <PortfolioTab
-              totalEvaluation={summary?.totalEvaluation ?? 0}
-              totalReturnRate={summary?.totalReturnRate ?? 0}
-              totalReturnAmount={summary?.totalReturnAmount ?? 0}
-              portfolio={summary?.holdingsRatio ?? []}
+              totalEvaluation={realtimeTotalEvaluation || (summary?.totalEvaluation ?? 0)}
+              totalReturnRate={realtimeTotalReturnRate}
+              totalReturnAmount={realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0)}
+              portfolio={realtimeHoldingsRatio}
               holdings={holdings}
               compact={false}
               showAvgPrice={false}

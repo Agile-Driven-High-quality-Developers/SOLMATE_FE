@@ -60,6 +60,14 @@ export default function DiaryDetailPage() {
   const imageUrlMap = new Map(
     (userListData?.users ?? []).map((u) => [u.nickname, u.imageUrl]),
   );
+  const navigateToProfile = (userId: number | null) => {
+    if (userId === null) return;
+    if (userId === storeUser?.userId) {
+      navigate("/profile");
+    } else {
+      navigate(`/users/${userId}`);
+    }
+  };
 
   const isProfit = (diary?.profit ?? 0) >= 0;
   const profitColor = isProfit ? "text-[#F04452]" : "text-[#0046FF]";
@@ -241,21 +249,31 @@ export default function DiaryDetailPage() {
         <div className="flex flex-col gap-5">
           {diary?.comments?.map((comment) => (
             <div key={comment.commentId} className="flex gap-3 group">
-              <Avatar
-                name={comment.nickname}
-                src={
-                  imageUrlMap.get(comment.nickname) ||
-                  comment.imageUrl ||
-                  undefined
-                }
-                size={32}
-              />
+              <button
+                type="button"
+                onClick={() => navigateToProfile(comment.userId)}
+                className="shrink-0"
+              >
+                <Avatar
+                  name={comment.nickname}
+                  src={
+                    imageUrlMap.get(comment.nickname) ||
+                    comment.imageUrl ||
+                    undefined
+                  }
+                  size={32}
+                />
+              </button>
               <div className="flex flex-col flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => navigateToProfile(comment.userId)}
+                      className="text-[12px] font-semibold text-gray-800 dark:text-gray-200 hover:underline"
+                    >
                       {comment.nickname}
-                    </span>
+                    </button>
                     {comment.isMentor && <Badge name="멘토" color="#FF9900" />}
                   </div>
 

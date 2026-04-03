@@ -10,7 +10,7 @@ import ProfileCard from "@/components/profile/ProfileCard";
 import FollowList from "@/components/profile/FollowList";
 import {
   useUserProfileQuery,
-  useMentorHoldingsQuery,
+  useRealtimeMentorHoldings,
   useMentorDiariesQuery,
   useMentorTradeHistoryQuery,
   useMyMenteesQuery,
@@ -45,13 +45,13 @@ export default function UserProfilePage() {
   const id = Number(userId);
   const { data: profile, isLoading } = useUserProfileQuery(id);
   const { data: summary } = useAccountSummaryByUserQuery(id);
-  const { data: holdingsRaw = [] } = useMentorHoldingsQuery(id);
+  const { holdings: holdingsRaw } = useRealtimeMentorHoldings(id);
   const { data: diaries = [] } = useMentorDiariesQuery(id);
   const { data: tradeHistories = [] } = useMentorTradeHistoryQuery(id);
   const { data: myMentor } = useMyMentorQuery();
   const { data: myMentees } = useMyMenteesQuery();
 
-  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
+  const holdings = holdingsRaw.map((h) => ({
     tickerCode: h.tickerCode,
     stockName: h.stockName,
     stockLogo: h.stockLogo,
@@ -62,6 +62,21 @@ export default function UserProfilePage() {
     profitRate: h.returnRate,
     profitAmount: h.returnAmount,
   }));
+
+  const realtimeTotalEvaluation = holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeTotalAsset = (summary?.cash ?? 0) + realtimeTotalEvaluation;
+  const realtimeTotalReturnAmount = realtimeTotalAsset - (summary?.initialCash ?? 0);
+  const realtimeTotalReturnRate = (summary?.initialCash ?? 0) > 0
+    ? (realtimeTotalReturnAmount / (summary?.initialCash ?? 1)) * 100
+    : (summary?.totalReturnRate ?? 0);
+  const realtimeHoldingsRatio = realtimeTotalEvaluation > 0
+    ? holdingsRaw.map((h) => ({
+        tickerCode: h.tickerCode,
+        stockName: h.stockName,
+        evaluation: h.evaluation,
+        ratio: (h.evaluation / realtimeTotalEvaluation) * 100,
+      }))
+    : (summary?.holdingsRatio ?? []);
 
   const isMentor = myMentor?.hasMentor && myMentor.userId === id;
   const isMentee = myMentees?.mentees.some((m) => m.userId === id);
@@ -225,10 +240,10 @@ export default function UserProfilePage() {
         {/* 모바일 전용: 포트폴리오 섹션 (탭에서 분리) */}
         <div className="md:hidden">
           <PortfolioTab
-            totalEvaluation={summary?.totalEvaluation ?? 0}
-            totalReturnRate={summary?.totalReturnRate ?? 0}
-            totalReturnAmount={summary?.totalReturnAmount ?? 0}
-            portfolio={summary?.holdingsRatio ?? []}
+            totalEvaluation={realtimeTotalEvaluation || (summary?.totalEvaluation ?? 0)}
+            totalReturnRate={realtimeTotalReturnRate}
+            totalReturnAmount={realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0)}
+            portfolio={realtimeHoldingsRatio}
             holdings={holdings}
             compact={false}
             showAvgPrice={false}
@@ -254,17 +269,17 @@ export default function UserProfilePage() {
             />
           </div>
           <div className={`p-5 flex-1 md:min-h-0 ${activeTab === "portfolio" ? "md:overflow-hidden overflow-y-auto" : "overflow-y-auto"}`}>
-            {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
+            {activeTab === "diary" && <TradeDiaryTab items={diaries} navigable={isMentor || isMentee} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
             {/* 모바일에서 activeTab이 portfolio인 경우 diary 콘텐츠로 폴백 */}
-            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} /></div>}
+            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} navigable={isMentor || isMentee} /></div>}
             {activeTab === "portfolio" && (
               <div className="hidden md:block h-full">
                 <PortfolioTab
-                  totalEvaluation={summary?.totalEvaluation ?? 0}
-                  totalReturnRate={summary?.totalReturnRate ?? 0}
-                  totalReturnAmount={summary?.totalReturnAmount ?? 0}
-                  portfolio={summary?.holdingsRatio ?? []}
+                  totalEvaluation={realtimeTotalEvaluation || (summary?.totalEvaluation ?? 0)}
+                  totalReturnRate={realtimeTotalReturnRate}
+                  totalReturnAmount={realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0)}
+                  portfolio={realtimeHoldingsRatio}
                   holdings={holdings}
                   compact={false}
                   showAvgPrice={false}
