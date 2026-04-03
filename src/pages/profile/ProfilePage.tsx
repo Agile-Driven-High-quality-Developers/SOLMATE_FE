@@ -29,10 +29,11 @@ const PROFILE_TOUR: TourStep[] = [
         <User size={15} />내 프로필
       </span>
     ),
-    description: "나의 투자 활동 기록이 쌓이는 공간이에요.",
+    description: "내 투자 정보와 활동을 한곳에서 확인할 수 있어요.",
     items: [
-      "팔로워·팔로잉 — 서로 구독한 투자자 수",
-      "수익률 — 지금까지의 내 총 투자 성과",
+      "팔로워·팔로잉 — 나를 팔로우한 사람과 내가 팔로우한 사람 수",
+      "수익률·총 수익 — 지금까지의 내 투자 성과",
+      "프로필 편집 — 프로필 정보를 수정할 수 있어요.",
     ],
     placement: "right",
   },
@@ -45,9 +46,9 @@ const PROFILE_TOUR: TourStep[] = [
     ),
     description: "투자 관련 기록을 탭별로 확인할 수 있어요.",
     items: [
+      "포트폴리오 — 보유 종목 현황과 종목 비중",
       "매매일지 — 거래할 때 남긴 메모 모음",
       "매매내역 — 지금까지의 모든 거래 기록",
-      "포트폴리오 — 보유 종목 비중 파이 차트",
     ],
     placement: "left",
   },
@@ -89,17 +90,19 @@ export default function ProfilePage() {
   const { data: summary } = useAccountSummaryQuery();
   const { data: holdingsRaw = [] } = useHoldingsQuery();
 
-  const holdings = holdingsRaw.filter((h) => h.quantity > 0).map((h) => ({
-    tickerCode: h.tickerCode,
-    stockName: h.stockName,
-    stockLogo: h.stockLogo,
-    quantity: h.quantity,
-    averageBuyPrice: h.avgPrice,
-    currentPrice: h.currentPrice,
-    evaluationAmount: h.evaluation,
-    profitRate: h.returnRate,
-    profitAmount: h.returnAmount,
-  }));
+  const holdings = holdingsRaw
+    .filter((h) => h.quantity > 0)
+    .map((h) => ({
+      tickerCode: h.tickerCode,
+      stockName: h.stockName,
+      stockLogo: h.stockLogo,
+      quantity: h.quantity,
+      averageBuyPrice: h.avgPrice,
+      currentPrice: h.currentPrice,
+      evaluationAmount: h.evaluation,
+      profitRate: h.returnRate,
+      profitAmount: h.returnAmount,
+    }));
 
   const queryClient = useQueryClient();
 
@@ -217,7 +220,11 @@ export default function ProfilePage() {
               <TradeHistoryTab items={tradeHistories} />
             )}
             {/* 모바일에서 activeTab이 portfolio인 경우 diary 콘텐츠로 폴백 */}
-            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} /></div>}
+            {activeTab === "portfolio" && (
+              <div className="md:hidden">
+                <TradeDiaryTab items={diaries} />
+              </div>
+            )}
             {activeTab === "portfolio" && (
               <div className="hidden md:block h-full">
                 <PortfolioTab

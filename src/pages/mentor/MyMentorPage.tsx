@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  Users,
-  Loader2,
-  X,
-  GraduationCap,
-  BookOpen,
-} from "lucide-react";
+import { Users, Loader2, X, GraduationCap, BookOpen } from "lucide-react";
 import SpotlightTour from "@/components/onboarding/SpotlightTour";
 import type { TourStep } from "@/components/onboarding/SpotlightTour";
 
@@ -19,12 +13,8 @@ const MENTOR_TOUR: TourStep[] = [
         나의 멘토
       </span>
     ),
-    description: "멘토로 등록한 투자자의 정보예요.",
-    items: [
-      "멘토의 수익률·수익을 한눈에 볼 수 있어요",
-      "프로필 보기로 더 자세한 정보를 확인해요",
-      "멘토 취소 시 언제든 다시 신청할 수 있어요",
-    ],
+    description: "멘토의 투자 정보를 확인할 수 있어요.",
+    items: ["포트폴리오와 매매일지, 매매내역도 함께 살펴볼 수 있어요"],
     placement: "bottom",
   },
   {
@@ -35,11 +25,11 @@ const MENTOR_TOUR: TourStep[] = [
         멘토의 투자 기록
       </span>
     ),
-    description: "멘토가 어떻게 투자하는지 직접 확인할 수 있어요.",
+    description: "멘토가 어떻게 투자했는지 확인할 수 있어요.",
     items: [
-      "매매일지 — 멘토가 거래할 때 남긴 메모",
-      "매매내역 — 멘토의 모든 거래 기록",
-      "포트폴리오 — 멘토가 보유한 종목 현황",
+      "포트폴리오 — 멘토가 보유한 종목 현황을 확인할 수 있어요.",
+      "매매일지 — 멘토가 거래할 때 남긴 메모예요. 상세를 보고 댓글로 소통할 수 있어요.",
+      "매매내역 — 멘토의 거래 기록을 볼 수 있어요.",
     ],
     placement: "bottom",
   },
@@ -111,7 +101,9 @@ function CancelMentorModal({
         </div>
         <div className="px-6 py-6">
           <p className="text-[14px] text-gray-700 dark:text-gray-300 font-medium mb-1">
-            <span className="font-semibold text-[#0046FF]">{mentorNickname}</span>{" "}
+            <span className="font-semibold text-[#0046FF]">
+              {mentorNickname}
+            </span>{" "}
             멘토를 취소하시겠어요?
           </p>
           <p className="text-[12px] text-gray-400 dark:text-slate-500">
@@ -223,7 +215,9 @@ export default function MyMentorPage() {
             try {
               await cancelMentoring(mentorId);
               await queryClient.invalidateQueries({ queryKey: ["mentor"] });
-              queryClient.invalidateQueries({ queryKey: notificationQueryKeys.unreadCount });
+              queryClient.invalidateQueries({
+                queryKey: notificationQueryKeys.unreadCount,
+              });
               showToast("멘토 취소가 완료되었습니다.");
             } catch {
               showToast("멘토 취소에 실패했습니다. 다시 시도해주세요.");

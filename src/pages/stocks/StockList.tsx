@@ -12,11 +12,12 @@ const INVEST_TOUR: TourStep[] = [
         코스피 · 코스닥이 뭔가요?
       </span>
     ),
-    description: "주식 시장 전체의 흐름을 숫자 하나로 나타낸 지수예요.",
+    description: "국내 주식시장의 흐름을 보여주는 대표 지수예요.",
     items: [
-      "코스피(KOSPI) — 삼성·현대 같은 대형 우량 기업 지수",
-      "코스닥(KOSDAQ) — 네이버·카카오 같은 중소·기술 기업 지수",
-      "지수가 오르면 시장 전체 분위기가 좋은 날이에요!",
+      { label: "코스피(KOSPI):", labelColor: "#111827", text: "우리나라의 대표 주식 시장인 코스피 시장에 상장된 기업들의 주가 지수를 의미해요." },
+      { label: "코스닥(KOSDAQ):", labelColor: "#111827", text: "코스닥 시장에 상장된 주식들의 가격 지수를 의미해요." },
+      "코스피 시장엔 주로 대기업이, 코스닥 시장엔 중소 및 벤처 기업이 상장되어 있어요.",
+      "지수가 오르면 시장 분위기가 좋은 편이라고 볼 수 있어요.",
     ],
     placement: "bottom",
   },
@@ -24,15 +25,15 @@ const INVEST_TOUR: TourStep[] = [
     target: "stock-columns",
     title: (
       <span className="inline-flex items-center gap-1.5">
-        <Hash size={15} />각 숫자가 무슨 뜻이에요?
+        <Hash size={15} />각 숫자는 무엇을 뜻하나요?
       </span>
     ),
-    description: "종목 리스트에서 보이는 숫자들이에요.",
+    description: "종목 리스트에서 자주 보이는 숫자들이에요.",
     items: [
       "현재가 — 지금 이 순간 거래되는 가격",
-      "등락률 — 어제보다 얼마나 올랐는지 (%)",
-      "거래량 — 오늘 사고판 주식 수",
-      "시가총액 — 회사 주식을 전부 사면 드는 돈 (회사 규모)",
+      "등락률 — 전일 대비 가격이 얼마나 변했는지 (%)",
+      "거래량 — 오늘 거래된 주식 수",
+      "시가총액 — 회사의 전체 주식 가치를 나타내는 규모",
     ],
     placement: "bottom",
   },
@@ -41,11 +42,11 @@ const INVEST_TOUR: TourStep[] = [
     title: (
       <span className="inline-flex items-center gap-1.5">
         <Search size={15} />
-        원하는 종목 찾기
+        원하는 종목을 찾아보세요
       </span>
     ),
     description:
-      "회사 이름으로 검색하거나 거래량·등락률 순으로 정렬해서 마음에 드는 종목을 찾아봐요.",
+      "종목명이나 코드로 검색하고,\n거래량·등락률 순으로 정렬해 비교할 수 있어요.",
     placement: "bottom",
   },
   {
@@ -53,11 +54,11 @@ const INVEST_TOUR: TourStep[] = [
     title: (
       <span className="inline-flex items-center gap-1.5">
         <ClipboardList size={15} />
-        종목을 클릭해봐요!
+        종목을 클릭해보세요
       </span>
     ),
     description:
-      "현재가·등락률이 실시간으로 바뀌어요. 종목을 클릭하면 차트 보기와 매수·매도 화면으로 이동해요!",
+      "관심 있는 종목을 누르면\n상세 정보와 매수·매도 화면으로 이동할 수 있어요.",
     placement: "bottom",
   },
 ];

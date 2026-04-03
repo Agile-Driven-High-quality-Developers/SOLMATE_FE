@@ -159,7 +159,7 @@ export default function LoginPage() {
           {/* 헤드라인 */}
           <div className="mb-7">
             <h1 className="text-[22px] font-semibold text-gray-900 tracking-tight">
-              다시 만나서 반가워요 👋
+              만나서 반가워요!
             </h1>
             <p className="mt-1.5 text-[14px] text-gray-400">
               함께 성장하는 모의투자 커뮤니티

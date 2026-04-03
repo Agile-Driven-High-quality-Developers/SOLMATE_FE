@@ -12,7 +12,7 @@ const USERS_TOUR: TourStep[] = [
       </span>
     ),
     description:
-      "관심 있는 투자자를 팔로우하면 홈 화면 TOP 투자자에서 그 사람의 수익률을 바로 확인할 수 있어요.",
+      "관심 있는 투자자를 팔로우해두면 해당 투자자의 거래 소식을 알림으로 받아볼 수 있어요.",
     placement: "left",
   },
   {
@@ -24,12 +24,20 @@ const USERS_TOUR: TourStep[] = [
       </span>
     ),
     description:
-      "멘토로 등록하면 그 사람의 매매일지와 포트폴리오를 공유받을 수 있어요. 1명만 멘토로 설정할 수 있어요.",
+      "멘토가 되면 서로의 매매일지 상세를 확인하고 댓글로 의견을 주고받을 수 있어요. 멘토는 1명만 설정할 수 있어요.",
     placement: "left",
   },
 ];
 import { useState, useEffect, useRef } from "react";
-import { Search, Medal, UserPlus, GraduationCap, Crown, X, ChevronsLeftRight } from "lucide-react";
+import {
+  Search,
+  Medal,
+  UserPlus,
+  GraduationCap,
+  Crown,
+  X,
+  ChevronsLeftRight,
+} from "lucide-react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -79,7 +87,6 @@ function getAvatarColor(name: string): string {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 }
-
 
 function FollowButton({
   user,
@@ -247,7 +254,9 @@ function UserRow({
         ) : rank === 3 ? (
           <Medal size={20} className="mx-auto text-amber-600" />
         ) : (
-          <span className="text-[14px] font-semibold text-gray-400">{rank}</span>
+          <span className="text-[14px] font-semibold text-gray-400">
+            {rank}
+          </span>
         )}
       </td>
 

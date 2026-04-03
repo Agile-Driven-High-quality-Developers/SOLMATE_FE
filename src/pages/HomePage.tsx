@@ -10,11 +10,11 @@ const HOME_TOUR: TourStep[] = [
     title: (
       <span className="inline-flex items-center gap-1.5">
         <TrendingUp size={15} />
-        오늘 주식시장은?
+        오늘 시장 흐름을 확인해요
       </span>
     ),
     description:
-      "코스피·코스닥·환율을 실시간으로 보여줘요. 빨강이면 오름, 파랑이면 내림이에요.",
+      "대표 주가지수와 환율을 통해\n오늘 시장 분위기를 한눈에 볼 수 있어요",
     placement: "bottom",
   },
   {
@@ -25,7 +25,7 @@ const HOME_TOUR: TourStep[] = [
       </span>
     ),
     description:
-      "가상 1,000만원으로 시작한 내 돈이 얼마가 됐는지 보여줘요. 예수금은 아직 투자 안 한 현금이에요.",
+      "가상 투자금 1,000만원이 지금 얼마나 변했는지 확인할 수 있어요.\n예수금과 보유 종목을 함께 보며 현재 자산을 한눈에 파악해보세요.",
     placement: "bottom",
   },
   {
@@ -33,11 +33,11 @@ const HOME_TOUR: TourStep[] = [
     title: (
       <span className="inline-flex items-center gap-1.5">
         <Package size={15} />
-        내가 산 주식들
+        보유 종목
       </span>
     ),
     description:
-      "지금 가지고 있는 주식 목록이에요. 각 종목이 얼마나 올랐는지(수익률) 바로 확인할 수 있어요.",
+      "현재 보유 중인 종목을 한눈에 볼 수 있어요.\n각 종목의 평가손익과 수익률도 함께 확인할 수 있어요.",
     placement: "top",
   },
   {
