@@ -100,8 +100,16 @@ export function useRealtimeMentorHoldings(userId: number) {
   const { data: holdingsRaw = [], ...rest } = useMentorHoldingsQuery(userId);
   const [realtimePrices, setRealtimePrices] = useState<Record<string, number>>({});
 
+  // 실제 ticker 목록이 바뀔 때만 재구독 (배열 참조 변경에는 반응 안 함)
+  const tickersKey = useMemo(
+    () => holdingsRaw.filter((h) => h.quantity > 0).map((h) => h.tickerCode).sort().join(","),
+    [holdingsRaw],
+  );
+  const holdingsRef = { current: holdingsRaw };
+  holdingsRef.current = holdingsRaw;
+
   useEffect(() => {
-    const active = holdingsRaw.filter((h) => h.quantity > 0);
+    const active = holdingsRef.current.filter((h) => h.quantity > 0);
     if (active.length === 0) return;
 
     const unsubs = active.map((h) =>
@@ -112,13 +120,17 @@ export function useRealtimeMentorHoldings(userId: number) {
     );
 
     return () => unsubs.forEach((u) => u());
-  }, [holdingsRaw]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickersKey]);
 
   const holdings = useMemo(() =>
     holdingsRaw.filter((h) => h.quantity > 0).map((h) => {
       const currentPrice = realtimePrices[h.tickerCode] ?? h.currentPrice;
       const evaluation = currentPrice * h.quantity;
-      return { ...h, currentPrice, evaluation };
+      const avgPrice = h.quantity > 0 ? h.currentPrice - h.returnAmount / h.quantity : 0;
+      const returnAmount = (currentPrice - avgPrice) * h.quantity;
+      const returnRate = avgPrice > 0 ? ((currentPrice - avgPrice) / avgPrice) * 100 : h.returnRate;
+      return { ...h, currentPrice, evaluation, returnAmount, returnRate };
     }),
   [holdingsRaw, realtimePrices]);
 
