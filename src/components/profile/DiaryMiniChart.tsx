@@ -93,20 +93,22 @@ export default function DiaryMiniChart({
     (Date.now() - new Date(tradeDate).getTime()) / 86400000,
   );
 
+  // 거래일 당일 끝 Unix timestamp (KST 23:59:59)
+  const tradeDayEndEpoch = useMemo(() => {
+    return Math.floor(new Date(`${tradeDate}T23:59:59+09:00`).getTime() / 1000);
+  }, [tradeDate]);
+
   // 비분봉 기간은 거래일이 데이터 범위에 포함되도록 최소 limit 보장
+  // 분봉은 1일치 데이터 요청
   const getLimit = (p: PeriodType) => {
-    if (MINUTE_PERIODS.has(p)) return INITIAL_LIMIT[p];
+    if (MINUTE_PERIODS.has(p)) return 1;
     return Math.max(INITIAL_LIMIT[p], elapsed + 60);
   };
 
   // URL에 저장된 기간 복원 (새로고침 시 유지), 없으면 기본값
   const getFallbackPeriod = (): PeriodType => {
     const saved = searchParams.get("chartPeriod") as PeriodType | null;
-    if (saved && PERIODS.some((p) => p.value === saved)) {
-      // 분봉은 오늘 거래일 때만 허용
-      if (MINUTE_PERIODS.has(saved) && elapsed > 30) return "day";
-      return saved;
-    }
+    if (saved && PERIODS.some((p) => p.value === saved)) return saved;
     return elapsed === 0 ? "5" : "day";
   };
 
@@ -125,6 +127,7 @@ export default function DiaryMiniChart({
   const seriesRef = useRef<any>(null);
   const loadingMoreRef = useRef(false);
   const initialScrollDoneRef = useRef(false);
+  const suppressLoadMoreRef = useRef(false);
   const isMinuteRef = useRef(isMinute);
   const tradeChartTimeRef = useRef<UTCTimestamp | string | null>(null);
 
@@ -141,12 +144,14 @@ export default function DiaryMiniChart({
     tickerCode,
     period,
     limit,
+    isMinute ? tradeDayEndEpoch : undefined,
   );
 
   const handlePeriodChange = (p: PeriodType) => {
     setPeriod(p);
     setLimit(getLimit(p));
     initialScrollDoneRef.current = false;
+    loadingMoreRef.current = false;
     setMarkerX(null);
     seriesRef.current?.setData([]);
     setSearchParams(
@@ -160,7 +165,7 @@ export default function DiaryMiniChart({
 
   const isBuy = tradeType === "BUY";
   const markerColor = "#22C55E";
-  const minuteEnabled = elapsed <= 30;
+  const minuteEnabled = true;
 
   // 차트 마운트
   useEffect(() => {
@@ -214,9 +219,9 @@ export default function DiaryMiniChart({
       wickDownColor: DOWN_COLOR,
     });
 
-    // 좌측 끝 근접 시 추가 데이터 로드
+    // 좌측 끝 근접 시 추가 데이터 로드 (초기 centering·분봉 중에는 스킵)
     chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
-      if (!range || loadingMoreRef.current) return;
+      if (!range || loadingMoreRef.current || suppressLoadMoreRef.current || isMinuteRef.current) return;
       if (range.from < 10) {
         loadingMoreRef.current = true;
         setLimit((prev) => Math.min(prev + LOAD_MORE_STEP, MAX_LIMIT));
@@ -282,6 +287,7 @@ export default function DiaryMiniChart({
     }
     const sorted = [...timeMap.values()].sort((a, b) => a.time - b.time);
 
+    suppressLoadMoreRef.current = true;
     seriesRef.current.setData(
       sorted.map((c) => ({
         time: toChartTime(c.time, isMinute),
@@ -328,12 +334,12 @@ export default function DiaryMiniChart({
       loadingMoreRef.current = false;
     } else {
       initialScrollDoneRef.current = true;
-      // 거래 캔들을 차트 가운데로
       const half = HALF_WINDOW[period];
       chartRef.current.timeScale().setVisibleLogicalRange({
         from: nearestIdx - half,
         to: nearestIdx + half,
       });
+      setTimeout(() => { suppressLoadMoreRef.current = false; }, 300);
       // setVisibleLogicalRange가 구독 콜백을 동기 실행해 loadingMoreRef를 true로
       // 세팅했을 수 있으므로 여기서 리셋하지 않음 (다음 effect 실행 시 리셋됨)
     }
@@ -389,6 +395,11 @@ export default function DiaryMiniChart({
         {isPending && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 z-10 rounded-b-2xl">
             <div className="w-5 h-5 rounded-full border-2 border-[#0046FF] border-t-transparent animate-spin" />
+          </div>
+        )}
+        {!isPending && isMinute && candles?.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <p className="text-[12px] text-gray-400 dark:text-slate-500">해당 날짜의 분봉 데이터를 불러올 수 없습니다.</p>
           </div>
         )}
         <div ref={containerRef} className="h-full" />

@@ -280,7 +280,7 @@ export default function MyMentorPage() {
                 <div className="flex items-center gap-1">
                   <span>총 수익률</span>
                   <span
-                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {realtimeTotalReturnRate.toFixed(2)}%
@@ -289,7 +289,7 @@ export default function MyMentorPage() {
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
                   <span
-                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {fmtAmount(realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0))}

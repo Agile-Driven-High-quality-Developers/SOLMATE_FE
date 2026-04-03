@@ -49,6 +49,7 @@ import {
   useMentorDiariesQuery,
   useMentorTradeHistoryQuery,
 } from "@/api/mentorApi";
+
 import { useAccountSummaryByUserQuery } from "@/api/accountSummaryApi";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -159,7 +160,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
                 <div className="flex items-center gap-1">
                   <span>총 수익률</span>
                   <span
-                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {realtimeTotalReturnRate.toFixed(2)}%
@@ -168,7 +169,7 @@ function MenteeDetail({ menteeId }: { menteeId: number }) {
                 <div className="flex items-center gap-1">
                   <span>총 수익</span>
                   <span
-                    className={`font-semibold ml-0.5 ${isPositive ? "text-red-500" : "text-blue-500"}`}
+                    className={`font-semibold ml-0.5 tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}
                   >
                     {isPositive ? "+" : ""}
                     {fmtAmount(realtimeTotalReturnAmount || (summary?.totalReturnAmount ?? 0))}
@@ -233,7 +234,16 @@ function MenteeListItem({
   const { data: profile, isLoading: profileLoading } =
     useUserProfileQuery(userId);
   const { data: summary } = useAccountSummaryByUserQuery(userId);
-  const isPositive = (summary?.totalReturnRate ?? 0) >= 0;
+  const { holdings: holdingsRaw } = useRealtimeMentorHoldings(userId);
+
+  const realtimeTotalEvaluation = holdingsRaw.reduce((sum, h) => sum + h.evaluation, 0);
+  const realtimeTotalAsset = (summary?.cash ?? 0) + realtimeTotalEvaluation;
+  const realtimeTotalReturnAmount = realtimeTotalAsset - (summary?.initialCash ?? 0);
+  const returnRate = (summary?.initialCash ?? 0) > 0
+    ? (realtimeTotalReturnAmount / summary!.initialCash) * 100
+    : (summary?.totalReturnRate ?? 0);
+
+  const isPositive = returnRate >= 0;
 
   if (profileLoading) {
     return (
@@ -266,10 +276,10 @@ function MenteeListItem({
           {profile?.nickname}
         </p>
         <p
-          className={`text-[12px] font-semibold ${isPositive ? "text-red-500" : "text-blue-500"}`}
+          className={`text-[12px] font-semibold tabular-nums ${isPositive ? "text-red-500" : "text-blue-500"}`}
         >
           {isPositive ? "+" : ""}
-          {(summary?.totalReturnRate ?? 0).toFixed(2)}%
+          {returnRate.toFixed(2)}%
         </p>
       </div>
     </button>
