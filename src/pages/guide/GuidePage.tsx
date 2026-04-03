@@ -28,12 +28,15 @@ import {
   Zap,
   CheckCircle2,
   AlertTriangle,
+  Clock,
+  Building2,
 } from "lucide-react";
 
 // ─── 섹션 정의 ───────────────────────────────────────────────
 const SECTIONS = [
   { id: "intro", label: "서비스 소개", icon: Info },
   { id: "usage", label: "사용 가이드", icon: BookMarked },
+  { id: "market", label: "거래 시간", icon: Clock },
   { id: "invest", label: "주식투자 가이드", icon: TrendingUp },
   { id: "terms", label: "주식 용어 사전", icon: HelpCircle },
 ] as const;
@@ -264,6 +267,85 @@ const INVEST_RULES = [
     iconColor: "text-orange-400",
     title: "빚을 이용한 투자 주의",
     desc: "대출을 활용한 투자에는 손실이 커질 수 있는 위험이 있습니다.",
+  },
+];
+
+// ─── 거래 시간 데이터 ────────────────────────────────────────
+const KRX_SESSIONS = [
+  {
+    name: "장개시전 시간외종가",
+    time: "08:30 ~ 08:40",
+    desc: "전날 정규장 종가로 매매가 이루어집니다. 가격이 종가로 고정되어 있어 먼저 주문할수록 빨리 체결됩니다.",
+    tag: "시간외종가",
+    dot: "bg-gray-300",
+    color: "bg-gray-100 text-gray-500",
+  },
+  {
+    name: "장전 동시호가",
+    time: "08:30 접수 → 09:00 체결",
+    desc: "08:30부터 주문 접수가 가능하며, 09:00에 단일가로 일괄 체결하여 시가를 결정합니다.",
+    tag: "단일가",
+    dot: "bg-blue-300",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
+    name: "정규장",
+    time: "09:00 ~ 15:30",
+    desc: "매수·매도 주문이 실시간 접속매매로 체결됩니다. 시가·종가는 단일가매매로 결정됩니다.",
+    tag: "접속매매",
+    dot: "bg-blue-500",
+    color: "bg-green-50 text-green-600",
+  },
+  {
+    name: "장종료후 시간외종가",
+    time: "15:40 ~ 16:00",
+    desc: "당일 종가로 매매됩니다. 가격이 종가로 고정되어 먼저 주문할수록 빨리 체결됩니다. 주문 접수는 15:30부터 가능하며, 체결은 15:40부터 시작됩니다.",
+    tag: "시간외종가",
+    dot: "bg-gray-300",
+    color: "bg-gray-100 text-gray-500",
+  },
+  {
+    name: "시간외 단일가",
+    time: "16:00 ~ 18:00",
+    desc: "종가 대비 ±10% 범위 내에서 원하는 가격으로 주문할 수 있으며, 10분마다 모인 주문을 한꺼번에 체결합니다. 이 시간대 거래는 정규장 주가에 영향을 미치지 않습니다.",
+    tag: "단일가",
+    dot: "bg-gray-300",
+    color: "bg-gray-100 text-gray-500",
+  },
+];
+
+const NXT_SESSIONS = [
+  {
+    name: "프리마켓 (Pre)",
+    time: "08:00 ~ 08:50",
+    desc: "정규장 시작 전 거래 시간입니다. 지정가·최유리지정가·최우선지정가 주문이 가능합니다.",
+    tag: "단일가",
+    dot: "bg-orange-300",
+    color: "bg-orange-50 text-orange-600",
+  },
+  {
+    name: "정규장 (Main)",
+    time: "09:00 ~ 15:20",
+    desc: "KRX 정규장 개시 직후 시작하며, 접속매매로 실시간 체결됩니다. 조건부지정가를 제외한 모든 호가 유형이 가능합니다.",
+    tag: "접속매매",
+    dot: "bg-orange-500",
+    color: "bg-green-50 text-green-600",
+  },
+  {
+    name: "종가매매",
+    time: "15:30 ~ 16:00",
+    desc: "KRX 당일 종가로 체결됩니다. 호가 접수는 15:00부터 가능하며, 매매 체결은 15:30~16:00에 이루어집니다.",
+    tag: "종가",
+    dot: "bg-orange-200",
+    color: "bg-orange-50 text-orange-500",
+  },
+  {
+    name: "애프터마켓 (After)",
+    time: "15:40 ~ 20:00",
+    desc: "정규장 종료 후에도 거래할 수 있는 NXT만의 특징입니다. 15:30부터 주문 접수가 가능하며, 지정가·최유리지정가·최우선지정가 주문을 지원합니다.",
+    tag: "단일가",
+    dot: "bg-orange-300",
+    color: "bg-orange-50 text-orange-600",
   },
 ];
 
@@ -551,7 +633,320 @@ export default function GuidePage() {
             </div>
           </section>
 
-          {/* ══ 3. 주식투자 가이드 ══════════════════════════ */}
+          {/* ══ 3. 거래 시간 안내 ════════════════════════════ */}
+          <section
+            ref={(el) => {
+              sectionRefs.current["market"] = el;
+            }}
+            id="market"
+          >
+            <SectionHeader
+              icon={Clock}
+              label="거래 시간 안내"
+              title="언제 거래할 수 있나요?"
+            />
+
+            <p className="text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+              SOLMate는{" "}
+              <strong className="text-gray-800 dark:text-gray-200">
+                KRX(한국거래소)
+              </strong>
+              와{" "}
+              <strong className="text-gray-800 dark:text-gray-200">
+                NXT(넥스트레이드)
+              </strong>{" "}
+              두 거래소의 체결 데이터를 모두 지원합니다. 각 거래소는 거래
+              가능 시간과 체결 방식이 다르므로 주문 전 확인하세요.
+            </p>
+
+            {/* 시간외거래란? */}
+            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/50 rounded-2xl p-5 mb-6">
+              <p className="text-[12px] font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5" />
+                시간외거래란?
+              </p>
+              <p className="text-[12px] text-gray-600 dark:text-slate-400 leading-relaxed mb-2.5">
+                주식 거래는 정규장(09:00~15:30)에만 할 수 있는 게 아닙니다.
+                정규장 전후에도 거래가 가능한 시간이 있는데, 이를{" "}
+                <strong className="text-gray-800 dark:text-gray-200">
+                  시간외거래
+                </strong>
+                라고 합니다. 직장인처럼 낮 시간에 거래하기 어려운
+                투자자이거나, 장 마감 후 나온 공시·실적 발표에 빠르게
+                반응하고 싶을 때 활용할 수 있습니다.
+              </p>
+              <p className="text-[12px] text-gray-600 dark:text-slate-400 leading-relaxed">
+                2025년 3월 <strong className="text-gray-800 dark:text-gray-200">넥스트레이드(NXT)</strong>가
+                국내 최초 대체거래소로 출범하면서, 기존 KRX의
+                시간외거래(~18:00)보다 훨씬 긴 오전 8시~저녁 8시까지 거래할
+                수 있는 환경이 갖춰졌습니다.
+              </p>
+            </div>
+
+            {/* 거래소 요약 비교 카드 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              {/* KRX */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-blue-100 dark:border-blue-900/50 p-5">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0">
+                    <Building2 className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-gray-800 dark:text-gray-200 leading-tight">
+                      KRX
+                    </p>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500">
+                      한국거래소
+                    </p>
+                  </div>
+                  <span className="ml-auto text-[10px] font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                    정규
+                  </span>
+                </div>
+                <p className="text-[22px] font-bold text-gray-800 dark:text-gray-200 leading-none mb-1">
+                  09:00{" "}
+                  <span className="text-gray-300 dark:text-slate-600 font-light">
+                    ~
+                  </span>{" "}
+                  15:30
+                </p>
+                <p className="text-[11px] text-gray-400 dark:text-slate-500">
+                  정규장 기준 · 총 6.5시간
+                </p>
+              </div>
+
+              {/* NXT */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-orange-100 dark:border-orange-900/50 p-5">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center shrink-0">
+                    <Zap className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[14px] font-bold text-gray-800 dark:text-gray-200 leading-tight">
+                      NXT
+                    </p>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500">
+                      넥스트레이드
+                    </p>
+                  </div>
+                  <span className="ml-auto text-[10px] font-semibold bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full">
+                    대체거래소
+                  </span>
+                </div>
+                <p className="text-[22px] font-bold text-gray-800 dark:text-gray-200 leading-none mb-1">
+                  08:00{" "}
+                  <span className="text-gray-300 dark:text-slate-600 font-light">
+                    ~
+                  </span>{" "}
+                  20:00
+                </p>
+                <p className="text-[11px] text-gray-400 dark:text-slate-500">
+                  프리·애프터 포함 · 총 12시간
+                </p>
+              </div>
+            </div>
+
+            {/* KRX 세션 상세 */}
+            <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+              KRX 거래 시간 상세
+            </h3>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden mb-6">
+              {KRX_SESSIONS.map((session, i) => (
+                <div
+                  key={session.name}
+                  className={[
+                    "flex items-start gap-3 px-5 py-4",
+                    i < KRX_SESSIONS.length - 1
+                      ? "border-b border-gray-50 dark:border-slate-800"
+                      : "",
+                  ].join(" ")}
+                >
+                  <div className="flex flex-col items-center shrink-0 pt-1">
+                    <div
+                      className={`w-2 h-2 rounded-full ${session.dot}`}
+                    />
+                    {i < KRX_SESSIONS.length - 1 && (
+                      <div className="w-px h-6 bg-gray-100 dark:bg-slate-800 mt-1" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">
+                        {session.name}
+                      </span>
+                      <span
+                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${session.color} dark:bg-opacity-20`}
+                      >
+                        {session.tag}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium mb-0.5">
+                      {session.time}
+                    </p>
+                    <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                      {session.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* NXT 세션 상세 */}
+            <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 inline-block" />
+              NXT 거래 시간 상세
+            </h3>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800 overflow-hidden mb-6">
+              {NXT_SESSIONS.map((session, i) => (
+                <div
+                  key={session.name}
+                  className={[
+                    "flex items-start gap-3 px-5 py-4",
+                    i < NXT_SESSIONS.length - 1
+                      ? "border-b border-gray-50 dark:border-slate-800"
+                      : "",
+                  ].join(" ")}
+                >
+                  <div className="flex flex-col items-center shrink-0 pt-1">
+                    <div
+                      className={`w-2 h-2 rounded-full ${session.dot}`}
+                    />
+                    {i < NXT_SESSIONS.length - 1 && (
+                      <div className="w-px h-6 bg-gray-100 dark:bg-slate-800 mt-1" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                      <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">
+                        {session.name}
+                      </span>
+                      <span
+                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${session.color} dark:bg-opacity-20`}
+                      >
+                        {session.tag}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium mb-0.5">
+                      {session.time}
+                    </p>
+                    <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                      {session.desc}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 시간외거래 활용 & 주의 */}
+            <h3 className="text-[15px] font-semibold text-gray-800 dark:text-gray-200 mb-3">
+              시간외거래, 이것만은 알아두세요
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+              {/* 활용 상황 */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-green-100 dark:border-green-900/40 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                  </div>
+                  <span className="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
+                    이럴 때 유용해요
+                  </span>
+                </div>
+                <ul className="space-y-1.5">
+                  {[
+                    "정규장 시간에 거래하기 어려운 직장인·학생",
+                    "장 마감 후 대형 호재가 나와 다음날 주가 상승이 예상될 때",
+                    "장 마감 후 대형 악재가 나와 미리 매도하고 싶을 때",
+                    "정규장 타이밍을 놓쳤을 때 종가 그대로 매매하고 싶을 때",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2 text-[11px] text-gray-500 dark:text-slate-400"
+                    >
+                      <span className="text-green-500 mt-0.5 shrink-0">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {/* 주의사항 */}
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-red-100 dark:border-red-900/40 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                  </div>
+                  <span className="text-[12px] font-semibold text-gray-800 dark:text-gray-200">
+                    주의할 점
+                  </span>
+                </div>
+                <ul className="space-y-1.5">
+                  {[
+                    "거래량이 정규장보다 훨씬 적어 체결이 잘 안 될 수 있어요",
+                    "특히 시간외단일가는 거래량이 매우 적어 원하지 않는 가격에 체결될 수 있어요",
+                    "공시·뉴스 직후 가격이 급변할 수 있으니 신중하게 주문하세요",
+                    "처음 투자를 시작했다면 정규장에서 먼저 충분히 익히는 걸 권장해요",
+                  ].map((item) => (
+                    <li
+                      key={item}
+                      className="flex items-start gap-2 text-[11px] text-gray-500 dark:text-slate-400"
+                    >
+                      <span className="text-red-400 mt-0.5 shrink-0">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* 체결 방식 설명 */}
+            <div className="bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-5 mb-4">
+              <p className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                체결 방식이란?
+              </p>
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-3">
+                  <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">
+                    접속매매
+                  </span>
+                  <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                    주문이 들어오는 즉시 상대방 주문과 실시간으로 매칭됩니다.
+                    정규장 장중에 사용하는 일반적인 방식입니다.
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded-full shrink-0 mt-0.5">
+                    단일가매매
+                  </span>
+                  <p className="text-[12px] text-gray-500 dark:text-slate-400 leading-relaxed">
+                    일정 시간 동안 주문을 모아 가장 많은 거래가 성사되는
+                    하나의 가격으로 일괄 체결합니다. 동시호가·시간외·프리/애프터마켓
+                    구간에서 사용됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 주의 팁 */}
+            <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900 rounded-2xl p-5 flex gap-3">
+              <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[12px] font-semibold text-amber-800 dark:text-amber-300 mb-1">
+                  초보 투자자라면 꼭 읽어보세요
+                </p>
+                <p className="text-[12px] text-amber-700 dark:text-amber-400 leading-relaxed">
+                  시간외거래는 정규장보다 거래량이 매우 적습니다. 특히
+                  시간외단일가·NXT 애프터마켓은 참여자가 적어 원하지 않는
+                  가격에 체결되거나 체결 자체가 안 될 수 있어요. 투자를 막
+                  시작했다면 먼저 정규장(09:00~15:30) 거래에 익숙해진 뒤
+                  시간외거래를 활용하는 것을 권장합니다. 토·일요일 및
+                  공휴일에는 모든 거래가 중단됩니다.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* ══ 4. 주식투자 가이드 (구 3번) ════════════════════ */}
           <section
             ref={(el) => {
               sectionRefs.current["invest"] = el;
