@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useMemo } from "react";
 import { fetchClient } from "@/lib/fetchClient";
+import { stompSubscribe } from "@/lib/stompClient";
 import type { ApiResponse } from "./authApi";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -65,4 +67,35 @@ export function useHoldingsQuery() {
         .then((res) => res.data),
     staleTime: 10_000,
   });
+}
+
+export function useRealtimeHoldings() {
+  const { data: holdingsRaw = [], ...rest } = useHoldingsQuery();
+  const [realtimePrices, setRealtimePrices] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const active = holdingsRaw.filter((h) => h.quantity > 0);
+    if (active.length === 0) return;
+
+    const unsubs = active.map((h) =>
+      stompSubscribe(`/topic/stocks/${h.tickerCode}/quote`, (message) => {
+        const msg = JSON.parse(message.body);
+        setRealtimePrices((prev) => ({ ...prev, [h.tickerCode]: msg.currentPrice }));
+      }),
+    );
+
+    return () => unsubs.forEach((u) => u());
+  }, [holdingsRaw]);
+
+  const holdings = useMemo(() =>
+    holdingsRaw.filter((h) => h.quantity > 0).map((h) => {
+      const currentPrice = realtimePrices[h.tickerCode] ?? h.currentPrice;
+      const evaluation = currentPrice * h.quantity;
+      const returnAmount = (currentPrice - h.avgPrice) * h.quantity;
+      const returnRate = h.avgPrice > 0 ? ((currentPrice - h.avgPrice) / h.avgPrice) * 100 : 0;
+      return { ...h, currentPrice, evaluation, returnAmount, returnRate };
+    }),
+  [holdingsRaw, realtimePrices]);
+
+  return { holdings, ...rest };
 }

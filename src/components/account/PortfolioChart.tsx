@@ -76,7 +76,7 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
             {hovered ? (
               <>
                 <p className={`${compact ? "text-[9px]" : "text-[11px]"} text-gray-400 dark:text-slate-400`}>{hovered.stockName}</p>
-                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-semibold text-gray-900 dark:text-gray-100`}>{hovered.ratio}%</p>
+                <p className={`${compact ? "text-[11px]" : "text-[14px]"} font-semibold text-gray-900 dark:text-gray-100`}>{Number(hovered.ratio).toFixed(2)}%</p>
               </>
             ) : (
               <>
@@ -97,7 +97,7 @@ export default function PortfolioChart({ items, compact = false, totalEvaluation
                 />
                 <span className={`${compact ? "text-[11px]" : "text-[12px]"} text-gray-700 dark:text-gray-300`}>{item.stockName}</span>
               </div>
-              <span className={`${compact ? "text-[11px]" : "text-[12px]"} font-medium text-gray-500 dark:text-slate-400`}>{item.ratio}%</span>
+              <span className={`${compact ? "text-[11px]" : "text-[12px]"} font-medium text-gray-500 dark:text-slate-400`}>{Number(item.ratio).toFixed(2)}%</span>
             </div>
           ))}
         </div>

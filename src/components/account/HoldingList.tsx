@@ -133,21 +133,21 @@ export default function HoldingList({
               <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                 종목
               </th>
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-14">
                 수량
               </th>
               {showAvgPrice && (
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
                   평균단가
                 </th>
               )}
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
                 현재가
               </th>
-              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+              <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
                 평가금액
               </th>
-              <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
+              <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-22">
                 수익률
               </th>
             </tr>
