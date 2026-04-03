@@ -267,7 +267,8 @@ export default function SpotlightTour({
       {/* ── 오버레이 + 하이라이트 홀 ── */}
       <div
         className="fixed inset-0"
-        style={{ zIndex: 51, pointerEvents: "none" }}
+        style={{ zIndex: 51, pointerEvents: "auto" }}
+        onClick={(e) => e.stopPropagation()}
       >
         <svg
           width="100%"
@@ -306,6 +307,7 @@ export default function SpotlightTour({
             boxShadow: "0 0 0 3px rgba(0,70,255,0.15)",
             transition: "all 0.3s ease",
           }}
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
 
