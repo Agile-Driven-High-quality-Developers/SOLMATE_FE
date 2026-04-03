@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ChevronLeft, Search } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Avatar from "@/components/ui/Avatar";
@@ -345,14 +346,18 @@ function DiaryDetail({
 // ─── Main Tab List View ─────────────────────────────────────────────────────
 
 export default function MenteeTradeDiaryTab({ items }: Props) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedId = searchParams.get("diaryId");
   const [search, setSearch] = useState("");
   const { data: stocks = [] } = useStocksQuery();
   const logoMap = new Map(stocks.map((s) => [s.stockName, s.stockLogo]));
 
   if (selectedId) {
     return (
-      <DiaryDetail diaryId={selectedId} onBack={() => setSelectedId(null)} />
+      <DiaryDetail
+        diaryId={selectedId}
+        onBack={() => setSearchParams((prev) => { prev.delete("diaryId"); return prev; })}
+      />
     );
   }
 
@@ -398,7 +403,7 @@ export default function MenteeTradeDiaryTab({ items }: Props) {
                   return (
                     <div
                       key={item.diaryId}
-                      onClick={() => setSelectedId(item.diaryId)}
+                      onClick={() => setSearchParams((prev) => { prev.set("diaryId", item.diaryId); return prev; })}
                       className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
                     >
                       {/* 왼쪽: 종목 정보 */}
