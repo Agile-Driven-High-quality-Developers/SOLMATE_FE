@@ -396,16 +396,16 @@ function HoldingsTable({
                 <th className="text-left px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium">
                   종목
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-14">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-14 whitespace-nowrap">
                   보유량
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25 whitespace-nowrap">
                   평가금액
                 </th>
-                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25">
+                <th className="text-right px-4 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-25 whitespace-nowrap">
                   평가손익
                 </th>
-                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-20">
+                <th className="text-right px-5 py-2.5 text-[12px] text-gray-400 dark:text-slate-500 font-medium min-w-20 whitespace-nowrap">
                   수익률
                 </th>
               </tr>
@@ -444,12 +444,12 @@ function HoldingsTable({
                     </td>
 
                     {/* 2. 보유량 (모바일: 숨김 / 데스크탑: 2열) */}
-                    <td className="hidden sm:table-cell px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-4 py-3 text-right text-[14px] text-gray-600 dark:text-gray-400 whitespace-nowrap tabular-nums">
                       {stock.quantity}주
                     </td>
 
                     {/* 3. 평가금액 (모바일: 좌측 하단 / 데스크탑: 3열) */}
-                    <td className="px-5 pb-5 sm:p-0 sm:px-4 sm:py-3 sm:table-cell sm:text-right whitespace-nowrap">
+                    <td className="px-5 pb-5 sm:p-0 sm:px-4 sm:py-3 sm:table-cell sm:text-right whitespace-nowrap tabular-nums">
                       <div className="flex flex-col sm:block">
                         <span className="sm:hidden text-[11px] text-gray-400 mb-0.5">
                           평가금액
@@ -461,7 +461,7 @@ function HoldingsTable({
                     </td>
 
                     {/* 4. 평가손익 (모바일: 우측 하단 고정 / 데스크탑: 4열) */}
-                    <td className="absolute right-5 bottom-4 sm:static sm:table-cell sm:px-4 sm:py-3 sm:text-right whitespace-nowrap">
+                    <td className="absolute right-5 bottom-4 sm:static sm:table-cell sm:px-4 sm:py-3 sm:text-right whitespace-nowrap tabular-nums">
                       <div className="flex flex-col items-end sm:block">
                         {/* 모바일에서는 여기서 수익률(%)도 같이 보여줌 */}
                         <div className="sm:hidden mb-0.5">
@@ -480,7 +480,7 @@ function HoldingsTable({
                     </td>
 
                     {/* 5. 수익률 (모바일: 숨김 (4번에서 처리) / 데스크탑: 5열) */}
-                    <td className="hidden sm:table-cell px-5 py-3 text-right whitespace-nowrap">
+                    <td className="hidden sm:table-cell px-5 py-3 text-right whitespace-nowrap tabular-nums">
                       <ReturnText
                         value={`${isPositive ? "+" : ""}${stock.returnRate.toFixed(2)}%`}
                         isPositive={isPositive}

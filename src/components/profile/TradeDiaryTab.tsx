@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Badge from "@/components/ui/Badge";
 import Avatar from "@/components/ui/Avatar";
 import type { MyDiariesItem } from "@/api/tradeDiaryApi";
@@ -7,6 +8,7 @@ import { useStocksQuery } from "@/api/stockApi";
 
 type Props = {
   items: MyDiariesItem[];
+  navigable?: boolean;
 };
 
 function formatDate(createdAt: string) {
@@ -38,7 +40,8 @@ function groupByDate(items: MyDiariesItem[]) {
   return Array.from(map.entries());
 }
 
-export default function TradeDiaryTab({ items }: Props) {
+export default function TradeDiaryTab({ items, navigable = true }: Props) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: stocks = [] } = useStocksQuery();
   const logoMap = new Map(stocks.map((s) => [s.stockName, s.stockLogo]));
@@ -84,7 +87,8 @@ export default function TradeDiaryTab({ items }: Props) {
                   return (
                     <div
                       key={item.diaryId}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-5 py-4"
+                      onClick={navigable ? () => navigate(`/trade-diary/${item.diaryId}`) : undefined}
+                      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-5 py-4 transition-colors ${navigable ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800" : ""}`}
                     >
                       {/* 좌측: 종목 정보 */}
                       <div className="flex items-center gap-3 sm:w-52 sm:shrink-0">

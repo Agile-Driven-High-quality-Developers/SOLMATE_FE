@@ -269,10 +269,10 @@ export default function UserProfilePage() {
             />
           </div>
           <div className={`p-5 flex-1 md:min-h-0 ${activeTab === "portfolio" ? "md:overflow-hidden overflow-y-auto" : "overflow-y-auto"}`}>
-            {activeTab === "diary" && <TradeDiaryTab items={diaries} />}
+            {activeTab === "diary" && <TradeDiaryTab items={diaries} navigable={isMentor || isMentee} />}
             {activeTab === "history" && <TradeHistoryTab items={tradeHistories} />}
             {/* 모바일에서 activeTab이 portfolio인 경우 diary 콘텐츠로 폴백 */}
-            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} /></div>}
+            {activeTab === "portfolio" && <div className="md:hidden"><TradeDiaryTab items={diaries} navigable={isMentor || isMentee} /></div>}
             {activeTab === "portfolio" && (
               <div className="hidden md:block h-full">
                 <PortfolioTab
