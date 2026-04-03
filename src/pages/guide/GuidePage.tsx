@@ -15,7 +15,6 @@ import {
   Star,
   ArrowUpRight,
   ArrowDownRight,
-  DollarSign,
   PieChart,
   Activity,
   Layers,
@@ -109,28 +108,28 @@ const STOCK_TERMS = [
 const INVEST_STRATEGIES = [
   {
     title: "분산 투자",
-    desc: "여러 종목·섹터에 나눠 투자해 특정 종목 하락의 위험을 줄이세요.",
+    desc: "여러 종목과 산업에 나눠 투자해 특정 종목 하락에 따른 위험을 줄이는 전략입니다.",
     icon: PieChart,
     color: "bg-blue-50 text-blue-600",
     borderColor: "border-blue-100",
   },
   {
     title: "장기 투자",
-    desc: "단기 변동보다 장기적 성장 가능성을 보고 투자하는 전략입니다.",
+    desc: "단기적인 가격 변동보다 장기적인 성장 가능성을 보고 투자하는 전략입니다.",
     icon: Target,
     color: "bg-purple-50 text-purple-600",
     borderColor: "border-purple-100",
   },
   {
     title: "가치 투자",
-    desc: "내재가치 대비 저평가된 종목을 발굴해 장기 보유하는 방식입니다.",
+    desc: "기업의 내재가치 대비 저평가된 종목을 찾아 장기 보유하는 투자 방식입니다.",
     icon: Shield,
     color: "bg-green-50 text-green-600",
     borderColor: "border-green-100",
   },
   {
     title: "기술적 분석",
-    desc: "차트 패턴과 거래량 등 과거 데이터로 미래 가격을 예측합니다.",
+    desc: "차트와 거래량을 보고 앞으로의 가격 흐름을 살펴보는 분석 방법입니다.",
     icon: Activity,
     color: "bg-orange-50 text-orange-600",
     borderColor: "border-orange-100",
@@ -163,7 +162,7 @@ const USAGE_STEPS = [
   {
     step: "04",
     title: "매매일지 작성",
-    desc: "거래 후 '매매일지'에 투자 근거와 결과를 기록하며 실력을 키우세요.",
+    desc: "매매일지에 투자 근거와 결과를 기록하며 실력을 키우세요.",
     icon: BookOpen,
     color: "bg-purple-500",
   },
@@ -212,7 +211,7 @@ const SERVICE_FEATURES = [
   },
   {
     title: "랭킹",
-    desc: "다른 유저와 수익률을 비교하고 상위권을 목표로 동기를 유지하세요.",
+    desc: "다른 유저와 수익률을 비교하고 상위권에 도전해보세요.",
     icon: Layers,
     badge: "경쟁",
     badgeColor: "bg-red-100 text-red-700",
@@ -233,38 +232,38 @@ const INVEST_RULES = [
   {
     icon: CheckCircle2,
     iconColor: "text-green-500",
-    title: "매수 및 매도 기준 설정",
-    desc: "매수 전 손실 허용 범위(-5% ~ -10%)를 미리 정하고 감정 없이 실행하세요.",
+    title: "매수 및 매도 기준 세우기",
+    desc: "매매 전에 손실 허용 범위를 미리 정해두면 감정적인 판단을 줄이는 데 도움이 됩니다.",
   },
   {
     icon: CheckCircle2,
     iconColor: "text-green-500",
     title: "분할 매수",
-    desc: "한 번에 전량 매수하지 말고 여러 번에 나눠 평균 단가를 낮추세요.",
+    desc: "한 번에 모두 매수하기보다 여러 번 나눠 매수하면 평균 매입 단가를 조절하는 데 도움이 될 수 있습니다.",
   },
   {
     icon: CheckCircle2,
     iconColor: "text-green-500",
-    title: "기업 분석 우선",
-    desc: "차트만 보지 말고 재무제표, 사업 모델, 성장성을 함께 파악하세요.",
+    title: "기업 분석 함께 보기",
+    desc: "차트뿐 아니라 재무지표, 사업 모델, 성장 가능성도 함께 살펴보는 것이 좋습니다.",
   },
   {
     icon: AlertTriangle,
     iconColor: "text-orange-400",
-    title: "단일 종목 투자 금지",
-    desc: "단일 종목에 전 자산을 투자하면 리스크가 극단적으로 커집니다.",
+    title: "단일 종목 투자 주의",
+    desc: "한 종목에 자산이 집중되면 가격 변동에 따른 위험이 커질 수 있습니다.",
   },
   {
     icon: AlertTriangle,
     iconColor: "text-orange-400",
-    title: "뇌동매매 주의",
-    desc: "SNS·커뮤니티 소문에 충동적으로 매매하면 손실 확률이 높아집니다.",
+    title: "소문에 따른 매매 주의",
+    desc: "SNS나 커뮤니티 정보만 믿고 성급하게 매매하면 예상과 다른 결과가 날 수 있습니다.",
   },
   {
     icon: AlertTriangle,
     iconColor: "text-orange-400",
-    title: "빚 투자 금지",
-    desc: "대출을 이용한 투자(레버리지)는 손실 시 원금 이상 잃을 수 있습니다.",
+    title: "빚을 이용한 투자 주의",
+    desc: "대출을 활용한 투자에는 손실이 커질 수 있는 위험이 있습니다.",
   },
 ];
 
@@ -274,7 +273,7 @@ const NAV_HEIGHT = 49; // py-3.5(28px) + 텍스트(21px)
 export default function GuidePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeSection, setActiveSection] = useState<SectionId>(
-    (searchParams.get("section") as SectionId) ?? "intro"
+    (searchParams.get("section") as SectionId) ?? "intro",
   );
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const contentRef = useRef<HTMLDivElement>(null);
@@ -290,10 +289,13 @@ export default function GuidePage() {
       const el = sectionRefs.current[section];
       const container = contentRef.current;
       if (!el || !container) return;
-      container.scrollTo({ top: el.offsetTop - NAV_HEIGHT - 24, behavior: "smooth" });
+      container.scrollTo({
+        top: el.offsetTop - NAV_HEIGHT - 24,
+        behavior: "smooth",
+      });
     }, 50);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 스크롤 감지 → 활성 섹션 업데이트
@@ -316,8 +318,12 @@ export default function GuidePage() {
       }
       setActiveSection(current);
       setSearchParams(
-        (p) => { if (current === "intro") p.delete("section"); else p.set("section", current); return p; },
-        { replace: true }
+        (p) => {
+          if (current === "intro") p.delete("section");
+          else p.set("section", current);
+          return p;
+        },
+        { replace: true },
       );
     };
 
@@ -330,7 +336,8 @@ export default function GuidePage() {
     const nav = navRef.current;
     const tab = tabRefs.current[activeSection];
     if (!nav || !tab) return;
-    const scrollLeft = tab.offsetLeft - nav.clientWidth / 2 + tab.clientWidth / 2;
+    const scrollLeft =
+      tab.offsetLeft - nav.clientWidth / 2 + tab.clientWidth / 2;
     nav.scrollTo({ left: scrollLeft, behavior: "smooth" });
   }, [activeSection]);
 
@@ -350,17 +357,16 @@ export default function GuidePage() {
     <div className="relative h-screen overflow-hidden bg-gray-50 dark:bg-slate-950">
       {/* ── 상단 내비게이션 탭 (콘텐츠 위에 절대 위치) ────── */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-white/60 dark:bg-slate-900/80 backdrop-blur-lg border-b border-white/40 dark:border-slate-800">
-        <div
-          ref={navRef}
-          className="overflow-x-auto scrollbar-hide md:px-8"
-        >
+        <div ref={navRef} className="overflow-x-auto scrollbar-hide md:px-8">
           <div className="max-w-3xl md:mx-auto flex items-center gap-1 px-2 md:px-0 w-max md:w-auto">
             {SECTIONS.map(({ id, label, icon: Icon }) => {
               const isActive = activeSection === id;
               return (
                 <button
                   key={id}
-                  ref={(el) => { tabRefs.current[id] = el; }}
+                  ref={(el) => {
+                    tabRefs.current[id] = el;
+                  }}
                   onClick={() => scrollTo(id)}
                   className={[
                     "flex items-center gap-2 px-4 py-3.5 border-b-2 transition-all duration-150 cursor-pointer whitespace-nowrap",
@@ -435,7 +441,9 @@ export default function GuidePage() {
 
             <p className="text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
               SOLMate는 실제 주식 시세를 기반으로 한{" "}
-              <strong className="text-gray-800 dark:text-gray-200">모의투자 학습 플랫폼</strong>
+              <strong className="text-gray-800 dark:text-gray-200">
+                모의투자 학습 플랫폼
+              </strong>
               입니다. 가상 자금으로 주식을 매매하며 투자 실력을 키우고, 다른
               투자자와 함께 성장할 수 있습니다.
             </p>
@@ -571,8 +579,8 @@ export default function GuidePage() {
                   </span>
                 </div>
                 <p className="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                  1주 @ 50,000원 매수 →<br />
-                  1주 @ 60,000원 매도
+                  1주 50,000원 매수 →<br />
+                  1주 60,000원 매도
                   <br />
                   <strong className="text-red-600">
                     +10,000원 (+20%) 수익
@@ -587,8 +595,8 @@ export default function GuidePage() {
                   </span>
                 </div>
                 <p className="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                  1주 @ 50,000원 매수 →<br />
-                  1주 @ 42,000원 매도
+                  1주 50,000원 매수 →<br />
+                  1주 42,000원 매도
                   <br />
                   <strong className="text-blue-600">
                     -8,000원 (-16%) 손실
@@ -655,7 +663,9 @@ export default function GuidePage() {
 
             {/* 수수료 안내 */}
             <div className="mt-6 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-2xl p-5 flex gap-3">
-              <DollarSign className="w-5 h-5 text-gray-400 dark:text-slate-500 shrink-0 mt-0.5" />
+              <span className="w-5 h-5 text-gray-400 dark:text-slate-500 shrink-0 mt-0.5 text-[15px] font-semibold leading-none flex items-center justify-center">
+                ₩
+              </span>
               <div>
                 <p className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   수수료 안내
@@ -746,7 +756,9 @@ function SectionHeader({
           {label}
         </span>
       </div>
-      <h2 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
+      <h2 className="text-[20px] font-semibold text-gray-900 dark:text-gray-100">
+        {title}
+      </h2>
       <div className="mt-2 w-10 h-0.5 bg-[#0046FF] rounded-full" />
     </div>
   );
